@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'user',
     'video',
     'index',
+    'sending',
 ]
 
 MIDDLEWARE = [

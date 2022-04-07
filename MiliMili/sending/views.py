@@ -4,6 +4,7 @@ import platform
 import jwt
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.shortcuts import render
 from django.template import loader
 
 from user.models import User
@@ -34,3 +35,4 @@ def active(request, url):
     user = User.objects.get(id=user_id)
     user.isActive = True
     user.save()
+    render(request, 'EmailContent-call.html')

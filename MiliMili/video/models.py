@@ -13,6 +13,8 @@ class Video(models.Model):
     view_num = models.IntegerField('浏览量', default=0)
 
     user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
+    created_time = models.DateTimeField('创建时间', auto_now_add=True)
+    updated_time = models.DateTimeField('更新时间', auto_now=True)
 
     def __str__(self):
         return '视频' + self.title

@@ -19,8 +19,9 @@ def register(request):
             return JsonResponse(result)
 
         if User.objects.filter(username=username, isActive=True).exists():
-            result = {'result': 0, 'message': r'用户已存在!'}
-            return JsonResponse(result)
+            if User.objects.get(username=username, isActive=True).email != '':
+                result = {'result': 0, 'message': r'用户已存在!'}
+                return JsonResponse(result)
 
         if password1 != password2:
             result = {'result': 0, 'message': r'两次密码不一致!'}
@@ -56,7 +57,9 @@ def register(request):
         else:
             try:
                 # 把伪用户转变为真正的用户
+                print(0)
                 user = User.objects.get(username=username, isActive=True)
+                print(user)
                 user.email = email
                 user.save()
                 user = User.objects.get(username=username, isActive=False)

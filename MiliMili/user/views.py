@@ -64,7 +64,7 @@ def register(request):
                 result = {'result': 1, 'message': r'注册成功!'}
                 return JsonResponse(result)
             except Exception as e:
-                result = {'result': 0, 'message': r'用户已存在!'}
+                result = {'result': 0, 'message': r'用户已存在!!'}
                 return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

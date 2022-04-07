@@ -35,4 +35,4 @@ def active(request, url):
     user = User.objects.get(id=user_id)
     user.isActive = True
     user.save()
-    render(request, 'EmailContent-call.html')
+    return render(request, 'EmailContent-call.html')

@@ -12,7 +12,7 @@ class User(models.Model):
     collect_num = models.IntegerField(verbose_name='收藏数', default=0)
     fan_num = models.IntegerField(verbose_name='粉丝数', default=0)
     follow_num = models.IntegerField(verbose_name='关注数', default=0)
-    avatar_url = models.CharField('用户头像', max_length=256)
+    avatar_url = models.FileField('用户头像', upload_to='avatar')
     isActive = models.BooleanField('是否有效', default=False)
 
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
@@ -82,13 +82,19 @@ class User(models.Model):
             self.save(update_fields=['follow_num'])
 
 
+# 查看个人粉丝
 class UserToFan(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)
-    username = models.CharField('用户名', max_length=30)
     fan_id = models.IntegerField(verbose_name='粉丝', default=0)
 
 
+# 查看个人关注
 class UserToFollow(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)
-    username = models.CharField('用户名', max_length=30)
     follow_id = models.IntegerField(verbose_name='关注的up主', default=0)
+
+
+# 查看个人收藏的视频
+class UserToVideo(models.Model):
+    user_id = models.IntegerField(verbose_name='主体', default=0)
+    video_id = models.IntegerField(verbose_name='收藏的视频', default=0)

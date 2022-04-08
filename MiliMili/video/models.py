@@ -5,12 +5,20 @@ from user.models import User
 
 
 class Video(models.Model):
-    title = models.CharField('标题', max_length=32)
+    title = models.CharField('标题', max_length=64)
     description = models.TextField('描述')
-    video = models.FileField('视频', upload_to='video')
+    video_url = models.FileField('视频', upload_to='video', default='video/')
+    avatar_url = models.FileField('视频', upload_to='cover', default='cover/')
+
     like_num = models.IntegerField(verbose_name='点赞数', default=0)
     collect_num = models.IntegerField(verbose_name='收藏数', default=0)
     view_num = models.IntegerField('浏览量', default=0)
+    zone = models.CharField('专区', max_length=32, default='')
+    tag1 = models.CharField('标签1', max_length=32, default='')
+    tag2 = models.CharField('标签2', max_length=32, default='')
+    tag3 = models.CharField('标签3', max_length=32, default='')
+    tag4 = models.CharField('标签4', max_length=32, default='')
+    tag5 = models.CharField('标签5', max_length=32, default='')
 
     user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
     created_time = models.DateTimeField('创建时间', auto_now_add=True)

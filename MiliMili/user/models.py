@@ -12,11 +12,26 @@ class User(models.Model):
     collect_num = models.IntegerField(verbose_name='收藏数', default=0)
     fan_num = models.IntegerField(verbose_name='粉丝数', default=0)
     follow_num = models.IntegerField(verbose_name='关注数', default=0)
-    avatar_url = models.FileField('用户头像', upload_to='avatar')
+    avatar_url = models.FileField('用户头像', upload_to='avatar', default='avatar/')
     isActive = models.BooleanField('是否有效', default=False)
 
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     updated_time = models.DateTimeField('更新时间', auto_now=True)
+
+    def to_dic(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "video_num": self.video_num,
+            "like_num": self.like_num,
+            "collect_num": self.collect_num,
+            "fan_num": self.fan_num,
+            "follow_num": self.follow_num,
+            # "avatar_url": self.avatar_url,
+            "created_time": self.created_time,
+            "updated_time": self.updated_time,
+        }
 
     def __str__(self):
         return self.username

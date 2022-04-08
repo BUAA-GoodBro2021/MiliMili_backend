@@ -42,8 +42,9 @@ def active(request, url):
     user.save()
     # 删除其他伪用户
     username = user.username
-    user = User.objects.get(username=username, isActive=False)
-    user.delete()
+    user = User.objects.filter(username=username, isActive=False)
+    if user.exists():
+        user.delete()
     # 邮件的链接地址
     data = {'url': 'https://milimili.super2021.com'}
     return render(request, 'EmailContent-call.html', data)

@@ -3,6 +3,7 @@ import platform
 
 import jwt
 from django.conf import settings
+from django.conf.global_settings import SECRET_KEY
 from django.core.mail import EmailMessage
 from django.shortcuts import render
 from django.template import loader
@@ -12,7 +13,7 @@ from user.models import User
 
 def send_email(token, email):
     # 验证路由
-    url = jwt.encode(token, 'secret', algorithm='HS256')  # 加密生成字符串
+    url = jwt.encode(token, SECRET_KEY, algorithm='HS256')  # 加密生成字符串
     if platform.system() == "Linux":
         url = os.path.join("https://milimili.super2021.com/api/sending/", url)
     else:
@@ -30,9 +31,19 @@ def send_email(token, email):
 
 
 def active(request, url):
-    token = jwt.decode(url, 'secret', algorithms=['HS256'])
+    # 获取token信息
+    token = jwt.decode(url, SECRET_KEY, algorithms=['HS256'])
     user_id = token.get('user_id')
+    email = token.get('email')
+    # 激活用户 验证邮箱
     user = User.objects.get(id=user_id)
     user.isActive = True
+    user.email = email
     user.save()
-    return render(request, 'EmailContent-call.html')
+    # 删除其他伪用户
+    username = user.username
+    user = User.objects.get(username=username, isActive=False)
+    user.delete()
+    # 邮件的链接地址
+    data = {'url': 'https://milimili.super2021.com'}
+    return render(request, 'EmailContent-call.html', data)

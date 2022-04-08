@@ -174,3 +174,5 @@ SIMPLEUI_HOME_INFO = False  # simpleUI是否连接github/gitee首页
 SIMPLEUI_HOME_ACTION = False  # 不显示最近操作
 # SIMPLEUI_LOGO = 'https://www.zhoues.com/img/logo_starmap.225b2e1f.png'  # 首页图标
 # SIMPLEUI_INDEX = 'https://www.zhoues.com'  # 首页地址
+
+SECRET_KEY = 'super2021'

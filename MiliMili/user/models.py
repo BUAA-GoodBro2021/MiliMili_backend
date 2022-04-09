@@ -14,6 +14,7 @@ class User(models.Model):
     follow_num = models.IntegerField(verbose_name='关注数', default=0)
     avatar_url = models.FileField('用户头像', upload_to='avatar', default='avatar/')
     isActive = models.BooleanField('是否有效', default=False)
+    isSuperAdmin = models.BooleanField('是否为超级管理员', default=False)
 
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     updated_time = models.DateTimeField('更新时间', auto_now=True)
@@ -113,3 +114,9 @@ class UserToFollow(models.Model):
 class UserToVideo(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)
     video_id = models.IntegerField(verbose_name='收藏的视频', default=0)
+
+
+# 查看用户历史记录
+class UserToHistory(models.Model):
+    user_id = models.IntegerField(verbose_name='主体', default=0)
+    video_id = models.IntegerField(verbose_name='看过的视频', default=0)

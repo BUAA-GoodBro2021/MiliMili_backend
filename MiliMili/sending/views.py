@@ -1,6 +1,5 @@
 import os
 import platform
-
 import jwt
 from django.conf import settings
 from django.conf.global_settings import SECRET_KEY
@@ -42,6 +41,7 @@ def active(request, url):
     # 邮件的链接地址
     data = {'url': 'https://milimili.super2021.com'}
 
+    # 激活邮箱
     if 'email' in token.keys():
         email = token.get('email')
         # 激活用户 验证邮箱
@@ -56,6 +56,7 @@ def active(request, url):
             user.delete()
         return render(request, 'EmailContent-check-email.html', data)
 
+    # 重设密码
     if 'password' in token.keys():
         password = token.get('password')
         # 修改密码

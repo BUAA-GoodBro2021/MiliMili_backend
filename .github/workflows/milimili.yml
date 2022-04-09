@@ -15,4 +15,5 @@ jobs:
       - name: pull and reload
         env:
           DST: ${{secrets.DST_FOLDER}}
-        run: sshpass -p ${{secrets.PASSWORD}} ssh -o StrictHostKeyChecking=no ${{secrets.USER}}@${{secrets.IP}} "cd ${DST};  git pull; uwsgi --reload uwsgi.pid; nginx -s reload"
+        run: sshpass -p ${{secrets.PASSWORD}} ssh -o StrictHostKeyChecking=no ${{secrets.USER}}@${{secrets.IP}} "cd ${DST}; 
+git config --global http.postBuffer 1048576000; git pull; uwsgi --reload uwsgi.pid; nginx -s reload"

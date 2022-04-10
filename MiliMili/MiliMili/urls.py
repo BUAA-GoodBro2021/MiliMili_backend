@@ -22,5 +22,6 @@ urlpatterns = [
     path('api/admin', admin.site.urls),
     path('api/user/', include('user.urls')),
     path('api/sending/', include('sending.urls')),
+    path('api/bucket_manager/', include('bucket_manager.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,4 @@
+cos_python_sdk_v5==1.9.15
+Django==4.0.2
+PyJWT==2.3.0
+PyMySQL==1.0.2

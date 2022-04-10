@@ -20,7 +20,8 @@ class Bucket:
         self.app_id = app_id
         self.region = region
         self.token = token
-        self.config = CosConfig(Region=self.region, Secret_id=self.secret_id, Secret_key=self.secret_key, Token=self.token)
+        self.config = CosConfig(Region=self.region, Secret_id=self.secret_id, Secret_key=self.secret_key,
+                                Token=self.token)
         self.client = CosS3Client(self.config)
 
     def create_bucket(self, bucket_name):
@@ -61,7 +62,7 @@ class Bucket:
         """
         :param bucket_name: bucket's name
         :param key_name: key's name in bucket
-        :return: create or update unsuccessfully, 1 create or update successfully
+        :return: delete unsuccessfully, 1 delete successfully
         """
         try:
             self.client.delete_object(
@@ -77,14 +78,18 @@ class Bucket:
         """
         :param bucket_name: bucket's name
         :param key_name: key's name in bucket
-        :return: create or update unsuccessfully, 1 create or update successfully
+        :return: None(NoneType) query unsuccessfully, url(str) query successfully
         """
-        try:
-            self.client.get_object_url(
-                Bucket=bucket_name + self.app_id,
-                Key=key_name
-            )
-        except Exception:
-            return -1
-        else:
-            return 1
+        if self.client.bucket_exists(Bucket=bucket_name + self.app_id) and \
+                self.client.object_exists(Bucket=bucket_name + self.app_id, Key=key_name):
+            try:
+                return self.client.get_object_url(
+                    Bucket=bucket_name + self.app_id,
+                    Key=key_name
+                )
+            except Exception:
+                return None
+        return None
+
+
+print(Bucket().query_object('test', 'bg'))

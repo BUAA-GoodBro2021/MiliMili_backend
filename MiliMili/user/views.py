@@ -141,39 +141,42 @@ def upload_avatar(request):
             result = {'result': 0, 'message': r"验证失败，清重新登录，或者检查是否擅自修改过token！"}
             return JsonResponse(result)
 
+        # 获取用户上传的头像并检验正确性 最后重命名
         avatar = request.FILES.get("avatar", None)
         if not avatar:
             result = {'result': 0, 'message': r"请上传图片！"}
             JsonResponse(result)
-        if avatar.size > 1024 * 2:
-            result = {'result': 0, 'message': r"图片不能超过2M！"}
+        if avatar.size > 1024 * 1:
+            result = {'result': 0, 'message': r"图片不能超过1M！"}
             JsonResponse(result)
+        avatar.name = str(user_id) + ".jpg"
 
-        # 重命名文件并保存到本地
-        avatar.name = "MiliMili-logo.png"
+        # 保存到本地
         user.avatar = avatar
         user.save()
-
         # 上传文件
         bucket = Bucket()
-        upload_result = bucket.upload_file("avatar", str(user_id), avatar.name)
+        # 判断用户是不是默认头像   如果不是，要删除以前的
+        if user.avatar_url != "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg":
+            bucket.delete_object("avatar", str(user_id)+".jpg")
+        # 上传是否成功
+        upload_result = bucket.upload_file("avatar", str(user_id)+".jpg", avatar.name)
         if upload_result == -1:
             result = {'result': 0, 'message': r"上传失败！"}
             JsonResponse(result)
+        # 上传是否可以获取路径
+        url = bucket.query_object("avatar", str(user_id)+".jpg")
+        if not url:
+            result = {'result': 0, 'message': r"上传失败！"}
+            JsonResponse(result)
+        # 获取对象存储的桶地址
+        user.avatar_url = url
+        # 删除本地文件
+        os.remove(os.path.join(BASE_DIR, "media\\" + avatar.name))
+        user.avatar = None
+        user.save()
 
-        # url = bucket.query_object("avatar", str(user_id))
-        # if not url:
-        #     result = {'result': 0, 'message': r"上传失败！"}
-        #     JsonResponse(result)
-        #
-        # # 获取对象存储的桶地址
-        # user.avatar_url = url
-        # # 删除本地文件
-        # os.remove(os.path.join(BASE_DIR, "media\\" + avatar.name))
-        # user.avatar = None
-        # user.save()
-
-        result = {'result': 1, 'message': r"上传成功！"}
+        result = {'result': 1, 'message': r"上传成功！", "user": user.to_dic()}
         return JsonResponse(result)
 
     else:

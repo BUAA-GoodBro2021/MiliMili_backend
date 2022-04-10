@@ -7,8 +7,10 @@ from user.models import User
 class Video(models.Model):
     title = models.CharField('标题', max_length=64)
     description = models.TextField('描述')
-    video_url = models.FileField('视频', upload_to='video', default='video/')
-    avatar_url = models.FileField('视频', upload_to='cover', default='cover/')
+    video = models.FileField('视频', upload_to='video', default='video/')
+    avatar = models.FileField('封面', upload_to='cover', default='cover/')
+    video_url = models.CharField('视频路径', max_length=128, default='video/')
+    avatar_url = models.CharField('封面路径', max_length=128, default='cover/')
 
     like_num = models.IntegerField(verbose_name='点赞数', default=0)
     collect_num = models.IntegerField(verbose_name='收藏数', default=0)

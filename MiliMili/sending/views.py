@@ -48,6 +48,7 @@ def active(request, url):
         user = User.objects.get(id=user_id)
         user.isActive = True
         user.email = email
+        user.avatar_url = "https://milimili.super2021.com/static/avatar/DefaultAvatar.jpg"
         user.save()
         # 删除其他伪用户
         username = user.username

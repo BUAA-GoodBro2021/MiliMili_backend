@@ -150,7 +150,7 @@ def upload_avatar(request):
         if avatar.size > 1024 * 1:
             result = {'result': 0, 'message': r"图片不能超过1M！"}
             JsonResponse(result)
-        # 获取文件尾缀
+        # 获取文件尾缀并修改名称
         suffix = '.' + avatar.name.split(".")[-1]
         avatar.name = str(user_id) + suffix
 
@@ -161,14 +161,14 @@ def upload_avatar(request):
         bucket = Bucket()
         # 判断用户是不是默认头像   如果不是，要删除以前的
         if user.avatar_url != "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg":
-            bucket.delete_object("avatar", str(user_id)+suffix)
+            bucket.delete_object("avatar", str(user_id) + suffix)
         # 上传是否成功
-        upload_result = bucket.upload_file("avatar", str(user_id)+suffix, avatar.name)
+        upload_result = bucket.upload_file("avatar", str(user_id) + suffix, avatar.name)
         if upload_result == -1:
             result = {'result': 0, 'message': r"上传失败！"}
             JsonResponse(result)
         # 上传是否可以获取路径
-        url = bucket.query_object("avatar", str(user_id)+suffix)
+        url = bucket.query_object("avatar", str(user_id) + suffix)
         if not url:
             result = {'result': 0, 'message': r"上传失败！"}
             JsonResponse(result)

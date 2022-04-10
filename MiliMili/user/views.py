@@ -1,4 +1,5 @@
 import os
+import platform
 
 import jwt
 from django.conf.global_settings import SECRET_KEY
@@ -149,7 +150,9 @@ def upload_avatar(request):
         if avatar.size > 1024 * 1:
             result = {'result': 0, 'message': r"图片不能超过1M！"}
             JsonResponse(result)
-        avatar.name = str(user_id) + ".jpg"
+        # 获取文件尾缀
+        suffix = '.' + avatar.name.split(".")[-1]
+        avatar.name = str(user_id) + suffix
 
         # 保存到本地
         user.avatar = avatar
@@ -158,21 +161,24 @@ def upload_avatar(request):
         bucket = Bucket()
         # 判断用户是不是默认头像   如果不是，要删除以前的
         if user.avatar_url != "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg":
-            bucket.delete_object("avatar", str(user_id)+".jpg")
+            bucket.delete_object("avatar", str(user_id)+suffix)
         # 上传是否成功
-        upload_result = bucket.upload_file("avatar", str(user_id)+".jpg", avatar.name)
+        upload_result = bucket.upload_file("avatar", str(user_id)+suffix, avatar.name)
         if upload_result == -1:
             result = {'result': 0, 'message': r"上传失败！"}
             JsonResponse(result)
         # 上传是否可以获取路径
-        url = bucket.query_object("avatar", str(user_id)+".jpg")
+        url = bucket.query_object("avatar", str(user_id)+suffix)
         if not url:
             result = {'result': 0, 'message': r"上传失败！"}
             JsonResponse(result)
         # 获取对象存储的桶地址
         user.avatar_url = url
         # 删除本地文件
-        os.remove(os.path.join(BASE_DIR, "media\\" + avatar.name))
+        if platform.system() == "Linux":
+            os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
+        else:
+            os.remove(os.path.join(BASE_DIR, "media\\" + avatar.name))
         user.avatar = None
         user.save()
 

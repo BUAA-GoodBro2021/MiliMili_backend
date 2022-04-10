@@ -24,14 +24,15 @@ class Bucket:
                                 Token=self.token)
         self.client = CosS3Client(self.config)
 
-    def create_bucket(self, bucket_name):
+    def create_bucket(self, bucket_name, access='public-read'):
         """
+        :param access: access status: public-read | private | public-read-write
         :param bucket_name: bucket's name
         :return: -1:create unsuccessfully, 0 bucket already exists, 1 create successfully
         """
         if not self.client.bucket_exists(Bucket=bucket_name + self.app_id):
             try:
-                self.client.create_bucket(Bucket=bucket_name + self.app_id)
+                self.client.create_bucket(Bucket=bucket_name + self.app_id, ACL=access)
             except Exception:
                 return -1
             else:
@@ -90,6 +91,3 @@ class Bucket:
             except Exception:
                 return None
         return None
-
-
-print(Bucket().query_object('test', 'bg'))

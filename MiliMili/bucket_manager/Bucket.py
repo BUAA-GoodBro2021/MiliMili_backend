@@ -1,5 +1,3 @@
-import platform
-
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 import sys
@@ -49,22 +47,13 @@ class Bucket:
         :return: -1:create or update unsuccessfully, 1 create or update successfully
         """
         try:
-            if platform.system() == "Linux":
-                self.client.upload_file(
-                    Bucket=bucket_name + self.app_id,
-                    LocalFilePath=self.base_path + '/media/' + file_name,
-                    Key=key_name,
-                    PartSize=1,
-                    MAXThread=10,
-                )
-            else:
-                self.client.upload_file(
-                    Bucket=bucket_name + self.app_id,
-                    LocalFilePath=self.base_path + '\\media\\' + file_name,
-                    Key=key_name,
-                    PartSize=1,
-                    MAXThread=10,
-                )
+            self.client.upload_file(
+                Bucket=bucket_name + self.app_id,
+                LocalFilePath=self.base_path + '/media/' + file_name,
+                Key=key_name,
+                PartSize=1,
+                MAXThread=10,
+            )
         except Exception:
             return -1
         else:

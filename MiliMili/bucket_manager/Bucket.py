@@ -52,7 +52,7 @@ class Bucket:
             if platform.system() == "Linux":
                 self.client.upload_file(
                     Bucket=bucket_name + self.app_id,
-                    LocalFilePath=self.base_path + '\\media\\' + file_name,
+                    LocalFilePath=self.base_path + '/media/' + file_name,
                     Key=key_name,
                     PartSize=1,
                     MAXThread=10,
@@ -60,7 +60,7 @@ class Bucket:
             else:
                 self.client.upload_file(
                     Bucket=bucket_name + self.app_id,
-                    LocalFilePath=self.base_path + '/media/' + file_name,
+                    LocalFilePath=self.base_path + '\\media\\' + file_name,
                     Key=key_name,
                     PartSize=1,
                     MAXThread=10,

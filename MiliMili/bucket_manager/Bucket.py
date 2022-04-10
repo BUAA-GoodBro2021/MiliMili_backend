@@ -102,4 +102,3 @@ class Bucket:
             except Exception:
                 return None
         return None
-print(Bucket().base_path)

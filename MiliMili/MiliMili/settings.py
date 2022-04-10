@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'video',
     'index',
     'sending',
+    'bucket_manager',
 ]
 
 MIDDLEWARE = [

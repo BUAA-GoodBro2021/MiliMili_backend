@@ -1,7 +1,11 @@
+import os
+
 import jwt
 from django.conf.global_settings import SECRET_KEY
 from django.http import JsonResponse
 
+from MiliMili.settings import BASE_DIR
+from bucket_manager.Bucket import Bucket
 from sending.views import send_email
 from user.models import User
 
@@ -85,14 +89,14 @@ def login(request):
 
 def findPassword(request):
     if request.method == 'POST':
-        # 获取表单信息
+        # 检查表单信息
         JWT = request.POST.get('JWT', '')
         try:
             token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
             user_id = token.get('user_id', '')
             user = User.objects.get(id=user_id)
         except Exception as e:
-            result = {'result': 0, 'message': r"验证失败，检查是否擅自修改过token！"}
+            result = {'result': 0, 'message': r"验证失败，清重新登录，检查是否擅自修改过token！"}
             return JsonResponse(result)
         # 获取密码
         password1 = request.POST.get('password1', '')
@@ -113,13 +117,65 @@ def findPassword(request):
             'password': password1,
         }
         # 发送邮件
-        send_result = send_email(token, email ,'find')
+        send_result = send_email(token, email, 'find')
         if not send_result:
             result = {'result': 0, 'message': r'发送失败!请检查邮箱格式'}
             return JsonResponse(result)
         else:
             result = {'result': 1, 'message': r'发送成功!请及时在邮箱中查收.'}
             return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+def upload_avatar(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"验证失败，清重新登录，或者检查是否擅自修改过token！"}
+            return JsonResponse(result)
+
+        avatar = request.FILES.get("avatar", None)
+        if not avatar:
+            result = {'result': 0, 'message': r"请上传图片！"}
+            JsonResponse(result)
+        if avatar.size > 1024 * 2:
+            result = {'result': 0, 'message': r"图片不能超过2M！"}
+            JsonResponse(result)
+
+        # # 重命名文件并保存到本地
+        # avatar.name = "MiliMili-logo.png"
+        # user.avatar = avatar
+        # user.save()
+        #
+        # # 上传文件
+        # bucket = Bucket()
+        # upload_result = bucket.upload_file("avatar", str(user_id), avatar.name)
+        # if upload_result == -1:
+        #     result = {'result': 0, 'message': r"上传失败！"}
+        #     JsonResponse(result)
+        #
+        # url = bucket.query_object("avatar", str(user_id))
+        # if not url:
+        #     result = {'result': 0, 'message': r"上传失败！"}
+        #     JsonResponse(result)
+        #
+        # # 获取对象存储的桶地址
+        # user.avatar_url = url
+        # # 删除本地文件
+        # os.remove(os.path.join(BASE_DIR, "media\\" + avatar.name))
+        # user.avatar = None
+        # user.save()
+
+        result = {'result': 1, 'message': r"上传成功！"}
+        return JsonResponse(result)
+
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)

@@ -90,6 +90,3 @@ class Bucket:
             except Exception:
                 return None
         return None
-
-
-print(Bucket().query_object('test', 'bg'))

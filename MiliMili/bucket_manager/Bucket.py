@@ -6,7 +6,7 @@ import os
 
 
 class Bucket:
-    base_path = os.path.dirname(os.getcwd())
+    base_path = os.path.dirname(os.path.dirname(__file__))
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     proxies = {
         'http': '127.0.0.1:80',
@@ -91,3 +91,4 @@ class Bucket:
             except Exception:
                 return None
         return None
+print(Bucket().base_path)

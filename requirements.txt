@@ -1,4 +1,9 @@
-cos_python_sdk_v5==1.9.15
-Django==4.0.2
+asgiref==3.5.0
+Django==4.0.3
+django-cors-headers==3.11.0
+django-simpleui==2022.3.19
 PyJWT==2.3.0
 PyMySQL==1.0.2
+sqlparse==0.4.2
+tzdata==2022.1
+cos_python_sdk_v5==1.9.15

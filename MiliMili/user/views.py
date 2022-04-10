@@ -149,18 +149,18 @@ def upload_avatar(request):
             result = {'result': 0, 'message': r"图片不能超过2M！"}
             JsonResponse(result)
 
-        # # 重命名文件并保存到本地
-        # avatar.name = "MiliMili-logo.png"
-        # user.avatar = avatar
-        # user.save()
-        #
-        # # 上传文件
-        # bucket = Bucket()
-        # upload_result = bucket.upload_file("avatar", str(user_id), avatar.name)
-        # if upload_result == -1:
-        #     result = {'result': 0, 'message': r"上传失败！"}
-        #     JsonResponse(result)
-        #
+        # 重命名文件并保存到本地
+        avatar.name = "MiliMili-logo.png"
+        user.avatar = avatar
+        user.save()
+
+        # 上传文件
+        bucket = Bucket()
+        upload_result = bucket.upload_file("avatar", str(user_id), avatar.name)
+        if upload_result == -1:
+            result = {'result': 0, 'message': r"上传失败！"}
+            JsonResponse(result)
+
         # url = bucket.query_object("avatar", str(user_id))
         # if not url:
         #     result = {'result': 0, 'message': r"上传失败！"}

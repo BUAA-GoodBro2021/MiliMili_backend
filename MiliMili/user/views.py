@@ -142,7 +142,7 @@ def upload_avatar(request):
             result = {'result': 0, 'message': r"验证失败，清重新登录，或者检查是否擅自修改过token！"}
             return JsonResponse(result)
 
-        # 获取用户上传的头像并检验正确性 最后重命名
+        # 获取用户上传的头像并检验正确性
         avatar = request.FILES.get("avatar", None)
         if not avatar:
             result = {'result': 0, 'message': r"请上传图片！"}

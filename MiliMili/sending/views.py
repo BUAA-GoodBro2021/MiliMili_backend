@@ -1,13 +1,39 @@
 import os
 import platform
+
 import jwt
 from django.conf import settings
 from django.conf.global_settings import SECRET_KEY
 from django.core.mail import EmailMessage
+from django.db.models import *
 from django.shortcuts import render
 from django.template import loader
 
+from sending.models import Message
 from user.models import User
+
+
+# 返回个人的站内信和个数
+def list_message(user_id):
+    # 获取站内信
+    message_filter = Message.objects.filter(user_id=user_id)
+    message_list = [x.to_dic() for x in message_filter]
+    # 统计未读数目
+    not_read_num = message_filter.filter(isRead=False).aggregate(not_read_num=Sum('isRead'))
+    return {
+        "message_list": message_list,
+        "not_read_num": not_read_num
+    }
+
+
+# 创造一个人的站内信
+def create_message(user_id, title, content):
+    message = Message()
+    message.title = title
+    message.content = content
+    message.user_id = user_id
+    message.isRead = False
+    message.save()
 
 
 def send_email(token, email, title):
@@ -40,19 +66,28 @@ def active(request, url):
     user_id = token.get('user_id')
     # 邮件的链接地址
     data = {'url': 'https://milimili.super2021.com'}
+    # 获取到用户
+    user = User.objects.get(id=user_id)
+    username = user.username
 
     # 激活邮箱
     if 'email' in token.keys():
         email = token.get('email')
         # 激活用户 验证邮箱
-        user = User.objects.get(id=user_id)
         user.isActive = True
         user.email = email
         user.avatar_url = "https://milimili.super2021.com/static/avatar/DefaultAvatar.jpg"
         user.save()
         # 删除其他伪用户
-        username = user.username
         user = User.objects.filter(username=username, isActive=False)
+        # 发送站内信
+        title = "欢迎注册MiliMili短视频分享平台！"
+        content = "亲爱的" + username + ''' 你好呀!\n
+             非常高兴可以成为我们MiliMili大家庭中的一员呢！
+             MiliMili是super2021组织中MiliMili团队打造的一个短视频分享平台，里面有很多志同道合的好朋友，快去探索叭！
+        '''
+        create_message(user_id, title, content)
+
         if user.exists():
             user.delete()
         return render(request, 'EmailContent-check-email.html', data)
@@ -61,7 +96,13 @@ def active(request, url):
     if 'password' in token.keys():
         password = token.get('password')
         # 修改密码
-        user = User.objects.get(id=user_id)
         user.password = password
         user.save()
+
+        # 发送站内信
+        title = "重设密码成功！"
+        content = "亲爱的" + username + ''' 你好呀!\n
+                    重设密码成功哟！如果发现本人没有操作，那大概率是密码泄露啦！
+               '''
+        create_message(user_id, title, content)
         return render(request, 'EmailContent-check-find.html', data)

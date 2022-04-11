@@ -11,6 +11,14 @@ class Message(models.Model):
     user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
     isRead = models.BooleanField("是否已读", default=False)
 
+    def to_dic(self):
+        return {
+            "title": self.title,
+            "content": self.content,
+            "created_time": self.created_time,
+            "isRead": self.isRead,
+        }
+
     def __str__(self):
         return '站内信' + self.title
 
@@ -19,3 +27,7 @@ class Message(models.Model):
         db_table = 'message'  # 改变当前模型类对应的表名
         verbose_name = '站内信'
         verbose_name_plural = '站内信列表'
+
+    def read(self):
+        self.isRead = True
+        self.save(update_fields=['isRead'])

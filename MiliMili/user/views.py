@@ -1,13 +1,8 @@
-import os
-import platform
-
-import jwt
-from django.conf.global_settings import SECRET_KEY
 from django.http import JsonResponse
 
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
-from sending.views import send_email
+from sending.views import *
 from user.models import User
 
 
@@ -81,7 +76,8 @@ def login(request):
         }
         # 令牌
         JWT = jwt.encode(token, SECRET_KEY, algorithm='HS256')
-        result = {'result': 1, 'message': r"登录成功！", 'JWT': JWT, 'user': user.to_dic()}
+        result = {'result': 1, 'message': r"登录成功！", 'JWT': JWT, 'user': user.to_dic(),
+                  "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -182,9 +178,13 @@ def upload_avatar(request):
         user.avatar = None
         user.save()
 
-        result = {'result': 1, 'message': r"上传成功！", "user": user.to_dic()}
+        title = "上传头像成功！"
+        content = "亲爱的" + user.username + ''' 你好呀!\n
+                头像已经更新啦，快去给好朋友分享分享叭！
+                '''
+        create_message(user_id, title, content)
+        result = {'result': 1, 'message': r"上传成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
         return JsonResponse(result)
-
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)

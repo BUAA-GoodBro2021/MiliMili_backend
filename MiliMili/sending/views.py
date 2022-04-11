@@ -46,7 +46,6 @@ def send_email(token, email, title):
     data = {'url': url}
 
     if title == 'active':
-        email_title = r"MiliMili邮箱激活"
         email_body = loader.render_to_string('EmailContent-register.html', data)
     elif title == 'find':
         email_title = r"MiliMili重设密码"
@@ -90,7 +89,10 @@ def active(request, url):
 
         if user.exists():
             user.delete()
-        return render(request, 'EmailContent-check-email.html', data)
+
+        data["title"] = "感谢注册"
+        data["message"] = "注册MiliMili短视频分享平台成功！"
+        return render(request, 'EmailContent-check.html', data)
 
     # 重设密码
     if 'password' in token.keys():
@@ -105,4 +107,7 @@ def active(request, url):
                     重设密码成功哟！如果发现本人没有操作，那大概率是密码泄露啦！
                '''
         create_message(user_id, title, content)
-        return render(request, 'EmailContent-check-find.html', data)
+
+        data["title"] = "修改成功"
+        data["message"] = "修改密码成功！"
+        return render(request, 'EmailContent-check.html', data)

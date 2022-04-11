@@ -90,6 +90,7 @@ def active(request, url):
         if user.exists():
             user.delete()
 
+        # 返回注册成功的界面
         data["title"] = "感谢注册"
         data["message"] = "注册MiliMili短视频分享平台成功！"
         return render(request, 'EmailContent-check.html', data)
@@ -108,6 +109,7 @@ def active(request, url):
                '''
         create_message(user_id, title, content)
 
+        # 返回修改成功的界面
         data["title"] = "修改成功"
         data["message"] = "修改密码成功！"
         return render(request, 'EmailContent-check.html', data)

@@ -19,7 +19,7 @@ def list_message(user_id):
     message_filter = Message.objects.filter(user_id=user_id)
     message_list = [x.to_dic() for x in message_filter]
     # 统计未读数目
-    not_read_num = message_filter.filter(isRead=False).aggregate(not_read_num=Sum('isRead'))
+    not_read_num = message_filter.filter(isRead=False).aggregate(not_read_num=Count('title'))
     return {
         "message_list": message_list,
         "not_read_num": not_read_num
@@ -76,7 +76,7 @@ def active(request, url):
         # 激活用户 验证邮箱
         user.isActive = True
         user.email = email
-        user.avatar_url = "https://milimili.super2021.com/static/avatar/DefaultAvatar.jpg"
+        user.avatar_url = "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg"
         user.save()
         # 删除其他伪用户
         user = User.objects.filter(username=username, isActive=False)

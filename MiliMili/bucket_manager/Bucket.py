@@ -120,13 +120,16 @@ class Bucket:
                 return {'result': result, 'label': response.get('Label')}
         return {'result': -1, 'label': None}
 
-    def video_audit_submit(self, bucket_name, key_name, callback):
+    def video_audit_submit(self, bucket_name, key_name, host='http://101.42.224.73:8000/'):
         """
         :param bucket_name: bucket's name
         :param key_name: key's name in bucket
-        :param callback: the address would be called when request is finished
-        :return: job_id(str) or None(NoneType)
+        :param host: the host of the project
+        :return: {'result': -1 or 1, 'job_id': job_id(str) or None(NoneType)}\n
+        -1: this key_name not exists\n
+        1: request success\n
         """
+        callback = host + 'api/bucket_manager/callback/'
         if re.match(r'^.*\.(mp4|mkv|avi|wmv|rmvb|flv|m3u8|mov|m4v|3gp)$', key_name) is not None:
             try:
                 response = self.client.ci_auditing_video_submit(
@@ -141,8 +144,9 @@ class Bucket:
             except Exception:
                 pass
             else:
-                return response.get('JobsDetail').get('JobId')
-        return None
+                job_id = response.get('JobsDetail').get('JobId')
+                return {'result': 1, 'job_id': job_id}
+        return {'result': -1, 'job_id': None}
 
     @staticmethod
     def video_audit_query(response):

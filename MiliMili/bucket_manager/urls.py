@@ -21,5 +21,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('callback/<str:bucket_name>/<str:key_name>/', views.callback),
+    path('callback/', views.callback),
 ]

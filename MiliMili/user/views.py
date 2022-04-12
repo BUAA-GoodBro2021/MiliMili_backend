@@ -171,10 +171,10 @@ def upload_avatar(request):
         avatar = request.FILES.get("avatar", None)
         if not avatar:
             result = {'result': 0, 'message': r"请上传图片！"}
-            JsonResponse(result)
-        if avatar.size > 1024 * 1:
+            return JsonResponse(result)
+        if avatar.size > 1024 * 1024:
             result = {'result': 0, 'message': r"图片不能超过1M！"}
-            JsonResponse(result)
+            return JsonResponse(result)
         # 获取文件尾缀并修改名称
         suffix = '.' + avatar.name.split(".")[-1]
         avatar.name = str(user_id) + suffix
@@ -184,47 +184,51 @@ def upload_avatar(request):
 
         # 常见对象存储的对象
         bucket = Bucket()
+
         # 先生成一个随机 Key 保存在桶中进行审核
         key = create_code()
         upload_result = bucket.upload_file("avatar", key + suffix, avatar.name)
         # 上传审核
         if upload_result == -1:
             result = {'result': 0, 'message': r"上传失败！"}
-            JsonResponse(result)
+            os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
+            return JsonResponse(result)
+
         # 审核
         audit_result = bucket.image_audit("avatar", key + suffix)
         if audit_result != 0:
-            result = {'result': 0, 'message': r"审核失败！"}
+            result = {'result': 0, 'message': r"审核失败！", "user": user.to_dic(), "station_message": list_message(user.id)}
+            os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
             # 站内信
             title = "头像审核失败！"
             content = "亲爱的" + user.username + ''' 你好呀!\n头像好像有一点敏感呢！'''
             create_message(user_id, title, content)
-            JsonResponse(result)
+            return JsonResponse(result)
+
         # 删除审核对象
         bucket.delete_object("avatar", key + suffix)
 
         # 判断用户是不是默认头像   如果不是，要删除以前的
         if user.avatar_url != "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg":
             bucket.delete_object("avatar", str(user_id) + suffix)
+
         # 上传是否成功
         upload_result = bucket.upload_file("avatar", str(user_id) + suffix, avatar.name)
         if upload_result == -1:
+            os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
             result = {'result': 0, 'message': r"上传失败！"}
-            JsonResponse(result)
+            return JsonResponse(result)
+
         # 上传是否可以获取路径
         url = bucket.query_object("avatar", str(user_id) + suffix)
         if not url:
+            os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
             result = {'result': 0, 'message': r"上传失败！"}
-            JsonResponse(result)
+            return JsonResponse(result)
         # 获取对象存储的桶地址
         user.avatar_url = url
         # 删除本地文件
-        if platform.system() == "Linux":
-            os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
-        else:
-            os.remove(os.path.join(BASE_DIR, "media\\" + avatar.name))
-        user.avatar = None
-        user.save()
+        os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
 
         # 站内信
         title = "上传头像成功！"

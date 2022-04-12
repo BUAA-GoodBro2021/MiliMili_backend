@@ -107,7 +107,7 @@ class Bucket:
                 response = self.client.get_object_sensitive_content_recognition(
                     Bucket=bucket_name + self.app_id,
                     Key=key_name,
-                    DetectType=0xF
+                    DetectType=0xB
                 )
             except Exception:
                 pass
@@ -135,7 +135,7 @@ class Bucket:
                 response = self.client.ci_auditing_video_submit(
                     Bucket=bucket_name + self.app_id,
                     Key=key_name,
-                    DetectType=0xF,
+                    DetectType=0xB,
                     Mode='Average',
                     Count='50',
                     Callback=callback,

@@ -201,8 +201,8 @@ def upload_avatar(request):
             return JsonResponse(result)
 
         # 审核
-        audit_result = bucket.image_audit("avatar", key + suffix)
-        if audit_result != 0:
+        audit_dic = bucket.image_audit("avatar", key + suffix)
+        if audit_dic.get("result") != 0:
             result = {'result': 0, 'message': r"审核失败！", "user": user.to_dic(), "station_message": list_message(user.id)}
             # 删除审核对象
             bucket.delete_object("avatar", key + suffix)
@@ -210,7 +210,7 @@ def upload_avatar(request):
             os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
             # 站内信
             title = "头像审核失败！"
-            content = "亲爱的" + user.username + ''' 你好呀!\n头像好像有一点敏感呢！'''
+            content = "亲爱的" + user.username + ' 你好呀!\n头像好像带有一点'+audit_dic.get("label")+'呢！'
             create_message(user_id, title, content)
             return JsonResponse(result)
 

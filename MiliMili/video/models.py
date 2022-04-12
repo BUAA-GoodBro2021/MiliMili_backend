@@ -26,6 +26,12 @@ class Video(models.Model):
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     updated_time = models.DateTimeField('更新时间', auto_now=True)
 
+    # bucket = models.CharField('桶名(无后缀)', max_length=64)
+    # key = models.CharField('键名', max_length=64)
+    # job_id = models.CharField('审核工作id', default='')
+    # status = models.IntegerField('审核状态', default=3)  # -1:报错，0:通过，1:不通过，2:存疑，3:待审核
+    # audit_tag = models.CharField('审核标签', default='Normal')
+
     def __str__(self):
         return '视频' + self.title
 

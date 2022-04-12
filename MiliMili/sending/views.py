@@ -41,22 +41,31 @@ def create_message(user_id, title, content):
 # 用户读站内信
 def read_message(request, message_id):
     # 检查表单信息
-    JWT = request.POST.get('JWT', '')
-    try:
-        token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
-        user_id = token.get('user_id', '')
-        user = User.objects.get(id=user_id)
-    except Exception as e:
-        result = {'result': 0, 'message': r"请先登录!"}
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        try:
+            message = Message.objects.get(id=message_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"该站内信不存在!"}
+            return JsonResponse(result)
+        if message.user_id != user_id:
+            result = {'result': 0, 'message': r"用户错误!"}
+            return JsonResponse(result)
+        message.isRead = True
+        message.save()
+        result = {'result': 1, 'message': r"已读信息!", "user": user.to_dic(), "station_message": list_message(user.id)}
         return JsonResponse(result)
-    try:
-        message = Message.objects.get(message_id)
-    except Exception as e:
-        result = {'result': 0, 'message': r"该站内信不存在!"}
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
-    message.isRead = True
-    result = {'result': 1, 'message': r"已读信息!", "user": user.to_dic(), "station_message": list_message(user.id)}
-    return JsonResponse(result)
 
 
 # 发送真实邮件

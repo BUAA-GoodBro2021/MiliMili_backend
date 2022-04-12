@@ -169,9 +169,7 @@ def upload_avatar(request):
             result = {'result': 0, 'message': r"审核失败！"}
             # 站内信
             title = "头像审核失败！"
-            content = "亲爱的" + user.username + ''' 你好呀!\n
-                            头像好像有一点敏感呢！
-                            '''
+            content = "亲爱的" + user.username + ''' 你好呀!\n头像好像有一点敏感呢！'''
             create_message(user_id, title, content)
             JsonResponse(result)
         # 删除审核对象

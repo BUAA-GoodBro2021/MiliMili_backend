@@ -146,6 +146,12 @@ def upload_file(request):
             return JsonResponse(result)
         user.username = username
         user.save()
+
+        # 站内信
+        title = "用户名修改成功！"
+        content = "亲爱的" + user.username + ''' 你好呀!\n用户名已经更新啦，快去给好朋友分享分享叭！'''
+        create_message(user_id, title, content)
+
         result = {'result': 1, 'message': r"修改用户名成功!", "user": user.to_dic(),
                   "station_message": list_message(user.id)}
         return JsonResponse(result)
@@ -198,6 +204,9 @@ def upload_avatar(request):
         audit_result = bucket.image_audit("avatar", key + suffix)
         if audit_result != 0:
             result = {'result': 0, 'message': r"审核失败！", "user": user.to_dic(), "station_message": list_message(user.id)}
+            # 删除审核对象
+            bucket.delete_object("avatar", key + suffix)
+            # 删除本地对象
             os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
             # 站内信
             title = "头像审核失败！"

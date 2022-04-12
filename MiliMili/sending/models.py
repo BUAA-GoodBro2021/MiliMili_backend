@@ -13,6 +13,7 @@ class Message(models.Model):
 
     def to_dic(self):
         return {
+            "id": self.id,
             "title": self.title,
             "content": self.content,
             "created_time": self.created_time,

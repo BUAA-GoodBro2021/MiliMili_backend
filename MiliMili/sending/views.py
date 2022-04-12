@@ -7,6 +7,7 @@ from django.conf import settings
 from django.conf.global_settings import SECRET_KEY
 from django.core.mail import EmailMessage
 from django.db.models import *
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.template import loader
 
@@ -37,6 +38,66 @@ def create_message(user_id, title, content):
     message.save()
 
 
+# 用户读站内信
+def read_message(request, message_id):
+    # 检查表单信息
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        try:
+            message = Message.objects.get(id=message_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"该站内信不存在!"}
+            return JsonResponse(result)
+        if message.user_id != user_id:
+            result = {'result': 0, 'message': r"用户错误!"}
+            return JsonResponse(result)
+        message.isRead = True
+        message.save()
+        result = {'result': 1, 'message': r"已读信息!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 用户删除站内信
+def del_message(request, message_id):
+    # 检查表单信息
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        try:
+            message = Message.objects.get(id=message_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"该站内信不存在!"}
+            return JsonResponse(result)
+        if message.user_id != user_id:
+            result = {'result': 0, 'message': r"用户错误!"}
+            return JsonResponse(result)
+        message.delete()
+        result = {'result': 1, 'message': r"删除成功!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 发送真实邮件
 def send_email(token, email, title):
     # 验证路由
     url = jwt.encode(token, SECRET_KEY, algorithm='HS256')  # 加密生成字符串
@@ -106,9 +167,7 @@ def active(request, url):
 
         # 发送站内信
         title = "重设密码成功！"
-        content = "亲爱的" + username + ''' 你好呀!\n
-                    重设密码成功哟！如果发现本人没有操作，那大概率是密码泄露啦！
-               '''
+        content = "亲爱的" + username + ''' 你好呀!\n重设密码成功哟！如果发现本人没有操作，那大概率是密码泄露啦！'''
         create_message(user_id, title, content)
 
         # 返回修改成功的界面

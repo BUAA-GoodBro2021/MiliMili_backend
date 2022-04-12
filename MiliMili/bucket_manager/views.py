@@ -17,6 +17,6 @@ def callback(request, bucket_name, key_name):
         return JsonResponse(result)
     elif request.method == 'POST':
         body = json.loads(request.body)
-        result = bucket.video_audit_query(request.body)
+        result = bucket.video_audit_query(body)
         return JsonResponse(result)
 

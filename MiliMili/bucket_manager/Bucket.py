@@ -150,7 +150,7 @@ class Bucket:
         1: not pass\n
         2: this vidio needs people to audit
         """
-        if response.get('JobsDetail').get('Result') is None:
+        if response.get('JobsDetail') is None:
             return {'result': -1, 'label': None, 'job_id': None}
         else:
             return {'result': response.get('JobsDetail').get('Result'), 'label': response.get('JobsDetail').get('Label'),

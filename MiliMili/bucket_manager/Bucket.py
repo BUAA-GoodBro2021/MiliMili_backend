@@ -116,10 +116,11 @@ class Bucket:
                 return {'result': response.get('Result'), 'label': response.get('Label')}
         return {'result': -1, 'label': None}
 
-    def video_audit_submit(self, bucket_name, key_name):
+    def video_audit_submit(self, bucket_name, key_name, callback):
         """
         :param bucket_name: bucket's name
         :param key_name: key's name in bucket
+        :param callback: the address would be called when request is finished
         :return: job_id(str) or None(NoneType)
         """
         if re.match(r'^.*\.(mp4|mkv|avi|wmv|rmvb|flv|m3u8|mov|m4v|3gp)$', key_name) is not None:
@@ -129,7 +130,9 @@ class Bucket:
                     Key=key_name,
                     DetectType=0xF,
                     Mode='Average',
-                    Count='50'
+                    Count='50',
+                    Callback=callback,
+                    CallbackVersion='Detail'
                 )
             except Exception:
                 pass
@@ -137,22 +140,18 @@ class Bucket:
                 return response.get('JobsDetail').get('JobId')
         return None
 
-    def video_audit_query(self, bucket_name, job_id):
+    @staticmethod
+    def video_audit_query(response):
         """
-        :param bucket_name: bucket's name
-        :param job_id: job_id to key_name in database
-        :return: {result: -1~2, label: str or None}\n
-        -1: this job_id not exists\n
+        :param response: return json from outer
+        :return: {result: -1~2, label: label(str) or None(NoneType), job_id: job_id(str) or None(NoneType)}\n
+        -1: response's format is wrong\n
         0: pass\n
         1: not pass\n
         2: this vidio needs people to audit
         """
-        try:
-            response = self.client.ci_auditing_video_query(
-                Bucket=bucket_name + self.app_id,
-                JobID=job_id
-            )
-        except Exception:
-            return {'result': -1, 'label': None}
+        if response.get('JobsDetail').get('Result') is None:
+            return {'result': -1, 'label': None, 'job_id': None}
         else:
-            return {'result': response.get('JobsDetail').get('Result'), 'label': response.get('JobsDetail').get('Label')}
+            return {'result': response.get('JobsDetail').get('Result'), 'label': response.get('JobsDetail').get('Label'),
+                    'job_id': response.get('JobsDetail').get('JobId')}

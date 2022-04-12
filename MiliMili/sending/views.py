@@ -1,5 +1,6 @@
 import os
 import platform
+from random import Random
 
 import jwt
 from django.conf import settings
@@ -79,6 +80,7 @@ def active(request, url):
         user.save()
         # 删除其他伪用户
         user = User.objects.filter(username=username, isActive=False)
+
         # 发送站内信
         title = "欢迎注册MiliMili短视频分享平台！"
         content = "亲爱的" + username + ''' 你好呀!\n
@@ -113,3 +115,14 @@ def active(request, url):
         data["title"] = "修改成功"
         data["message"] = "修改密码成功！"
         return render(request, 'EmailContent-check.html', data)
+
+
+# 生成随机字符串
+def create_code(random_length=6):
+    str_code = ''
+    chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789'
+    length = len(chars) - 1
+    random = Random()
+    for i in range(random_length):
+        str_code += chars[random.randint(0, length)]
+    return str_code

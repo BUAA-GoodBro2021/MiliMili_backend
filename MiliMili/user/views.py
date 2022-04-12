@@ -1,5 +1,3 @@
-from django.http import JsonResponse
-
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
 from sending.views import *
@@ -127,6 +125,36 @@ def findPassword(request):
         return JsonResponse(result)
 
 
+def upload_file(request):
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        username = request.POST.get('username', '')
+
+        if len(username) == 0:
+            result = {'result': 0, 'message': r"用户名不可以为空!"}
+            return JsonResponse(result)
+
+        if User.objects.filter(username=username, isActive=True).exists():
+            result = {'result': 0, 'message': r'用户已存在!'}
+            return JsonResponse(result)
+        user.username = username
+        user.save()
+        result = {'result': 1, 'message': r"修改用户名成功!", "user": user.to_dic(),
+                  "station_message": list_message(user.id)}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 def upload_avatar(request):
     if request.method == 'POST':
         # 检查表单信息
@@ -200,9 +228,7 @@ def upload_avatar(request):
 
         # 站内信
         title = "上传头像成功！"
-        content = "亲爱的" + user.username + ''' 你好呀!\n
-                头像已经更新啦，快去给好朋友分享分享叭！
-                '''
+        content = "亲爱的" + user.username + ''' 你好呀!\n头像已经更新啦，快去给好朋友分享分享叭！'''
         create_message(user_id, title, content)
 
         result = {'result': 1, 'message': r"上传成功！", "user": user.to_dic(), "station_message": list_message(user.id)}

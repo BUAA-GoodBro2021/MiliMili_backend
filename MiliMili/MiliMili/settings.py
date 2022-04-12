@@ -170,7 +170,7 @@ EMAIL_PORT = 25  # SMTP服务器端口号
 EMAIL_HOST_USER = '3044039051@qq.com'  # 发送邮件的QQ邮箱
 EMAIL_HOST_PASSWORD = 'zlanglxtvcupdhed'  # 授权码
 EMAIL_USE_TLS = False  # 与SMTP服务器通信时，是否启动TLS链接（安全链接）默认False
-EMAIL_FROM_NAME = "Super2021"   # 发送人姓名
+EMAIL_FROM = "Super2021"   # 发送人姓名
 
 SIMPLEUI_HOME_INFO = False  # simpleUI是否连接github/gitee首页
 SIMPLEUI_HOME_ACTION = False  # 不显示最近操作

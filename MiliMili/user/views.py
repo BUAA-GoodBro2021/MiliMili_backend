@@ -73,6 +73,7 @@ def login(request):
         # 需要加密的信息
         token = {
             'user_id': user.id,
+            'isSuperAdmin': user.isSuperAdmin
         }
         # 令牌
         JWT = jwt.encode(token, SECRET_KEY, algorithm='HS256')
@@ -93,7 +94,7 @@ def findPassword(request):
             user_id = token.get('user_id', '')
             user = User.objects.get(id=user_id)
         except Exception as e:
-            result = {'result': 0, 'message': r"验证失败，清重新登录，检查是否擅自修改过token！"}
+            result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         # 获取密码
         password1 = request.POST.get('password1', '')
@@ -135,10 +136,10 @@ def upload_avatar(request):
             user_id = token.get('user_id', '')
             user = User.objects.get(id=user_id)
         except Exception as e:
-            result = {'result': 0, 'message': r"验证失败，清重新登录，或者检查是否擅自修改过token！"}
+            result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
 
-        # 获取用户上传的头像并检验正确性
+        # 获取用户上传的头像并检验是否符合要求
         avatar = request.FILES.get("avatar", None)
         if not avatar:
             result = {'result': 0, 'message': r"请上传图片！"}
@@ -149,12 +150,33 @@ def upload_avatar(request):
         # 获取文件尾缀并修改名称
         suffix = '.' + avatar.name.split(".")[-1]
         avatar.name = str(user_id) + suffix
-
         # 保存到本地
         user.avatar = avatar
         user.save()
-        # 上传文件
+
+        # 常见对象存储的对象
         bucket = Bucket()
+        # 先生成一个随机 Key 保存在桶中进行审核
+        key = create_code()
+        upload_result = bucket.upload_file("avatar", key + suffix, avatar.name)
+        # 上传审核
+        if upload_result == -1:
+            result = {'result': 0, 'message': r"上传失败！"}
+            JsonResponse(result)
+        # 审核
+        audit_result = bucket.image_audit("avatar", key + suffix)
+        if audit_result != 0:
+            result = {'result': 0, 'message': r"审核失败！"}
+            # 站内信
+            title = "头像审核失败！"
+            content = "亲爱的" + user.username + ''' 你好呀!\n
+                            头像好像有一点敏感呢！
+                            '''
+            create_message(user_id, title, content)
+            JsonResponse(result)
+        # 删除审核对象
+        bucket.delete_object("avatar", key + suffix)
+
         # 判断用户是不是默认头像   如果不是，要删除以前的
         if user.avatar_url != "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg":
             bucket.delete_object("avatar", str(user_id) + suffix)
@@ -178,11 +200,13 @@ def upload_avatar(request):
         user.avatar = None
         user.save()
 
+        # 站内信
         title = "上传头像成功！"
         content = "亲爱的" + user.username + ''' 你好呀!\n
                 头像已经更新啦，快去给好朋友分享分享叭！
                 '''
         create_message(user_id, title, content)
+
         result = {'result': 1, 'message': r"上传成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:

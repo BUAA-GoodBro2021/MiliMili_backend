@@ -101,7 +101,6 @@ class Bucket:
         -1: this key_name not exists or suffix is not correct\n
         0: pass\n
         1: not pass\n
-        2: this image needs people to audit
         """
         if re.match(r'^.*\.(jpg|png|jpeg|gif|bmp|webp)$', key_name) is not None:
             try:
@@ -113,7 +112,12 @@ class Bucket:
             except Exception:
                 pass
             else:
-                return {'result': response.get('Result'), 'label': response.get('Label')}
+                score = int(response.get('Score'))
+                if score < 75:
+                    result = 0
+                else:
+                    result = 1
+                return {'result': result, 'label': response.get('Label')}
         return {'result': -1, 'label': None}
 
     def video_audit_submit(self, bucket_name, key_name, callback):

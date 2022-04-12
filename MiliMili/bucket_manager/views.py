@@ -1,3 +1,4 @@
+import json
 from bucket_manager.Bucket import Bucket
 from django.http import JsonResponse
 
@@ -15,6 +16,7 @@ def callback(request, bucket_name, key_name):
             result = {'result': 1, 'job_id': job_id}
         return JsonResponse(result)
     elif request.method == 'POST':
+        body = json.loads(request.body)
         result = bucket.video_audit_query(request.body)
         return JsonResponse(result)
 

@@ -150,6 +150,7 @@ def send_email(token, email, title):
     data = {'url': url}
 
     if title == 'active':
+        email_title = r"欢迎注册MiliMili短视频分享平台"
         email_body = loader.render_to_string('EmailContent-register.html', data)
     elif title == 'find':
         email_title = r"MiliMili重设密码"

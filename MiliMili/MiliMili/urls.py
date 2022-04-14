@@ -20,7 +20,7 @@ from django.urls import path, include, re_path
 from django.views.static import serve
 
 urlpatterns = [
-    path('api/admin/', admin.site.urls),
+    path('api/admin', admin.site.urls),
     path('api/user/', include('user.urls')),
     path('api/sending/', include('sending.urls')),
     path('api/bucket_manager/', include('bucket_manager.urls')),

@@ -1,7 +1,7 @@
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
 from sending.views import *
-from user.models import User
+from user.models import *
 
 
 def register(request):
@@ -146,6 +146,12 @@ def upload_file(request):
             return JsonResponse(result)
         user.username = username
         user.save()
+
+        # 站内信
+        title = "用户名修改成功！"
+        content = "亲爱的" + user.username + ''' 你好呀!\n用户名已经更新啦，快去给好朋友分享分享叭！'''
+        create_message(user_id, title, content)
+
         result = {'result': 1, 'message': r"修改用户名成功!", "user": user.to_dic(),
                   "station_message": list_message(user.id)}
         return JsonResponse(result)
@@ -195,13 +201,16 @@ def upload_avatar(request):
             return JsonResponse(result)
 
         # 审核
-        audit_result = bucket.image_audit("avatar", key + suffix)
-        if audit_result != 0:
+        audit_dic = bucket.image_audit("avatar", key + suffix)
+        if audit_dic.get("result") != 0:
             result = {'result': 0, 'message': r"审核失败！", "user": user.to_dic(), "station_message": list_message(user.id)}
+            # 删除审核对象
+            bucket.delete_object("avatar", key + suffix)
+            # 删除本地对象
             os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
             # 站内信
             title = "头像审核失败！"
-            content = "亲爱的" + user.username + ''' 你好呀!\n头像好像有一点敏感呢！'''
+            content = "亲爱的" + user.username + ' 你好呀!\n头像好像带有一点' + audit_dic.get("label") + '呢！'
             create_message(user_id, title, content)
             return JsonResponse(result)
 
@@ -236,6 +245,122 @@ def upload_avatar(request):
         create_message(user_id, title, content)
 
         result = {'result': 1, 'message': r"上传成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 获取个人关注列表的id
+def get_follow_list_simple(user_id):
+    return [x.follow_id for x in UserToFollow.objects.filter(user_id=user_id)]
+
+
+# 获取个人关注列表的详情(具体信息)
+def get_follow_list_detail(user_id):
+    return [User.objects.get(id=x).to_dic() for x in get_follow_list_simple(user_id)]
+
+
+# 关注一个用户
+def follow(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        # 获取关注用户的实体和id
+        follow_id = int(request.POST.get('follow_id', ''))
+        try:
+            follow_user = User.objects.get(id=follow_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"关注的用户不存在!"}
+            return JsonResponse(result)
+
+        # 是否已关注
+        if follow_id in get_follow_list_simple(user_id):
+            result = {'result': 0, 'message': r"已关注该用户!"}
+            return JsonResponse(result)
+
+        # 添加双向记录
+        UserToFollow.objects.create(user_id=user_id, follow_id=follow_id)
+        UserToFan.objects.create(user_id=follow_id, fan_id=user_id)
+
+        # 关注数+1 , 粉丝数+1
+        user.add_follow()
+        follow_user.add_fan()
+
+        # 发送站内信
+        title = "又有好朋友关注你啦！"
+        content = "亲爱的" + follow_user.username + ''' 你好呀!\n又有一位好朋友关注了你，不打算看看是哪位嘛！'''
+        create_message(follow_id, title, content)
+
+        result = {'result': 1, 'message': r"关注成功！", "user": user.to_dic()}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 取消关注
+def unfollow(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        # 获取取消关注用户的实体和id
+        follow_id = int(request.POST.get('follow_id', ''))
+        try:
+            follow_user = User.objects.get(id=follow_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"取消关注的用户不存在!"}
+            return JsonResponse(result)
+
+        # 是否已关注
+        if follow_id not in get_follow_list_simple(user_id):
+            result = {'result': 0, 'message': r"从未关注过该用户!"}
+            return JsonResponse(result)
+
+        # 删除双向记录
+        UserToFollow.objects.get(user_id=user_id, follow_id=follow_id).delete()
+        UserToFan.objects.create(user_id=follow_id, fan_id=user_id).delete()
+
+        # 关注数-1 , 粉丝数-1
+        user.del_follow()
+        follow_user.del_fan()
+
+        result = {'result': 1, 'message': r"取消成功！", "user": user.to_dic()}
+        return JsonResponse(result)
+
+
+# 展示关注列表
+def follow_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        result = {'result': 1, 'message': r"获取关注列表成功！", "user": user.to_dic(),
+                  "follow_list": get_follow_list_detail(user_id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

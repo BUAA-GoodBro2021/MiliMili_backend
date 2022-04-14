@@ -68,6 +68,27 @@ def read_message(request, message_id):
         return JsonResponse(result)
 
 
+# 用户一次性全部已读
+def read_all_message(request):
+    # 检查表单信息
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        Message.objects.filter(user_id=user_id).update(isRead=True)
+        result = {'result': 1, 'message': r"已读全部信息!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 # 用户删除站内信
 def del_message(request, message_id):
     # 检查表单信息
@@ -97,6 +118,27 @@ def del_message(request, message_id):
         return JsonResponse(result)
 
 
+# 用户删除全部站内信
+def del_all_message(request):
+    # 检查表单信息
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        Message.objects.filter(user_id=user_id).delete()
+        result = {'result': 1, 'message': r"全部删除成功!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 # 发送真实邮件
 def send_email(token, email, title):
     # 验证路由
@@ -108,6 +150,7 @@ def send_email(token, email, title):
     data = {'url': url}
 
     if title == 'active':
+        email_title = r"欢迎注册MiliMili短视频分享平台"
         email_body = loader.render_to_string('EmailContent-register.html', data)
     elif title == 'find':
         email_title = r"MiliMili重设密码"

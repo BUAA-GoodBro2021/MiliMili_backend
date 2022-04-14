@@ -91,8 +91,8 @@ class User(models.Model):
 
     # 添加关注
     def add_follow(self):
-        self.fan_num += 1
-        self.save(update_fields=['fan_num'])
+        self.follow_num += 1
+        self.save(update_fields=['follow_num'])
 
     # 取消关注
     def del_follow(self):

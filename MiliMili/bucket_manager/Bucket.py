@@ -163,3 +163,20 @@ class Bucket:
         else:
             return {'result': response.get('JobsDetail').get('Result'), 'label': response.get('JobsDetail').get('Label'),
                     'job_id': response.get('JobsDetail').get('JobId')}
+
+    def cover_generator(self, video_id, suffix):
+        """
+        :param video_id: video's id
+        :param suffix: video's suffix
+        :return: None
+        """
+        import pylab
+        import imageio
+        import skimage
+        import numpy as np
+        vid = imageio.get_reader(video_id + suffix, 'ffmpeg')
+        image = skimage.img_as_float(list(enumerate(vid))[0][1]).astype(np.float64)
+        pylab.figure()
+        pylab.imshow(image)
+        pylab.axis('off')
+        pylab.savefig(self.base_path + '/media/' + video_id + '.png', format='png', bbox_inches='tight', dpi=150, transparent=True)

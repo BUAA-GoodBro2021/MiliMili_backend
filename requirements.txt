@@ -1,9 +1,8 @@
-asgiref==3.5.0
-Django==4.0.3
-django-cors-headers==3.11.0
-django-simpleui==2022.3.19
+cos_python_sdk_v5==1.9.15
+Django==4.0.4
+imageio==2.16.2
+matplotlib==3.5.1
+numpy==1.22.3
 PyJWT==2.3.0
 PyMySQL==1.0.2
-sqlparse==0.4.2
-tzdata==2022.1
-cos_python_sdk_v5==1.9.15
+scikit_image==0.19.2

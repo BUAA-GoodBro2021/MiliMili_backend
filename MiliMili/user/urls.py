@@ -11,5 +11,7 @@ urlpatterns = [
     path('upload-file', views.upload_file),
 
     path('follow', views.follow),
+    path('unfollow', views.unfollow),
     path('follow-list', views.follow_list),
+
 ]

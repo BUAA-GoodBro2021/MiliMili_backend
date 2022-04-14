@@ -273,12 +273,13 @@ def follow(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
+
         # 获取关注用户的实体和id
         follow_id = int(request.POST.get('follow_id', ''))
         try:
             follow_user = User.objects.get(id=follow_id)
         except Exception as e:
-            result = {'result': 0, 'message': r"关注用户不存在!"}
+            result = {'result': 0, 'message': r"关注的用户不存在!"}
             return JsonResponse(result)
 
         # 是否已关注
@@ -304,6 +305,44 @@ def follow(request):
 
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 取消关注
+def unfollow(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        # 获取取消关注用户的实体和id
+        follow_id = int(request.POST.get('follow_id', ''))
+        try:
+            follow_user = User.objects.get(id=follow_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"取消关注的用户不存在!"}
+            return JsonResponse(result)
+
+        # 是否已关注
+        if follow_id not in get_follow_list_simple(user_id):
+            result = {'result': 0, 'message': r"从未关注过该用户!"}
+            return JsonResponse(result)
+
+        # 删除双向记录
+        UserToFollow.objects.get(user_id=user_id, follow_id=follow_id).delete()
+        UserToFan.objects.create(user_id=follow_id, fan_id=user_id).delete()
+
+        # 关注数-1 , 粉丝数-1
+        user.del_follow()
+        follow_user.del_fan()
+
+        result = {'result': 1, 'message': r"取消成功！", "user": user.to_dic()}
         return JsonResponse(result)
 
 

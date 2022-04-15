@@ -49,7 +49,6 @@ def callback(request):
             content = "亲爱的" + user.username + ' 你好呀!\n视频内容好像带有一点' + label + '呢！\n下次不要再上传这类的视频了哟，这次就算了嘿嘿~'
             create_message(user_id, title, content)
             result = {'result': 0, 'message': r"上传失败！"}
-            print(result)
             return JsonResponse(result)
         if result == 2:
             video.isAudit = 2
@@ -58,7 +57,6 @@ def callback(request):
             title = "视频需要人工审核！"
             content = "亲爱的" + user.username + ' 你好呀!\n视频内容好像带有一点' + label + '呢！\n我们需要人工再进行审核，不要着急哦~'
             create_message(user_id, title, content)
-            print(result)
             result = {'result': 0, 'message': r"需要人工审核！"}
         if result == 0:
             # 调整状态
@@ -74,13 +72,14 @@ def callback(request):
                     bucket.delete_object("video", int(video_id) + suffix_video)
                     # 删除数据库记录
                     Video.objects.get(id=video_id).delete()
+                    # 删除本地文件
+                    os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + suffix_video))
                     # 站内信
                     title = "视频审核出了一点小问题！"
                     content = "亲爱的" + user.username + '你好呀!\n' \
                                                       '由于您上传视频的时候没有附上封面，我们自动截取视频第一帧作为封面失败了，所以希望您可以选取一个好的图片作为视频的封面呀~ '
                     create_message(user_id, title, content)
                     result = {'result': 0, 'message': r"自动截取视频第一帧作为封面失败！"}
-                    print(result)
                     return JsonResponse(result)
 
                 # 上传是否可以获取路径
@@ -91,17 +90,20 @@ def callback(request):
                     bucket.delete_object("video", int(video_id) + suffix_video)
                     # 删除数据库记录
                     Video.objects.get(id=video_id).delete()
+                    # 删除本地文件
+                    os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + suffix_video))
                     # 站内信
                     title = "视频审核处了一点差错！"
                     content = "亲爱的" + user.username + '你好呀!\n' \
                                                       '由于您上传视频的时候没有附上封面，我们自动截取视频第一帧作为封面失败了，所以希望您可以选取一个好的图片作为视频的封面呀~ '
                     create_message(user_id, title, content)
                     result = {'result': 0, 'message': r"自动截取视频第一帧作为封面失败！"}
-                    print(result)
                     return JsonResponse(result)
                 video.avatar_url = url
                 video.save()
             # 如果已经有封面的了
+            # 删除本地文件
+            os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + suffix_video))
             # 视频数+1
             user.add_video()
             # 站内信
@@ -109,6 +111,7 @@ def callback(request):
             content = "亲爱的" + user.username + '你好呀!\n' \
                                               '视频审核通过啦，快和小伙伴分享分享你的视频叭~'
             create_message(user_id, title, content)
+
             result = {'result': 1, 'message': r"视频发送成功！"}
     else:
         result = {'result': -1, 'label': None, 'job_id': None}

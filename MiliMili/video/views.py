@@ -149,6 +149,8 @@ def upload_video(request):
         # 获取对象存储的桶地址
         video.video_url = url
         video.save()
+
+        # TODO 这里不要删除本地文件啊，后面生成封面要用
         # 删除本地文件
         # os.remove(os.path.join(BASE_DIR, "media/" + video_upload.name))
 
@@ -161,6 +163,8 @@ def upload_video(request):
             bucket.delete_object("cover", int(video_id) + suffix_avatar)
             # 删除视频
             bucket.delete_object("video", int(video_id) + suffix_video)
+            # 删除本地文件
+            os.remove(os.path.join(BASE_DIR, "media/" + video_upload.name))
             result = {'result': 0, 'message': r"上传失败！"}
             return JsonResponse(result)
         # 上传成功，等待审核

@@ -81,11 +81,11 @@ def callback(request):
                     create_message(user_id, title, content)
                     result = {'result': 0, 'message': r"自动截取视频第一帧作为封面失败！"}
                     return JsonResponse(result)
-
+                # 删除本地的 png
+                os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + ".png"))
                 # 上传是否可以获取路径
                 url = bucket.query_object("cover", str(video_id) + ".png")
                 if not url:
-                    os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + ".png"))
                     # 删除视频
                     bucket.delete_object("video", str(video_id) + suffix_video)
                     # 删除数据库记录
@@ -99,6 +99,7 @@ def callback(request):
                     create_message(user_id, title, content)
                     result = {'result': 0, 'message': r"自动截取视频第一帧作为封面失败！"}
                     return JsonResponse(result)
+
                 video.avatar_url = url
                 video.save()
             # 如果已经有封面的了

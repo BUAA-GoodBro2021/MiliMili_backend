@@ -65,11 +65,11 @@ def callback(request):
             # 如果视频没有封面，取第一帧为封面
             if video.avatar_url == '':
                 bucket.cover_generator(video_id=str(video_id), suffix=suffix_video)
-                upload_result = bucket.upload_file("cover", str(video_id) + ".png", "视频第一帧图片")
+                upload_result = bucket.upload_file("cover", str(video_id) + ".png", str(video_id) + ".png")
                 if upload_result == -1:
                     os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + ".png"))
                     # 删除视频
-                    bucket.delete_object("video", int(video_id) + suffix_video)
+                    bucket.delete_object("video", str(video_id) + suffix_video)
                     # 删除数据库记录
                     Video.objects.get(id=video_id).delete()
                     # 删除本地文件
@@ -87,7 +87,7 @@ def callback(request):
                 if not url:
                     os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + ".png"))
                     # 删除视频
-                    bucket.delete_object("video", int(video_id) + suffix_video)
+                    bucket.delete_object("video", str(video_id) + suffix_video)
                     # 删除数据库记录
                     Video.objects.get(id=video_id).delete()
                     # 删除本地文件

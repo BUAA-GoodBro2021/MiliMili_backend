@@ -58,7 +58,7 @@ def upload_video(request):
             if upload_result == -1:
                 result = {'result': 0, 'message': r"上传失败！"}
                 Video.objects.get(id=video_id).delete()
-                os.remove(os.path.join(BASE_DIR, "/media/" + avatar.name))
+                os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
                 return JsonResponse(result)
 
             # 审核
@@ -68,7 +68,7 @@ def upload_video(request):
                 # 删除审核对象
                 bucket.delete_object("cover", key + suffix_avatar)
                 # 删除本地对象
-                os.remove(os.path.join(BASE_DIR, "/media/" + avatar.name))
+                os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
                 # 删除创建的视频模型
                 Video.objects.get(id=video_id).delete()
                 # 站内信
@@ -83,7 +83,7 @@ def upload_video(request):
             # 上传是否成功
             upload_result = bucket.upload_file("cover", str(video_id) + suffix_avatar, avatar.name)
             if upload_result == -1:
-                os.remove(os.path.join(BASE_DIR, "/media/" + avatar.name))
+                os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
                 Video.objects.get(id=video_id).delete()
                 result = {'result': 0, 'message': r"上传失败！"}
                 return JsonResponse(result)
@@ -91,7 +91,7 @@ def upload_video(request):
             # 上传是否可以获取路径
             url = bucket.query_object("cover", str(video_id) + suffix_avatar)
             if not url:
-                os.remove(os.path.join(BASE_DIR, "/media/" + avatar.name))
+                os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
                 Video.objects.get(id=video_id).delete()
                 result = {'result': 0, 'message': r"上传失败！"}
                 return JsonResponse(result)
@@ -99,7 +99,7 @@ def upload_video(request):
             video.avatar_url = url
             video.save()
             # 删除本地文件
-            os.remove(os.path.join(BASE_DIR, "/media/" + avatar.name))
+            os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
 
         # 处理上传视频
         video_upload = request.FILES.get("video", None)

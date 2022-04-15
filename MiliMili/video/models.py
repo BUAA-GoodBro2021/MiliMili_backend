@@ -92,5 +92,5 @@ class VideoComment(models.Model):
 
 
 class JobToVideo(models.Model):
-    job_id = models.IntegerField(verbose_name='审核编号', default=0)
+    job_id = models.CharField(verbose_name='审核编号', max_length=128,default='')
     video_id = models.IntegerField(verbose_name='视频编号', default=0)

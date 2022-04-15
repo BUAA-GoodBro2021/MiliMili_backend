@@ -29,7 +29,7 @@ def callback(request):
         label = audit_result.get("label")
         jobToVideo = JobToVideo.objects.get(job_id=job_id)
         video_id = jobToVideo.video_id
-        video = Video.objects.get(video_id=video_id)
+        video = Video.objects.get(id=video_id)
         user = video.user
         user_id = user.id
         # 视频格式后缀

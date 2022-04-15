@@ -67,13 +67,13 @@ def callback(request):
                 bucket.cover_generator(video_id=str(video_id), suffix=suffix_video)
                 upload_result = bucket.upload_file("cover", str(video_id) + ".png", "视频第一帧图片")
                 if upload_result == -1:
-                    os.remove(os.path.join(BASE_DIR, str(video_id) + ".png"))
+                    os.remove(os.path.join(BASE_DIR, "/media/" + str(video_id) + ".png"))
                     # 删除视频
                     bucket.delete_object("video", int(video_id) + suffix_video)
                     # 删除数据库记录
                     Video.objects.get(id=video_id).delete()
                     # 删除本地文件
-                    os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + suffix_video))
+                    os.remove(os.path.join(BASE_DIR, "/media/" + str(video_id) + suffix_video))
                     # 站内信
                     title = "视频审核出了一点小问题！"
                     content = "亲爱的" + user.username + '你好呀!\n' \
@@ -85,13 +85,13 @@ def callback(request):
                 # 上传是否可以获取路径
                 url = bucket.query_object("cover", str(video_id) + ".png")
                 if not url:
-                    os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + ".png"))
+                    os.remove(os.path.join(BASE_DIR, "/media/" + str(video_id) + ".png"))
                     # 删除视频
                     bucket.delete_object("video", int(video_id) + suffix_video)
                     # 删除数据库记录
                     Video.objects.get(id=video_id).delete()
                     # 删除本地文件
-                    os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + suffix_video))
+                    os.remove(os.path.join(BASE_DIR, "/media/" + str(video_id) + suffix_video))
                     # 站内信
                     title = "视频审核处了一点差错！"
                     content = "亲爱的" + user.username + '你好呀!\n' \
@@ -103,7 +103,7 @@ def callback(request):
                 video.save()
             # 如果已经有封面的了
             # 删除本地文件
-            os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + suffix_video))
+            os.remove(os.path.join(BASE_DIR, "/media/" + str(video_id) + suffix_video))
             # 视频数+1
             user.add_video()
             # 站内信

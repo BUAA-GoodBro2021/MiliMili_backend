@@ -150,7 +150,7 @@ def upload_video(request):
         video.video_url = url
         video.save()
         # 删除本地文件
-        os.remove(os.path.join(BASE_DIR, "media/" + video_upload.name))
+        # os.remove(os.path.join(BASE_DIR, "media/" + video_upload.name))
 
         # 上传审核
         audit_dic = bucket.video_audit_submit("video", str(video_id) + suffix_video)

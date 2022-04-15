@@ -66,7 +66,7 @@ def callback(request):
             video.save()
             # 如果视频没有封面，取第一帧为封面
             if video.avatar_url == '':
-                bucket.cover_generator(video_id=video_id, suffix=suffix_video)
+                bucket.cover_generator(video_id=str(video_id), suffix=suffix_video)
                 upload_result = bucket.upload_file("cover", str(video_id) + ".png", "视频第一帧图片")
                 if upload_result == -1:
                     os.remove(os.path.join(BASE_DIR, str(video_id) + ".png"))

@@ -175,7 +175,7 @@ class Bucket:
         import imageio
         import skimage
         import numpy as np
-        vid = imageio.get_reader('/media/' + video_id + suffix, 'ffmpeg')
+        vid = imageio.get_reader(video_id + suffix, 'ffmpeg')
         image = skimage.img_as_float(list(enumerate(vid))[0][1]).astype(np.float64)
         pylab.figure()
         pylab.imshow(image)

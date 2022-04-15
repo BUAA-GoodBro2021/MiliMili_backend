@@ -97,6 +97,7 @@ def upload_video(request):
                 return JsonResponse(result)
             # 获取对象存储的桶地址
             video.avatar_url = url
+            video.save()
             # 删除本地文件
             os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
 
@@ -147,6 +148,7 @@ def upload_video(request):
 
         # 获取对象存储的桶地址
         video.video_url = url
+        video.save()
         # 删除本地文件
         os.remove(os.path.join(BASE_DIR, "media/" + video_upload.name))
 

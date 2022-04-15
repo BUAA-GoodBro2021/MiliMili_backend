@@ -129,7 +129,7 @@ class Bucket:
         -1: this key_name not exists\n
         1: request success\n
         """
-        callback = host + 'api/bucket_manager/callback/'
+        callback = host + 'api/bucket_manager/callback'
         if re.match(r'^.*\.(mp4|mkv|avi|wmv|rmvb|flv|m3u8|mov|m4v|3gp)$', key_name) is not None:
             try:
                 response = self.client.ci_auditing_video_submit(
@@ -161,7 +161,8 @@ class Bucket:
         if response.get('JobsDetail') is None:
             return {'result': -1, 'label': None, 'job_id': None}
         else:
-            return {'result': response.get('JobsDetail').get('Result'), 'label': response.get('JobsDetail').get('Label'),
+            return {'result': response.get('JobsDetail').get('Result'),
+                    'label': response.get('JobsDetail').get('Label'),
                     'job_id': response.get('JobsDetail').get('JobId')}
 
     def cover_generator(self, video_id, suffix):
@@ -179,4 +180,5 @@ class Bucket:
         pylab.figure()
         pylab.imshow(image)
         pylab.axis('off')
-        pylab.savefig(self.base_path + '/media/' + video_id + '.png', format='png', bbox_inches='tight', dpi=150, transparent=True)
+        pylab.savefig(self.base_path + '/media/' + video_id + '.png', format='png', bbox_inches='tight', dpi=150,
+                      transparent=True)

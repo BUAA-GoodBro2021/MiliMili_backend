@@ -24,6 +24,6 @@ urlpatterns = [
     path('api/user/', include('user.urls')),
     path('api/sending/', include('sending.urls')),
     path('api/bucket_manager/', include('bucket_manager.urls')),
-    # re_path('^media/(?P<path>.*?)$', serve, kwargs={'document_root': settings.MEDIA_ROOT})
+    path('api/video/', include('video.urls'))
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

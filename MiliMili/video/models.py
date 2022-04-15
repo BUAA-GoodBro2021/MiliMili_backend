@@ -9,8 +9,8 @@ class Video(models.Model):
     description = models.TextField('描述')
     video = models.FileField('视频', upload_to='', default='')
     avatar = models.FileField('封面', upload_to='', default='')
-    video_url = models.CharField('视频路径', max_length=128, default='video/')
-    avatar_url = models.CharField('封面路径', max_length=128, default='cover/')
+    video_url = models.CharField('视频路径', max_length=128, default='')
+    avatar_url = models.CharField('封面路径', max_length=128, default='')
 
     like_num = models.IntegerField(verbose_name='点赞数', default=0)
     collect_num = models.IntegerField(verbose_name='收藏数', default=0)
@@ -26,7 +26,8 @@ class Video(models.Model):
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     updated_time = models.DateTimeField('更新时间', auto_now=True)
 
-    isAudit = models.IntegerField('状态', default=0)      # 0 - 待审核 1 - 审核通过  2 - 需要人工审核  -1 - 审核失败
+    isAudit = models.IntegerField('状态', default=0)  # 0 - 待审核   1 - 审核通过    2 - 需要人工审核
+
     # bucket = models.CharField('桶名(无后缀)', max_length=64)
     # key = models.CharField('键名', max_length=64)
     # job_id = models.CharField('审核工作id', default='')
@@ -88,3 +89,8 @@ class VideoComment(models.Model):
         verbose_name = '评论'  # 指定后台显示模型名称
         verbose_name_plural = '评论列表'  # 指定后台显示模型复数名称
         db_table = "comment"  # 数据库表名
+
+
+class JobToVideo(models.Model):
+    job_id = models.IntegerField(verbose_name='审核编号', default=0)
+    video_id = models.IntegerField(verbose_name='视频编号', default=0)

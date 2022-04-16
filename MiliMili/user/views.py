@@ -261,6 +261,16 @@ def get_follow_list_detail(user_id):
     return [User.objects.get(id=x).to_dic() for x in get_follow_list_simple(user_id)]
 
 
+# 获取个人粉丝列表的id
+def get_fan_list_simple(user_id):
+    return [x.fan_id for x in UserToFan.objects.filter(user_id=user_id)]
+
+
+# 获取个人关注列表的详情(具体信息)
+def get_like_list_detail(user_id):
+    return [User.objects.get(id=x).to_dic() for x in get_fan_list_simple(user_id)]
+
+
 # 关注一个用户
 def follow(request):
     if request.method == 'POST':
@@ -300,7 +310,7 @@ def follow(request):
         content = "亲爱的" + follow_user.username + ''' 你好呀!\n又有一位好朋友关注了你，不打算看看是哪位嘛！'''
         create_message(follow_id, title, content)
 
-        result = {'result': 1, 'message': r"关注成功！", "user": user.to_dic()}
+        result = {'result': 1, 'message': r"关注成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
         return JsonResponse(result)
 
     else:
@@ -342,7 +352,10 @@ def unfollow(request):
         user.del_follow()
         follow_user.del_fan()
 
-        result = {'result': 1, 'message': r"取消成功！", "user": user.to_dic()}
+        result = {'result': 1, 'message': r"取消成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
 
@@ -360,7 +373,28 @@ def follow_list(request):
             return JsonResponse(result)
 
         result = {'result': 1, 'message': r"获取关注列表成功！", "user": user.to_dic(),
-                  "follow_list": get_follow_list_detail(user_id)}
+                  "follow_list": get_follow_list_detail(user_id), "station_message": list_message(user.id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 展示粉丝列表
+def fan_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        result = {'result': 1, 'message': r"获取关注列表成功！", "user": user.to_dic(),
+                  "fan_list": get_like_list_detail(user_id), "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

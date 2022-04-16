@@ -1,22 +1,7 @@
 import json
-import os
 
-from MiliMili.settings import BASE_DIR
-from bucket_manager.Bucket import Bucket
-from django.http import JsonResponse
-
-from sending.views import create_message
+from user.views import *
 from video.models import *
-
-"""
-def video_audit_query(response)
-:param response: return json from outer
-:return: {result: -1~2, label: label(str) or None(NoneType), job_id: job_id(str) or None(NoneType)}\n
--1: response's format is wrong\n
-0: pass\n
-1: not pass\n
-2: this vidio needs people to audit
-"""
 
 
 def callback(request):
@@ -112,6 +97,14 @@ def callback(request):
             content = "亲爱的" + user.username + '你好呀!\n' \
                                               '视频审核通过啦，快和小伙伴分享分享你的视频叭~'
             create_message(user_id, title, content)
+
+            # 给所有粉丝发站内信
+            fan_list = get_fan_list_simple(user_id=user_id)
+            for fan_id in fan_list:
+                title = "你关注的博主发布新视频啦！"
+                content = "亲爱的" + User.objects.get(id=fan_id).username + '你好呀!\n' \
+                                                                         '你关注的博主发布新视频啦！快去看看，然后在评论区留下自己的感受叭~'
+                create_message(fan_id, title, content)
 
             result = {'result': 1, 'message': r"视频发送成功！"}
     else:

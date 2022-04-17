@@ -266,8 +266,8 @@ def get_fan_list_simple(user_id):
     return [x.fan_id for x in UserToFan.objects.filter(user_id=user_id)]
 
 
-# 获取个人关注列表的详情(具体信息)
-def get_like_list_detail(user_id):
+# 获取个人粉丝列表的详情(具体信息)
+def get_fan_list_detail(user_id):
     return [User.objects.get(id=x).to_dic() for x in get_fan_list_simple(user_id)]
 
 
@@ -393,8 +393,8 @@ def fan_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
 
-        result = {'result': 1, 'message': r"获取关注列表成功！", "user": user.to_dic(),
-                  "fan_list": get_like_list_detail(user_id), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"获取粉丝列表成功！", "user": user.to_dic(),
+                  "fan_list": get_fan_list_detail(user_id), "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

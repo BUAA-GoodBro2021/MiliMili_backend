@@ -28,11 +28,27 @@ class Video(models.Model):
 
     isAudit = models.IntegerField('状态', default=0)  # 0 - 待审核   1 - 审核通过    2 - 需要人工审核
 
-    # bucket = models.CharField('桶名(无后缀)', max_length=64)
-    # key = models.CharField('键名', max_length=64)
-    # job_id = models.CharField('审核工作id', default='')
-    # status = models.IntegerField('审核状态', default=3)  # -1:报错，0:通过，1:不通过，2:存疑，3:待审核
-    # audit_tag = models.CharField('审核标签', default='Normal')
+    def to_dic(self):
+        return {
+            'title' : self.title ,
+            'description': self.description,
+            'video_url': self.video_url,
+            'avatar_url': self.avatar_url,
+            'like_num': self.like_num,
+            'collect_num': self.collect_num,
+            'view_num': self.view_num,
+            'zone': self.zone,
+            'tag1': self.tag1,
+            'tag2': self.tag2,
+            'tag3': self.tag3,
+            'tag4': self.tag4,
+            'tag5': self.tag5,
+            'user': self.user.to_dic(),
+            'created_time': self.created_time,
+            'updated_time': self.updated_time,
+            'isAudit': self.isAudit,
+        }
+
 
     def __str__(self):
         return '视频' + self.title

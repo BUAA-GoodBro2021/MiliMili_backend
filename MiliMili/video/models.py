@@ -31,6 +31,7 @@ class Video(models.Model):
 
     def to_dic(self):
         return {
+            'id': self.id,
             'title': self.title,
             'description': self.description,
             'video_url': self.video_url,
@@ -118,5 +119,18 @@ class JobToVideo(models.Model):
 class Favorite(models.Model):
     title = models.CharField('默认收藏夹', max_length=64)
     description = models.TextField('描述')
-    isPrivate = models.BooleanField("是否为私有", default=False)
+    isPrivate = models.IntegerField("是否为私有", default=0)  # 0 - 公开    1 - 私有
     user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
+
+    def to_dic(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'isPrivate': self.isPrivate,
+        }
+
+
+class FavoriteToVideo(models.Model):
+    favorite_id = models.IntegerField(verbose_name='收藏夹编号', default=0)
+    video_id = models.IntegerField(verbose_name='视频编号', default=0)

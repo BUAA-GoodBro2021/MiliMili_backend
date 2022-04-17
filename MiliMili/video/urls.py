@@ -8,4 +8,7 @@ urlpatterns = [
     path('like', views.like_video),
     path('dislike', views.dislike_video),
     path('like-list', views.like_list),
+    # 收藏系列
+    path('favorite-list', views.favorite_list),
+    path('create-favorite', views.create_favorite),
 ]

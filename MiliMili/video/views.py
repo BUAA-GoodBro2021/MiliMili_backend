@@ -291,6 +291,49 @@ def like_list(request):
         return JsonResponse(result)
 
 
+# 获取自己所有视频的收藏夹id
+def get_favorite_list_id(user_id):
+    return [x.id for x in Favorite.objects.filter(user_id=user_id)]
+
+
+# 获取收藏夹内部的视频视频id
+def get_favorite_list_video_id(favorite_id):
+    return [x.video_id for x in FavoriteToVideo.objects.filter(favorite_id=favorite_id)]
+
+
+# 获取收藏夹内部视频的详情
+def get_favorite_list_video_detail(favorite_id):
+    return [Video.objects.get(id=x).to_dic() for x in get_favorite_list_video_id(favorite_id)]
+
+
+# 获取自己所有收藏夹以及内部的详细信息
+def get_favorite_list_detail(user_id):
+    return [
+        {'favorite_list_detail': Favorite.objects.get(id=x).to_dic(),
+         'favorite_list_video_detail': get_favorite_list_video_detail(x), 'num': len(get_favorite_list_video_detail(x))}
+        for x in get_favorite_list_id(user_id)]
+
+
+# 展示自己的收藏夹详情
+def favorite_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"获取收藏夹详情成功!", 'user': user.to_dic(),
+                  'favorite_list_detail': get_favorite_list_detail(user_id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 # 创建自己的收藏夹
 def create_favorite(request):
     if request.method == 'POST':
@@ -304,14 +347,53 @@ def create_favorite(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         title = request.POST.get('title', '默认收藏夹')
-        description = request.POST.get('description', '暂时没有简介呢')
+        description = request.POST.get('description', 0)
         isPrivate = request.POST.get('isPrivate', False)
         # 创建收藏夹
         Favorite.objects.create(title=title, description=description, isPrivate=isPrivate, user_id=user_id)
         user.add_favorite()
-        result = {'result': 1, 'message': r"创建收藏夹成功!", 'user': user.to_dic(), "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"创建收藏夹成功!", 'user': user.to_dic(),
+                  'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
 
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 收藏视频
+def collect_video(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        favorite_id = request.POST.get('favorite_id', '')
+        video_id = request.POST.get('video_id', '')
+        # 先判断视频状态
+        need_verify(video_id)
+        FavoriteToVideo.objects.create(favorite_id=favorite_id, video_id=video_id)
+        # 视频状态添加
+        video = Video.objects.get(id=video_id)
+        video.add_collect()
+
+        # 视频上传者状态添加
+        upload_user = Video.objects.get(id=video_id).user
+        upload_user.add_collect()
+
+        # 发送站内信
+        title = "视频收获收藏啦！"
+        content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发布的视频有好多好朋友的收藏了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
+        create_message(upload_user.id, title, content)
+
+        result = {'result': 1, 'message': r"点赞成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
+        return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)

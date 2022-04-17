@@ -27,10 +27,11 @@ class Video(models.Model):
     updated_time = models.DateTimeField('更新时间', auto_now=True)
 
     isAudit = models.IntegerField('状态', default=0)  # 0 - 待审核   1 - 审核通过    2 - 需要人工审核
+    need_verify = models.IntegerField('状态', default=0)  # 0 - 正常视频  1 - 投诉过多需要临时下架进行人工检查的视频
 
     def to_dic(self):
         return {
-            'title' : self.title ,
+            'title': self.title,
             'description': self.description,
             'video_url': self.video_url,
             'avatar_url': self.avatar_url,
@@ -47,8 +48,8 @@ class Video(models.Model):
             'created_time': self.created_time,
             'updated_time': self.updated_time,
             'isAudit': self.isAudit,
+            'need_verify': self.need_verify,
         }
-
 
     def __str__(self):
         return '视频' + self.title
@@ -107,6 +108,15 @@ class VideoComment(models.Model):
         db_table = "comment"  # 数据库表名
 
 
+# 腾讯云自动审核
 class JobToVideo(models.Model):
     job_id = models.CharField(verbose_name='审核编号', max_length=128, default='')
     video_id = models.IntegerField(verbose_name='视频编号', default=0)
+
+
+# 收藏夹
+class Favorite(models.Model):
+    title = models.CharField('默认收藏夹', max_length=64)
+    description = models.TextField('描述')
+    isPrivate = models.BooleanField("是否为私有", default=False)
+    user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)

@@ -5,6 +5,17 @@ from user.models import *
 from video.models import *
 
 
+# TODO 请务必保证对于视频都是默认是已经过审或者是没有被投诉过多的视频
+#  如果不是,需要告诉前端该视频要整改（用户点赞或者收藏列表不会进行删除）
+
+# 判断该视频是否需要整改
+def need_verify(video_id):
+    video = Video.objects.get(id=video_id)
+    if video.isAudit != 1 or video.need_verify != 0:
+        result = {'result': 0, 'message': r"该视频好像出了一点问题哦，待会再来看看叭!"}
+        return JsonResponse(result)
+
+
 # 上传视频
 def upload_video(request):
     if request.method == 'POST':
@@ -201,6 +212,8 @@ def like_video(request):
         # 获取点赞视频编号 并添加点击记录
         video_id = request.POST.get('video_id', '')
 
+        # 判断该视频是否需要整改
+        need_verify(video_id)
         # 判断是否已经点赞过
         if UserToVideo_like.objects.filter(user_id=user_id, video_id=video_id).exists():
             result = {'result': 0, 'message': r"已经点赞过，请不要重复点赞!"}
@@ -227,6 +240,7 @@ def like_video(request):
         return JsonResponse(result)
 
 
+# 取消点赞
 def dislike_video(request):
     if request.method == 'POST':
         # 检查表单信息
@@ -272,6 +286,32 @@ def like_list(request):
         result = {'result': 1, 'message': r"获取点赞列表成功！", "user": user.to_dic(),
                   "like_list": get_like_list_detail(user_id), "station_message": list_message(user.id)}
         return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 创建自己的收藏夹
+def create_favorite(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        title = request.POST.get('title', '默认收藏夹')
+        description = request.POST.get('description', '暂时没有简介呢')
+        isPrivate = request.POST.get('isPrivate', False)
+        # 创建收藏夹
+        Favorite.objects.create(title=title, description=description, isPrivate=isPrivate, user_id=user_id)
+        user.add_favorite()
+        result = {'result': 1, 'message': r"创建收藏夹成功!", 'user': user.to_dic(), "station_message": list_message(user_id)}
+        return JsonResponse(result)
+
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)

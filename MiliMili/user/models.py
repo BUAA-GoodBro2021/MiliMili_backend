@@ -9,7 +9,8 @@ class User(models.Model):
     email = models.EmailField()
     video_num = models.IntegerField(verbose_name='视频数', default=0)
     like_num = models.IntegerField(verbose_name='收获的点赞数', default=0)
-    collect_num = models.IntegerField(verbose_name='收藏数', default=0)
+    collect_num = models.IntegerField(verbose_name='收获的收藏数', default=0)
+    favorite_num = models.IntegerField(verbose_name='收藏夹数', default=0)
     fan_num = models.IntegerField(verbose_name='粉丝数', default=0)
     follow_num = models.IntegerField(verbose_name='关注数', default=0)
     avatar_url = models.CharField('用户头像路径', max_length=128, default='https://global-1309504341.cos.ap-beijing'
@@ -29,6 +30,7 @@ class User(models.Model):
             "video_num": self.video_num,
             "like_num": self.like_num,
             "collect_num": self.collect_num,
+            'favorite_num': self.favorite_num,
             "fan_num": self.fan_num,
             "follow_num": self.follow_num,
             "avatar_url": self.avatar_url,
@@ -99,6 +101,17 @@ class User(models.Model):
         if self.follow_num > 0:
             self.follow_num -= 1
             self.save(update_fields=['follow_num'])
+
+    # 添加收藏夹
+    def add_favorite(self):
+        self.favorite_num += 1
+        self.save(update_fields=['favorite_num'])
+
+    # 删除收藏夹
+    def del_favorite(self):
+        if self.favorite_num > 0:
+            self.favorite_num -= 1
+            self.save(update_fields=['favorite_num'])
 
 
 # 查看个人粉丝

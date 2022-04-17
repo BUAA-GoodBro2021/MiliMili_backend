@@ -17,6 +17,8 @@ def callback(request):
         video = Video.objects.get(id=video_id)
         user = video.user
         user_id = user.id
+        # 删除审核记录
+        JobToVideo.objects.get(job_id=job_id).delete()
         # 视频格式后缀
         suffix_video = '.' + video.video_url.split(".")[-1]
         # 审核不通过

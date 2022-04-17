@@ -8,7 +8,7 @@ class User(models.Model):
     password = models.CharField('密码', max_length=32)
     email = models.EmailField()
     video_num = models.IntegerField(verbose_name='视频数', default=0)
-    like_num = models.IntegerField(verbose_name='点赞数', default=0)
+    like_num = models.IntegerField(verbose_name='收获的点赞数', default=0)
     collect_num = models.IntegerField(verbose_name='收藏数', default=0)
     fan_num = models.IntegerField(verbose_name='粉丝数', default=0)
     follow_num = models.IntegerField(verbose_name='关注数', default=0)
@@ -117,6 +117,12 @@ class UserToFollow(models.Model):
 class UserToVideo(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)
     video_id = models.IntegerField(verbose_name='收藏的视频', default=0)
+
+
+# 查看个人收藏的视频
+class UserToVideo_like(models.Model):
+    user_id = models.IntegerField(verbose_name='主体', default=0)
+    video_id = models.IntegerField(verbose_name='点赞的视频', default=0)
 
 
 # 查看用户历史记录

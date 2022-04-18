@@ -17,4 +17,8 @@ urlpatterns = [
     path('change-favorite', views.change_favorite),
     path('collect', views.collect_video),
     path('not-collect', views.not_collect_video),
+    # 评论系列
+    path('add-comment', views.add_comment),
+    path('del-comment', views.del_comment),
+    path('reply-comment', views.reply_comment),
 ]

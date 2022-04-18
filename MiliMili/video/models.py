@@ -106,6 +106,18 @@ class VideoComment(models.Model):
         verbose_name_plural = '评论列表'  # 指定后台显示模型复数名称
         db_table = "comment"  # 数据库表名
 
+    def to_dic(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'content': self.content,
+            'created_time': self.created_time,
+            'updated_time': self.updated_time,
+            'video_id': self.video.id,
+            'reply_comment_id': self.reply_comment_id,
+            'reply_username': self.reply_username,
+        }
+
 
 # 腾讯云自动审核
 class JobToVideo(models.Model):

@@ -572,3 +572,89 @@ def del_favorite(request):
         result = {'result': 1, 'message': r"删除收藏夹成功！", "user": user.to_dic(), "station_message": list_message(user_id),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 添加评论
+def add_comment(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        video_id = request.POST.get('video_id', '')
+        username = user.username
+        content = request.POST.get('content', '')
+        VideoComment.objects.create(username=username, content=content, video_id=video_id)
+
+        video = Video.objects.get(id=video_id)
+        result = {'result': 1, 'message': r"评论成功！", "user": user.to_dic(),
+                  "comment": [x.to_dic() for x in video.videocomment_set.all()],
+                  "comment_num": len(video.videocomment_set.all())}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 删除评论
+def del_comment(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        comment_id = request.POST.get('comment_id', '')
+        comment = VideoComment.objects.get(id=comment_id)
+        video = comment.video
+        comment.delete()
+        result = {'result': 1, 'message': r"删除评论成功！", "user": user.to_dic(),
+                  "comment": [x.to_dic() for x in video.videocomment_set.all()],
+                  "comment_num": len(video.videocomment_set.all())}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 回复评论
+def reply_comment(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        video_id = request.POST.get('video_id', '')
+        video = Video.objects.get(id=video_id)
+        username = user.username
+        content = request.POST.get('content', '')
+        reply_comment_id = request.POST.get('reply_comment_id', '')
+        reply_username = request.POST.get('reply_username', '')
+        VideoComment.objects.create(username=username, content=content, video_id=video_id,
+                                    reply_comment_id=reply_comment_id, reply_username=reply_username)
+
+        result = {'result': 1, 'message': r"回复评论成功！", "user": user.to_dic(),
+                  "comment": [x.to_dic() for x in video.videocomment_set.all()],
+                  "comment_num": len(video.videocomment_set.all())}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)

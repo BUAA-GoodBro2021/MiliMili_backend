@@ -122,14 +122,14 @@ def upload_video(request):
         if not video_upload:
             if video.video_url != '':
                 # 删除封面
-                bucket.delete_object("cover", int(video_id) + suffix_avatar)
+                bucket.delete_object("cover", str(video_id) + suffix_avatar)
             Video.objects.get(id=video_id).delete()
             result = {'result': 0, 'message': r"请上传视频！", "station_message": list_message(user.id)}
             return JsonResponse(result)
         if video_upload.size > 1024 * 1024 * 100:
             if video.video_url != '':
                 # 删除封面
-                bucket.delete_object("cover", int(video_id) + suffix_avatar)
+                bucket.delete_object("cover", str(video_id) + suffix_avatar)
             Video.objects.get(id=video_id).delete()
             result = {'result': 0, 'message': r"视频大小不能超过100M！", "station_message": list_message(user.id)}
             return JsonResponse(result)
@@ -146,7 +146,7 @@ def upload_video(request):
         if upload_result == -1:
             if video.video_url != '':
                 # 删除封面
-                bucket.delete_object("cover", int(video_id) + suffix_avatar)
+                bucket.delete_object("cover", str(video_id) + suffix_avatar)
             os.remove(os.path.join(BASE_DIR, "/media/" + video_upload.name))
             Video.objects.get(id=video_id).delete()
             result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
@@ -156,7 +156,7 @@ def upload_video(request):
         if not url:
             if video.video_url != '':
                 # 删除封面
-                bucket.delete_object("cover", int(video_id) + suffix_avatar)
+                bucket.delete_object("cover", str(video_id) + suffix_avatar)
             os.remove(os.path.join(BASE_DIR, "/media/" + video_upload.name))
             Video.objects.get(id=video_id).delete()
             result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
@@ -176,9 +176,9 @@ def upload_video(request):
             # 删除数据库记录
             Video.objects.get(id=video_id).delete()
             # 删除封面
-            bucket.delete_object("cover", int(video_id) + suffix_avatar)
+            bucket.delete_object("cover", str(video_id) + suffix_avatar)
             # 删除视频
-            bucket.delete_object("video", int(video_id) + suffix_video)
+            bucket.delete_object("video", str(video_id) + suffix_video)
             # 删除本地文件
             os.remove(os.path.join(BASE_DIR, "/media/" + video_upload.name))
             result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
@@ -203,7 +203,7 @@ def del_video(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        user.del_video()
+
         # 获取视频主体
         video_id = request.POST.get('video_id', '')
         video = Video.objects.get(id=video_id)
@@ -211,9 +211,9 @@ def del_video(request):
         # 删除对象存储的部分
         bucket = Bucket()
         suffix_avatar = '.' + video.avatar_url.split(".")[-1]
-        bucket.delete_object("cover", int(video_id) + suffix_avatar)
+        bucket.delete_object("cover", str(video_id) + suffix_avatar)
         suffix_video = '.' + video.video_url.split(".")[-1]
-        bucket.delete_object("video", int(video_id) + suffix_video)
+        bucket.delete_object("video", str(video_id) + suffix_video)
 
         # 清除点赞(先获取谁点赞了视频的列表，把关系解除，作者收获点赞减少)
         video_list = UserToVideo_like.objects.filter(video_id=video_id)
@@ -228,7 +228,9 @@ def del_video(request):
         video_list.delete()
         # 清除本身
         video.delete()
+        user.del_video()
         # 站内信
+
         title = "视频删除成功！"
         content = "亲爱的" + user.username + '你好呀!\n' \
                                           '视频删除成功了，真的是好可惜呢~'

@@ -216,7 +216,8 @@ def like_video(request):
         need_verify(video_id)
         # 判断是否已经点赞过
         if UserToVideo_like.objects.filter(user_id=user_id, video_id=video_id).exists():
-            result = {'result': 0, 'message': r"已经点赞过，请不要重复点赞!"}
+            result = {'result': 0, 'message': r"已经点赞过，请不要重复点赞!", "user": user.to_dic(),
+                      "station_message": list_message(user_id)}
             return JsonResponse(result)
 
         UserToVideo_like.objects.create(user_id=user_id, video_id=video_id)
@@ -232,7 +233,8 @@ def like_video(request):
         content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发布的视频有收获好朋友的点赞了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
         create_message(upload_user.id, title, content)
 
-        result = {'result': 1, 'message': r"点赞成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"点赞成功！", "user": user.to_dic(), "like_list": get_like_list_detail(user_id),
+                  "station_message": list_message(user_id)}
         return JsonResponse(result)
 
     else:
@@ -255,6 +257,10 @@ def dislike_video(request):
 
         # 获取取消点赞视频编号 并删除点击记录
         video_id = request.POST.get('video_id', '')
+        if not UserToVideo_like.objects.filter(user_id=user_id, video_id=video_id).exists():
+            result = {'result': 0, 'message': r"已经取消点赞，不要重复取消！", "user": user.to_dic(),
+                      "station_message": list_message(user_id)}
+            return JsonResponse(result)
         UserToVideo_like.objects.get(user_id=user_id, video_id=video_id).delete()
         video = Video.objects.get(id=video_id)
         video.del_like()
@@ -262,7 +268,8 @@ def dislike_video(request):
         upload_user = video.user
         upload_user.del_like()
 
-        result = {'result': 1, 'message': r"取消成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"取消成功！", "user": user.to_dic(), "like_list": get_like_list_detail(user_id),
+                  "station_message": list_message(user_id)}
         return JsonResponse(result)
 
     else:
@@ -361,6 +368,38 @@ def create_favorite(request):
         return JsonResponse(result)
 
 
+# 修改文件夹描述
+def change_favorite(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        favorite_id = request.POST.get('favorite_id', 0)
+        title = request.POST.get('title', '默认收藏夹')
+        description = request.POST.get('description', 0)
+        isPrivate = request.POST.get('isPrivate', False)
+        if favorite_id == 0:
+            result = {'result': 0, 'message': r"请先选择一个文件夹!"}
+            return JsonResponse(result)
+        favorite = Favorite.objects.get(id=favorite_id)
+        favorite.title = title
+        favorite.description = description
+        favorite.isPrivate = isPrivate
+        favorite.save()
+        result = {'result': 1, 'message': r"修改收藏夹信息成功！", "user": user.to_dic(),
+                  "station_message": list_message(user_id), 'favorite_list_detail': get_favorite_list_detail(user_id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 # 收藏视频
 def collect_video(request):
     if request.method == 'POST':
@@ -378,6 +417,11 @@ def collect_video(request):
         video_id = request.POST.get('video_id', '')
         # 先判断视频状态
         need_verify(video_id)
+        if FavoriteToVideo.objects.filter(favorite_id=favorite_id, video_id=video_id).exists():
+            result = {'result': 0, 'message': r"已经收藏过，请不要重复收藏!", "user": user.to_dic(),
+                      "station_message": list_message(user_id),
+                      'favorite_list_detail': get_favorite_list_detail(user_id)}
+            return JsonResponse(result)
         FavoriteToVideo.objects.create(favorite_id=favorite_id, video_id=video_id)
         # 视频状态添加
         video = Video.objects.get(id=video_id)
@@ -392,7 +436,42 @@ def collect_video(request):
         content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发布的视频有好多好朋友的收藏了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
         create_message(upload_user.id, title, content)
 
-        result = {'result': 1, 'message': r"点赞成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"收藏成功！", "user": user.to_dic(), "station_message": list_message(user_id),
+                  'favorite_list_detail': get_favorite_list_detail(user_id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 取消收藏
+def not_collect_video(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        favorite_id = request.POST.get('favorite_id', '')
+        video_id = request.POST.get('video_id', '')
+        if not FavoriteToVideo.objects.filter(favorite_id=favorite_id, video_id=video_id).exists():
+            result = {'result': 0, 'message': r"已取消收藏，请不要重复取消!", "user": user.to_dic(),
+                      "station_message": list_message(user_id)}
+            return JsonResponse(result)
+        FavoriteToVideo.objects.get(favorite_id=favorite_id, video_id=video_id).delete()
+        # 视频状态减少
+        video = Video.objects.get(id=video_id)
+        video.del_collect()
+
+        # 视频上传者状态减少
+        upload_user = Video.objects.get(id=video_id).user
+        upload_user.del_collect()
+        result = {'result': 1, 'message': r"取消收藏成功！", "user": user.to_dic(), "station_message": list_message(user_id),
+                  'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

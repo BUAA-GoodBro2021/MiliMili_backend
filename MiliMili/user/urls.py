@@ -8,7 +8,7 @@ urlpatterns = [
     path('findPassword', views.findPassword),
 
     path('upload-avatar', views.upload_avatar),
-    path('upload-file', views.upload_file),
+    path('change-file', views.change_file),
 
     path('follow', views.follow),
     path('unfollow', views.unfollow),

@@ -125,7 +125,7 @@ def findPassword(request):
         return JsonResponse(result)
 
 
-def upload_file(request):
+def change_file(request):
     if request.method == 'POST':
         JWT = request.POST.get('JWT', '')
         try:

@@ -33,6 +33,11 @@ def upload_video(request):
         title = request.POST.get('title', '')
         description = request.POST.get('description', '')
         zone = request.POST.get('zone', '')
+        tag1 = request.POST.get('tag1', '')
+        tag2 = request.POST.get('tag2', '')
+        tag3 = request.POST.get('tag3', '')
+        tag4 = request.POST.get('tag4', '')
+        tag5 = request.POST.get('tag5', '')
 
         if title == '' or description == '' or zone == '':
             result = {'result': 0, 'message': r"视频标题或描述或分区不能为空!", "station_message": list_message(user.id)}
@@ -41,7 +46,8 @@ def upload_video(request):
         # 常见对象存储的对象
         bucket = Bucket()
         # 创建一个视频对象
-        video = Video.objects.create(title=title, description=description, zone=zone, user_id=user_id)
+        video = Video.objects.create(title=title, description=description, zone=zone, user_id=user_id, tag1=tag1,
+                                     tag2=tag2, tag3=tag3, tag4=tag4, tag5=tag5)
         video_id = video.id
         # 获取用户上传的封面并检验是否符合要求
         avatar = request.FILES.get("avatar", None)
@@ -181,6 +187,49 @@ def upload_video(request):
         JobToVideo.objects.create(job_id=audit_dic.get("job_id"), video_id=video_id)
         result = {'result': 1, 'message': r"正在审核中，别着急哦！", "station_message": list_message(user.id)}
         return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+def del_video(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        # 获取视频主体
+        video_id = request.POST.get('video_id', '')
+        video = Video.objects.get(id=video_id)
+
+        # 清除点赞(先获取谁点赞了视频的列表，把关系解除，作者收获点赞减少)
+        video_list = UserToVideo_like.objects.filter(video_id=video_id)
+        del_like_num = len(video_list)
+        user.like_num -= del_like_num
+        video_list.delete()
+
+        # 清除收藏
+        video_list = FavoriteToVideo.objects.filter(video_id=video_id)
+        del_collect_num = len(video_list)
+        user.collect_num -= del_collect_num
+        video_list.delete()
+        # 清除本身
+        video.delete()
+        # 站内信
+        title = "视频删除成功！"
+        content = "亲爱的" + user.username + '你好呀!\n' \
+                                          '视频删除成功了，真的是好可惜呢~'
+        create_message(user_id, title, content)
+
+        result = {'result': 1, 'message': r"删除视频成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
+        return JsonResponse(result)
+
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)

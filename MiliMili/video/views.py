@@ -208,6 +208,13 @@ def del_video(request):
         video_id = request.POST.get('video_id', '')
         video = Video.objects.get(id=video_id)
 
+        # 删除对象存储的部分
+        bucket = Bucket()
+        suffix_avatar = '.' + video.avatar_url.split(".")[-1]
+        bucket.delete_object("cover", int(video_id) + suffix_avatar)
+        suffix_video = '.' + video.video_url.split(".")[-1]
+        bucket.delete_object("video", int(video_id) + suffix_video)
+
         # 清除点赞(先获取谁点赞了视频的列表，把关系解除，作者收获点赞减少)
         video_list = UserToVideo_like.objects.filter(video_id=video_id)
         del_like_num = len(video_list)

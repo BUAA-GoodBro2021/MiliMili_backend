@@ -203,7 +203,7 @@ def del_video(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-
+        user.del_video()
         # 获取视频主体
         video_id = request.POST.get('video_id', '')
         video = Video.objects.get(id=video_id)

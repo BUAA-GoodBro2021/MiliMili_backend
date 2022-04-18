@@ -368,7 +368,7 @@ def create_favorite(request):
         return JsonResponse(result)
 
 
-# 修改文件夹描述
+# 修改收藏夹描述
 def change_favorite(request):
     if request.method == 'POST':
         # 检查表单信息
@@ -385,7 +385,7 @@ def change_favorite(request):
         description = request.POST.get('description', 0)
         isPrivate = request.POST.get('isPrivate', False)
         if favorite_id == 0:
-            result = {'result': 0, 'message': r"请先选择一个文件夹!"}
+            result = {'result': 0, 'message': r"请先选择一个收藏夹!"}
             return JsonResponse(result)
         favorite = Favorite.objects.get(id=favorite_id)
         favorite.title = title
@@ -475,4 +475,42 @@ def not_collect_video(request):
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 删除收藏夹
+def del_favorite(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        # 获取需要删除的收藏夹
+        favorite_id = request.POST.get('favorite_id', '')
+        if not Favorite.objects.filter(id=favorite_id).exists():
+            result = {'result': 0, 'message': r"收藏夹已删除!请不要重复删除"}
+            return JsonResponse(result)
+        # 个人收藏夹数量 -1
+        user.del_favorite()
+        # 获取该收藏夹的所有视频id
+        video_list = get_favorite_list_video_id(favorite_id)
+
+        for every_video_id in video_list:
+            FavoriteToVideo.objects.get(favorite_id=favorite_id, video_id=every_video_id).delete()
+            # 视频状态减少
+            video = Video.objects.get(id=every_video_id)
+            video.del_collect()
+
+            # 视频上传者状态减少
+            upload_user = Video.objects.get(id=every_video_id).user
+            upload_user.del_collect()
+        favorite = Favorite.objects.get(id=favorite_id)
+        favorite.delete()
+        result = {'result': 1, 'message': r"删除收藏夹成功！", "user": user.to_dic(), "station_message": list_message(user_id),
+                  'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)

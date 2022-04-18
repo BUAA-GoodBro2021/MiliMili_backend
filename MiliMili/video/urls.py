@@ -11,6 +11,7 @@ urlpatterns = [
     # 收藏系列
     path('favorite-list', views.favorite_list),
     path('create-favorite', views.create_favorite),
+    path('del-favorite', views.del_favorite),
     path('change-favorite', views.change_favorite),
     path('collect', views.collect_video),
     path('not-collect', views.not_collect_video),

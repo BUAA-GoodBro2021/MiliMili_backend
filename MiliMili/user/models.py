@@ -20,6 +20,8 @@ class User(models.Model):
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     updated_time = models.DateTimeField('更新时间', auto_now=True)
 
+    complain_time = models.DecimalField('投诉时间', max_digits=12, decimal_places=2,default=0.0)
+
     def to_dic(self):
         return {
             "id": self.id,

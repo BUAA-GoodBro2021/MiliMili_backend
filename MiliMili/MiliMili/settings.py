@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'index',
     'sending',
     'bucket_manager',
+    'super_admin',
 ]
 
 MIDDLEWARE = [

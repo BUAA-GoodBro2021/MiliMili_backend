@@ -129,6 +129,14 @@ class VideoComplain(models.Model):
     user_id = models.IntegerField(verbose_name='投诉人员编号', default=0)
     video = models.ForeignKey(Video, verbose_name='所属视频', on_delete=models.CASCADE, default=None)
 
+    def to_dic(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'video': self.video.to_dic(),
+        }
+
 
 # 腾讯云自动审核
 class JobToVideo(models.Model):

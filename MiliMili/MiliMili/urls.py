@@ -16,11 +16,11 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include, re_path
-from django.views.static import serve
+from django.urls import path, include
 
 urlpatterns = [
     path('api/admin', admin.site.urls),
+    path('api/super_admin/', include('super_admin.urls')),
     path('api/user/', include('user.urls')),
     path('api/sending/', include('sending.urls')),
     path('api/bucket_manager/', include('bucket_manager.urls')),

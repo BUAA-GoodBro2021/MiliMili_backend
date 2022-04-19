@@ -5,7 +5,6 @@ from user.models import User
 class Video(models.Model):
     title = models.CharField('标题', max_length=64)
     description = models.TextField('描述')
-    title_token = models.CharField('标题分词', max_length=64, default='')
     video = models.FileField('视频', upload_to='', default='')
     avatar = models.FileField('封面', upload_to='', default='')
     video_url = models.CharField('视频路径', max_length=128, default='')
@@ -33,7 +32,6 @@ class Video(models.Model):
             'id': self.id,
             'title': self.title,
             'description': self.description,
-            'title_token': self.title_token,
             'video_url': self.video_url,
             'avatar_url': self.avatar_url,
             'like_num': self.like_num,

@@ -20,7 +20,7 @@ class User(models.Model):
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     updated_time = models.DateTimeField('更新时间', auto_now=True)
 
-    complain_time = models.DecimalField('投诉时间', max_digits=12, decimal_places=2,default=0.0)
+    complain_time = models.DecimalField('投诉时间', max_digits=12, decimal_places=2, default=0.0)
 
     def to_dic(self):
         return {
@@ -142,3 +142,13 @@ class UserToVideo_like(models.Model):
 class UserToHistory(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)
     video_id = models.IntegerField(verbose_name='看过的视频', default=0)
+
+
+# 查看用户搜索历史
+class UserToSearchHistory(models.Model):
+    user_id = models.IntegerField(verbose_name='主体', default=0)
+    content = models.CharField(verbose_name='搜索的内容', max_length=256, default='')
+    created_time = models.DateTimeField('创建时间', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_time']

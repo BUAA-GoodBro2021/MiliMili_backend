@@ -144,12 +144,77 @@ def change_file(request):
         if User.objects.filter(username=username, isActive=True).exists():
             result = {'result': 0, 'message': r'用户已存在!'}
             return JsonResponse(result)
+        # 获取用户上传头像
+        avatar = request.FILES.get("avatar", None)
+        if avatar:
+            if avatar.size > 1024 * 1024:
+                result = {'result': 0, 'message': r"图片不能超过1M！"}
+                return JsonResponse(result)
+            # 获取文件尾缀并修改名称
+            suffix = '.' + avatar.name.split(".")[-1]
+            avatar.name = str(user_id) + suffix
+            # 保存到本地
+            user.avatar = avatar
+            user.save()
+
+            # 常见对象存储的对象
+            bucket = Bucket()
+
+            # 先生成一个随机 Key 保存在桶中进行审核
+            key = create_code()
+            upload_result = bucket.upload_file("avatar", key + suffix, avatar.name)
+            # 上传审核
+            if upload_result == -1:
+                result = {'result': 0, 'message': r"上传失败！"}
+                os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
+                return JsonResponse(result)
+
+            # 审核
+            audit_dic = bucket.image_audit("avatar", key + suffix)
+            if audit_dic.get("result") != 0:
+                result = {'result': 0, 'message': r"审核失败！", "user": user.to_dic(),
+                          "station_message": list_message(user.id)}
+                # 删除审核对象
+                bucket.delete_object("avatar", key + suffix)
+                # 删除本地对象
+                os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
+                # 站内信
+                title = "头像审核失败！"
+                content = "亲爱的" + user.username + ' 你好呀!\n头像好像带有一点' + audit_dic.get("label") + '呢！'
+                create_message(user_id, title, content)
+                return JsonResponse(result)
+
+            # 删除审核对象
+            bucket.delete_object("avatar", key + suffix)
+
+            # 判断用户是不是默认头像   如果不是，要删除以前的
+            # 判断用户是不是默认头像   如果不是，要删除以前的
+            if user.avatar_url != "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg":
+                bucket.delete_object("avatar", str(user_id) + suffix)
+
+            # 上传是否成功
+            upload_result = bucket.upload_file("avatar", str(user_id) + suffix, avatar.name)
+            if upload_result == -1:
+                os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
+                result = {'result': 0, 'message': r"上传失败！"}
+                return JsonResponse(result)
+
+            # 上传是否可以获取路径
+            url = bucket.query_object("avatar", str(user_id) + suffix)
+            if not url:
+                os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
+                result = {'result': 0, 'message': r"上传失败！"}
+                return JsonResponse(result)
+            # 获取对象存储的桶地址
+            user.avatar_url = url
+            # 删除本地文件
+            os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
+
         user.username = username
         user.save()
-
         # 站内信
         title = "用户名修改成功！"
-        content = "亲爱的" + user.username + ''' 你好呀!\n用户名已经更新啦，快去给好朋友分享分享叭！'''
+        content = "亲爱的" + user.username + ''' 你好呀!\n个人资料已经更新啦，快去给好朋友分享分享叭！'''
         create_message(user_id, title, content)
 
         result = {'result': 1, 'message': r"修改用户名成功!", "user": user.to_dic(),

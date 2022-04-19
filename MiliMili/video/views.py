@@ -192,6 +192,7 @@ def upload_video(request):
         return JsonResponse(result)
 
 
+# 删除视频
 def del_video(request):
     if request.method == 'POST':
         # 检查表单信息
@@ -243,6 +244,9 @@ def del_video(request):
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
+
+# 投诉视频
+# def complain_video(request):
 
 # 获取个人点赞视频列表的id
 def get_like_list_simple(user_id):

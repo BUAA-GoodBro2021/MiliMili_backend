@@ -5,8 +5,7 @@ from user.models import User
 class Video(models.Model):
     title = models.CharField('标题', max_length=64)
     description = models.TextField('描述')
-    title_token = models.CharField('标题分词', max_length=64,default='')
-    description_token = models.TextField('描述分词',default='')
+    title_token = models.CharField('标题分词', max_length=64, default='')
     video = models.FileField('视频', upload_to='', default='')
     avatar = models.FileField('封面', upload_to='', default='')
     video_url = models.CharField('视频路径', max_length=128, default='')
@@ -35,7 +34,6 @@ class Video(models.Model):
             'title': self.title,
             'description': self.description,
             'title_token': self.title_token,
-            'description_token': self.description_token,
             'video_url': self.video_url,
             'avatar_url': self.avatar_url,
             'like_num': self.like_num,
@@ -91,6 +89,7 @@ class Video(models.Model):
             self.save(update_fields=['collect_num'])
 
 
+# 视频评论
 class VideoComment(models.Model):
     username = models.CharField('用户名', max_length=30)
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
@@ -121,6 +120,12 @@ class VideoComment(models.Model):
             'reply_comment_id': self.reply_comment_id,
             'reply_username': self.reply_username,
         }
+
+
+# 视频投诉
+class VideoComplain(models.Model):
+    title = models.CharField('标题', max_length=64)
+    description = models.TextField('描述')
 
 
 # 腾讯云自动审核

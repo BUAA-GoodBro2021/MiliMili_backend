@@ -1,11 +1,11 @@
 from django.urls import path
-
 from . import views
 
 urlpatterns = [
     # 视频系列
     path('upload-video', views.upload_video),
     path('del-video', views.del_video),
+    path('complain-video', views.complain_video),
     # 点赞系列
     path('like', views.like_video),
     path('dislike', views.dislike_video),

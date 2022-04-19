@@ -1,3 +1,6 @@
+import time
+from decimal import Decimal
+
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
 from sending.views import *
@@ -246,7 +249,43 @@ def del_video(request):
 
 
 # 投诉视频
-# def complain_video(request):
+def complain_video(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        now_time = time.time()
+        if user.complain_time != 0.0:
+            if now_time - float(user.complain_time) <= 60 * 60:
+                result = {'result': 0, 'message': r"离上次投诉的时间间隔小于1小时，请不要频繁投诉!"}
+                return JsonResponse(result)
+        # 更新时间戳
+        user.complain_time = now_time
+        user.save()
+        # 获取投诉信息
+        title = request.POST.get('title', '')
+        print(title)
+        description = request.POST.get('description', '')
+        video_id = request.POST.get('video_id', 0)
+        if len(title) == 0 or len(description) == 0:
+            result = {'result': 0, 'message': r"投诉的标题和主体不能为空！"}
+            return JsonResponse(result)
+        VideoComplain.objects.create(title=title, description=description, user_id=user_id, video_id=video_id)
+        video = Video.objects.get(id=video_id)
+        upload_user = video.user
+
+        result = {'result': 1, 'message': r"投诉视频成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
 
 
 # 获取个人点赞视频列表的id
@@ -598,6 +637,9 @@ def add_comment(request):
         video_id = request.POST.get('video_id', '')
         username = user.username
         content = request.POST.get('content', '')
+        if len(content) == 0:
+            result = {'result': 0, 'message': r"评论不能为空！"}
+            return JsonResponse(result)
         VideoComment.objects.create(username=username, content=content, video_id=video_id)
 
         video = Video.objects.get(id=video_id)
@@ -653,6 +695,9 @@ def reply_comment(request):
         content = request.POST.get('content', '')
         reply_comment_id = request.POST.get('reply_comment_id', '')
         reply_username = request.POST.get('reply_username', '')
+        if len(content) == 0:
+            result = {'result': 0, 'message': r"评论不能为空！"}
+            return JsonResponse(result)
         VideoComment.objects.create(username=username, content=content, video_id=video_id,
                                     reply_comment_id=reply_comment_id, reply_username=reply_username)
 

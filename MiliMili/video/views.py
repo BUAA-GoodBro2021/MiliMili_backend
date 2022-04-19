@@ -248,6 +248,7 @@ def del_video(request):
 # 投诉视频
 # def complain_video(request):
 
+
 # 获取个人点赞视频列表的id
 def get_like_list_simple(user_id):
     return [x.video_id for x in UserToVideo_like.objects.filter(user_id=user_id)]

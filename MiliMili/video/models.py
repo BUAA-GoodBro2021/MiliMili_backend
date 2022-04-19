@@ -126,6 +126,7 @@ class VideoComment(models.Model):
 class VideoComplain(models.Model):
     title = models.CharField('标题', max_length=64)
     description = models.TextField('描述')
+    user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE, default=None)
 
 
 # 腾讯云自动审核

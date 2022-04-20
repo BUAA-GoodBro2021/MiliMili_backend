@@ -4,18 +4,17 @@ from user.models import UserToHistory
 from video.models import Video
 
 
-def video_search(request, search_str):
-    try:
-        video_list = ThreadController(search_str, 'video').run()
-        result = 1
-        message = r'搜索视频成功'
-    except Exception:
-        video_list = None
-        result = 0
-        message = r'搜索视频失败'
-    if request.method == 'GET':
-        pass
-    elif request.method == 'POST':
+def video_search(request):
+    if request.method == 'POST':
+        search_str = request.POST.get('search_str', '')
+        try:
+            video_list = ThreadController(search_str, 'video').run()
+            result = 1
+            message = r'搜索视频成功'
+        except Exception:
+            video_list = None
+            result = 0
+            message = r'搜索视频失败'
         order = request.POST.get('order', '')
         if order == 'default' or video_list is None:
             pass
@@ -23,26 +22,26 @@ def video_search(request, search_str):
             video_list = sorted(video_list, key=lambda x: -x.get('updated_time'))
         elif order == 'view':
             video_list = sorted(video_list, key=lambda x: -x.get('view_num'))
-        else:
-            pass
     else:
-        pass
+        video_list = None
+        result = 0
+        message = r'搜索视频失败'
     result = {'result': result, 'message': message, 'list': video_list}
     return JsonResponse(result)
 
 
 def user_search(request, search_str):
-    try:
-        user_list = ThreadController(search_str, 'user').run()
-        result = 1
-        message = r'搜索用户成功'
-    except Exception:
-        user_list = None
-        result = 0
-        message = r'搜索用户失败'
-    if request.method == 'GET':
-        pass
-    elif request.method == 'POST':
+
+    if request.method == 'POST':
+        search_str = request.POST.get('search_str', '')
+        try:
+            user_list = ThreadController(search_str, 'user').run()
+            result = 1
+            message = r'搜索用户成功'
+        except Exception:
+            user_list = None
+            result = 0
+            message = r'搜索用户失败'
         order = request.POST.get('order', '')
         if order == 'default' or user_list is None:
             pass
@@ -51,14 +50,16 @@ def user_search(request, search_str):
         else:
             pass
     else:
-        pass
+        user_list = None
+        result = 0
+        message = r'搜索用户失败'
     result = {'result': result, 'message': message, 'list': user_list}
     return JsonResponse(result)
 
 
-def tag_search(request, search_str):
+def tag_search(request, tag):
     try:
-        tag_list = ThreadController(search_str, 'tag').run()
+        tag_list = ThreadController(tag, 'tag').run()
         result = 1
         message = r'搜索分区成功'
     except Exception:

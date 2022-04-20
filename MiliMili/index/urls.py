@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.recommend_video),
-    path('video/<str:search_str>', views.video_search),
-    path('user/<str:search_str>', views.user_search),
-    path('tag/<str:search_str>', views.tag_search),
+    path('video', views.video_search),
+    path('user', views.user_search),
+    path('tag/<str:tag>', views.tag_search),
 ]

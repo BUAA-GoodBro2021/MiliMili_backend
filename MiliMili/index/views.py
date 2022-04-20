@@ -30,7 +30,7 @@ def video_search(request):
     return JsonResponse(result)
 
 
-def user_search(request, search_str):
+def user_search(request):
 
     if request.method == 'POST':
         search_str = request.POST.get('search_str', '')

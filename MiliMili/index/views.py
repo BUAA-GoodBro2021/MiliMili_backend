@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 from index.ThreadController import ThreadController
+from user.models import UserToHistory
+from video.models import Video
 
 
 def video_search(request, search_str):
@@ -65,3 +67,31 @@ def tag_search(request, search_str):
         message = r'搜索分区失败'
     result = {'result': result, 'message': message, 'list': tag_list}
     return JsonResponse(result)
+
+
+def recommend_video(request):
+    history_list = list(UserToHistory.objects.all().values())[0:20]
+    tag_dict = {}
+    for history_info in history_list:
+        video_info = Video.objects.get(id=history_info.get('video_id', ''))
+        if video_info is not None:
+            for i in range(1, 6):
+                tag = video_info.get('tag' + str(i))
+                if tag != '':
+                    if tag not in tag_dict.keys():
+                        tag_dict[tag] = 1
+                    else:
+                        tag_dict[tag] += 1
+    try:
+        recommend_list = ThreadController(tag_dict, 'recommend').run()
+        result = 1
+        message = r'推荐成功'
+    except Exception:
+        recommend_list = None
+        result = 0
+        message = r'推荐失败'
+    result = {'result': result, 'message': message, 'list': recommend_list}
+    return JsonResponse(result)
+
+
+

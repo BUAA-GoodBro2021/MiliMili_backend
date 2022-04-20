@@ -1,4 +1,5 @@
 import math
+import random
 import threading
 import jieba
 from django.db.models import Q
@@ -8,23 +9,29 @@ from user.models import User
 
 
 class ThreadController:
-    def __init__(self, search_str, element, thread_num=10):
+    def __init__(self, search, element, thread_num=10):
         """
-        :param search_str: the searched string
+        :param search: the searched string or dict ({tag: count})
         :param element: the type of search (video, user, tag)
         :param thread_num: the number of threading
         """
-        self.search_token_list = list(jieba.cut_for_search(search_str))
-        self.search_str = search_str
+        self.search_token_list = list(jieba.cut_for_search(search))
+        self.search = search
         if element == 'video':
             self.element_list = list(Video.objects.filter(isAudit=0).values())
         elif element == 'user':
             self.element_list = list(User.objects.all().values())
         elif element == 'tag':
             self.element_list = list(
-                Video.objects.filter(Q(tag1=self.search_str) | Q(tag2=self.search_str) |
-                                     Q(tag3=self.search_str) | Q(tag4=self.search_str) |
-                                     Q(tag5=self.search_str)))
+                Video.objects.filter(Q(tag1=self.search) | Q(tag2=self.search) |
+                                     Q(tag3=self.search) | Q(tag4=self.search) |
+                                     Q(tag5=self.search)))
+        elif element == 'recommend':
+            key = search.keys()
+            self.element_list = list(
+                Video.objects.filter(Q(tag1__in=key) | Q(tag2__in=key) |
+                                     Q(tag3__in=key) | Q(tag4__in=key) |
+                                     Q(tag5__in=key)))
         else:
             self.element_list = []
         block_size = math.floor(len(self.element_list) / thread_num)
@@ -33,7 +40,7 @@ class ThreadController:
         distribution_list = [[block_size * i, block_size * (i + 1)] for i in range(thread_num)]
         distribution_list[thread_num - 1][1] = len(self.element_list)
         self.element = element
-        self.threads = [self.Threading(element, self.search_str, self.search_token_list,
+        self.threads = [self.Threading(element, self.search, self.search_token_list,
                                        self.element_list[distribution_list[i][0]:distribution_list[i][1]])
                         for i in range(thread_num)]
 
@@ -50,6 +57,11 @@ class ThreadController:
                                                                                -x.get('like_num')))
         elif self.element == 'tag':
             result = sorted(self.element_list, key=lambda x: (-x.get('view_num'), -x.get('like_num')))
+        elif self.element == 'recommend':
+            result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
+                                                                               -x.get('like_num')))[0:20]
+            count = min(len(result), 8)
+            result = random.sample(result, count)
         else:
             result = []
         return result
@@ -57,9 +69,9 @@ class ThreadController:
     class Threading(threading.Thread):
         ranked_element_list = []
 
-        def __init__(self, element, search_str, search_token_list, element_list):
+        def __init__(self, element, search, search_token_list, element_list):
             threading.Thread.__init__(self)
-            self.search_str = search_str
+            self.search = search
             self.element = element
             self.search_token_list = search_token_list
             self.element_list = element_list
@@ -119,8 +131,15 @@ class ThreadController:
                         self.ranked_element_list.append(video_info)
             elif self.element == 'user':
                 for user_info in self.element_list:
-                    user_info['distance'] = self.find_change(user_info.get('username'), self.search_str)
+                    user_info['distance'] = self.find_change(user_info.get('username'), self.search)
                     if user_info['distance'] < 5:
                         self.ranked_element_list.append(user_info)
+            elif self.element == 'recommend':
+                for video_info in self.element_list:
+                    score = 0
+                    for i in range(1, 6):
+                        score += self.search.get(video_info.get('tag' + str(i)), 0)
+                    video_info['distance'] = 100 - score
+                self.ranked_element_list += self.element_list
             else:
                 pass

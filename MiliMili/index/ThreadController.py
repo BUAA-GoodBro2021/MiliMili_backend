@@ -104,16 +104,26 @@ class ThreadController:
             :param s2: child str
             :return: find whether s1 can match s2
             """
-            n = len(s1) + 1
-            m = len(s2) + 1
-            dp = [[0] * m for _ in range(n)]
-            for i in range(1, n):
-                for j in range(1, m):
+            n = len(s1)
+            m = len(s2)
+            dp = [[0] * (m + 1) for _ in range(n + 1)]
+            index_list = []
+            for i in range(1, n + 1):
+                for j in range(1, m + 1):
                     if s1[i - 1] == s2[j - 1]:
                         dp[i][j] = dp[i - 1][j - 1] + 1
                     else:
                         dp[i][j] = max(dp[i][j - 1], dp[i - 1][j])
-            return dp[-1][-1]
+            step = dp[-1][-1]
+            for i in range(n, 0, -1):
+                for j in range(m, 0, -1):
+                    if dp[i][j] == step and dp[i][j - 1] == dp[i - 1][j] == dp[i - 1][j - 1] == step - 1:
+                        step -= 1
+                        index_list.append([i - 1, i])
+                        m = j
+                        break
+
+            return index_list, dp[-1][-1]
 
         def run(self):
             if self.element == 'video':
@@ -126,12 +136,14 @@ class ThreadController:
                         hit_count += is_hit
                     video_info['distance'] = math.fabs(hit_count - len(self.search_token_list))
                     if hit_count != 0:
+                        video_info['index_list'] = index_list
                         self.ranked_element_list.append(video_info)
             elif self.element == 'user':
                 for user_info in self.element_list:
-                    user_info['distance'] = len(self.search) + len(user_info.get('username')) - \
-                                            2 * self.find_change(user_info.get('username'), self.search)
+                    index_list, public_strlen = self.find_change(user_info.get('username'), self.search)
+                    user_info['distance'] = len(self.search) + len(user_info.get('username')) - 2 * public_strlen
                     if user_info['distance'] < 5:
+                        user_info['index_list'] = index_list
                         self.ranked_element_list.append(user_info)
             elif self.element == 'recommend':
                 for video_info in self.element_list:

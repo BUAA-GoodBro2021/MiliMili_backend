@@ -64,6 +64,7 @@ class ThreadController:
             result = random.sample(result, count)
         else:
             result = []
+        self.Threading.ranked_element_list = []
         return result
 
     class Threading(threading.Thread):
@@ -71,6 +72,7 @@ class ThreadController:
 
         def __init__(self, element, search, search_token_list, element_list):
             threading.Thread.__init__(self)
+            # self.ranked_element_list = []
             self.search = search
             self.element = element
             self.search_token_list = search_token_list

@@ -32,6 +32,7 @@ def video_search(request):
 
 def user_search(request):
     if request.method == 'POST':
+
         search_str = request.POST.get('search_str', '')
         try:
             user_list = ThreadController(search_str, 'user').run()
@@ -92,6 +93,3 @@ def recommend_video(request):
         message = r'推荐失败'
     result = {'result': result, 'message': message, 'list': recommend_list}
     return JsonResponse(result)
-
-
-

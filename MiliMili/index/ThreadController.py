@@ -105,16 +105,12 @@ class ThreadController:
             n = len(s1) + 1
             m = len(s2) + 1
             dp = [[0] * m for _ in range(n)]
-            for i in range(n):
-                dp[i][0] = i
-            for j in range(m):
-                dp[0][j] = j
             for i in range(1, n):
                 for j in range(1, m):
                     if s1[i - 1] == s2[j - 1]:
-                        dp[i][j] = dp[i - 1][j - 1]
+                        dp[i][j] = dp[i - 1][j - 1] + 1
                     else:
-                        dp[i][j] = min(dp[i - 1][j - 1], dp[i][j - 1], dp[i - 1][j]) + 1
+                        dp[i][j] = max(dp[i][j - 1], dp[i - 1][j])
             return dp[-1][-1]
 
         def run(self):
@@ -131,7 +127,8 @@ class ThreadController:
                         self.ranked_element_list.append(video_info)
             elif self.element == 'user':
                 for user_info in self.element_list:
-                    user_info['distance'] = self.find_change(user_info.get('username'), self.search)
+                    user_info['distance'] = len(self.search) + len(user_info.get('username')) - \
+                                            2 * self.find_change(user_info.get('username'), self.search)
                     if user_info['distance'] < 5:
                         self.ranked_element_list.append(user_info)
             elif self.element == 'recommend':

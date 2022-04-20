@@ -31,7 +31,6 @@ def video_search(request):
 
 
 def user_search(request):
-
     if request.method == 'POST':
         search_str = request.POST.get('search_str', '')
         try:

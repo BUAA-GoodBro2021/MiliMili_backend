@@ -26,9 +26,9 @@ def callback(request):
             if video.avatar_url != '':
                 suffix_avatar = '.' + video.avatar_url.split(".")[-1]
                 # 删除封面
-                bucket.delete_object("cover", int(video_id) + suffix_avatar)
+                bucket.delete_object("cover", str(video_id) + suffix_avatar)
             # 删除视频
-            bucket.delete_object("video", int(video_id) + suffix_video)
+            bucket.delete_object("video", str(video_id) + suffix_video)
             # 删除数据库记录
             Video.objects.get(id=video_id).delete()
             # 站内信

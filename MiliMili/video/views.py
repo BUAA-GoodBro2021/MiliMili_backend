@@ -270,7 +270,6 @@ def complain_video(request):
         user.save()
         # 获取投诉信息
         title = request.POST.get('title', '')
-        print(title)
         description = request.POST.get('description', '')
         video_id = request.POST.get('video_id', 0)
         if len(title) == 0 or len(description) == 0:

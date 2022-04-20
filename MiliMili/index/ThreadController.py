@@ -17,7 +17,7 @@ class ThreadController:
         self.search_token_list = list(jieba.cut_for_search(search_str))
         self.search_str = search_str
         if element == 'video':
-            self.element_list = list(Video.objects.all().values())
+            self.element_list = list(Video.objects.filter(isAudit=0).values())
         elif element == 'user':
             self.element_list = list(User.objects.all().values())
         elif element == 'tag':

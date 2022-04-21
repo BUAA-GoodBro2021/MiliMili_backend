@@ -176,7 +176,7 @@ class Bucket:
         :return: None
         """
         vid = imageio.get_reader(self.base_path + '/media/' + video_id + suffix, 'ffmpeg')
-        image = skimage.img_as_float(list(enumerate(vid))[0][1]).astype(np.float64)
+        image = skimage.img_as_float(enumerate(vid).__next__()[1]).astype(np.float64)
         pylab.figure()
         pylab.imshow(image)
         pylab.axis('off')

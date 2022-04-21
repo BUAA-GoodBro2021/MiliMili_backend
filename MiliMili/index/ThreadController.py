@@ -23,7 +23,6 @@ class ThreadController:
             self.element_list = list(User.objects.all().values())
         elif element == 'zone':
             self.element_list = list(Video.objects.filter(isAudit=1, need_verify=0, zone=search).values())
-            print(self.element_list)
         elif element == 'recommend':
             key = search.keys()
             self.element_list = list(Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
@@ -86,7 +85,7 @@ class ThreadController:
             hit = 0
             while True:
                 index = s1.find(s2, index)
-                if not (0 <= index < len(s2)):
+                if not (0 <= index < len(s1)):
                     break
                 hit = 1
                 index_list.append(index)
@@ -118,7 +117,6 @@ class ThreadController:
                         index_list.append([i - 1, i])
                         m = j
                         break
-
             return index_list, dp[-1][-1]
 
         def run(self):

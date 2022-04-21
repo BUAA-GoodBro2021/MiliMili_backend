@@ -27,8 +27,8 @@ class ThreadController:
         elif element == 'recommend':
             key = search.keys()
             self.element_list = list(Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
-                                     Q(tag3__in=key) | Q(tag4__in=key) |
-                                     Q(tag5__in=key)), isAudit=1, need_verify=0).values())
+                                                           Q(tag3__in=key) | Q(tag4__in=key) |
+                                                           Q(tag5__in=key)), isAudit=1, need_verify=0).values())
         else:
             self.element_list = []
         block_size = math.floor(len(self.element_list) / thread_num)
@@ -126,11 +126,13 @@ class ThreadController:
                 for video_info in self.element_list:
                     index_list = []
                     hit_count = 0
+                    title = video_info.get('title')
                     for token in self.search_token_list:
-                        is_hit, index = self.find_index(video_info.get('title'), token)
+                        is_hit, index = self.find_index(title, token)
                         index_list += index
                         hit_count += is_hit
-                    video_info['distance'] = math.fabs(hit_count - len(self.search_token_list))
+                    public_strlen = self.find_change(title, self.search)[1]
+                    video_info['distance'] = abs(hit_count - len(self.search_token_list)) + len(self.search) + len(title) - 2 * public_strlen
                     if hit_count != 0:
                         video_info['index_list'] = index_list
                         self.ranked_element_list.append(video_info)

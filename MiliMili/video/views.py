@@ -41,6 +41,7 @@ def upload_video(request):
         tag3 = request.POST.get('tag3', '')
         tag4 = request.POST.get('tag4', '')
         tag5 = request.POST.get('tag5', '')
+        recommend_tag = request.POST.get('recommend_tag', '')
 
         if title == '' or description == '' or zone == '':
             result = {'result': 0, 'message': r"视频标题或描述或分区不能为空!", "station_message": list_message(user.id)}
@@ -188,10 +189,20 @@ def upload_video(request):
             return JsonResponse(result)
         # 上传成功，等待审核
         JobToVideo.objects.create(job_id=audit_dic.get("job_id"), video_id=video_id)
+        UnAuditedTag.objects.create(tag=recommend_tag)
         result = {'result': 1, 'message': r"正在审核中，别着急哦！", "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
-        result = {'result': 0, 'message': r"请求方式错误！"}
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        tag_list = list(AuditedTag.objects.all().values())
+        result = {'result': 1, 'message': r"获取标签成功！", 'list': tag_list}
         return JsonResponse(result)
 
 

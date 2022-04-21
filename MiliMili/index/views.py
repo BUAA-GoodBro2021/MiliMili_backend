@@ -1,3 +1,5 @@
+import datetime
+
 from django.http import JsonResponse
 from index.ThreadController import ThreadController
 from user.models import UserToHistory
@@ -19,7 +21,7 @@ def video_search(request):
         if order == 'default' or video_list is None:
             pass
         elif order == 'time':
-            video_list = sorted(video_list, key=lambda x: -x.get('updated_time'))
+            video_list = sorted(video_list, key=lambda x: -x.get('updated_time').timestamp())
         elif order == 'view':
             video_list = sorted(video_list, key=lambda x: -x.get('view_num'))
     else:
@@ -32,7 +34,6 @@ def video_search(request):
 
 def user_search(request):
     if request.method == 'POST':
-
         search_str = request.POST.get('search_str', '')
         try:
             user_list = ThreadController(search_str, 'user').run()

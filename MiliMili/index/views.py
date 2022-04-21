@@ -45,8 +45,8 @@ def user_search(request):
         order = request.POST.get('order', '')
         if order == 'default' or user_list is None:
             pass
-        elif order == 'fun':
-            user_list = sorted(user_list, key=lambda x: -x.get('fun_num'))
+        elif order == 'fan':
+            user_list = sorted(user_list, key=lambda x: -x.get('fan_num'))
         else:
             pass
     else:

@@ -28,7 +28,6 @@ class Bucket:
         self.config = CosConfig(Region=self.region, Secret_id=self.secret_id, Secret_key=self.secret_key,
                                 Token=self.token)
         self.client = CosS3Client(self.config)
-        pylab.figure()
 
     def create_bucket(self, bucket_name, access='public-read'):
         """
@@ -176,14 +175,10 @@ class Bucket:
         :param suffix: video's suffix
         :return: None
         """
-        print(1)
         vid = imageio.get_reader(self.base_path + '/media/' + video_id + suffix, 'ffmpeg')
-        print(2)
         image = skimage.img_as_float(list(enumerate(vid))[0][1]).astype(np.float64)
-        print(3)
+        pylab.figure()
         pylab.imshow(image)
-        print(4)
         pylab.axis('off')
-        print(5)
         pylab.savefig(self.base_path + '/media/' + video_id + '.png', format='png', bbox_inches='tight', dpi=150,
                       transparent=True)

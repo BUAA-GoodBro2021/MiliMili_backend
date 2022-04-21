@@ -18,20 +18,17 @@ class ThreadController:
         self.search_token_list = list(jieba.cut_for_search(search))
         self.search = search
         if element == 'video':
-            self.element_list = list(Video.objects.filter(isAudit=0).values())
+            self.element_list = list(Video.objects.filter(isAudit=1, need_verify=0).values())
         elif element == 'user':
             self.element_list = list(User.objects.all().values())
-        elif element == 'tag':
-            self.element_list = list(
-                Video.objects.filter(Q(tag1=self.search) | Q(tag2=self.search) |
-                                     Q(tag3=self.search) | Q(tag4=self.search) |
-                                     Q(tag5=self.search)))
+        elif element == 'zone':
+            self.element_list = list(Video.objects.filter(isAudit=1, need_verify=0, zone=search).values())
+            print(self.element_list)
         elif element == 'recommend':
             key = search.keys()
-            self.element_list = list(
-                Video.objects.filter(Q(tag1__in=key) | Q(tag2__in=key) |
+            self.element_list = list(Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
                                      Q(tag3__in=key) | Q(tag4__in=key) |
-                                     Q(tag5__in=key)))
+                                     Q(tag5__in=key)), isAudit=1, need_verify=0).values())
         else:
             self.element_list = []
         block_size = math.floor(len(self.element_list) / thread_num)
@@ -55,7 +52,7 @@ class ThreadController:
         elif self.element == 'user':
             result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('fan_num'),
                                                                                -x.get('like_num')))
-        elif self.element == 'tag':
+        elif self.element == 'zone':
             result = sorted(self.element_list, key=lambda x: (-x.get('view_num'), -x.get('like_num')))
         elif self.element == 'recommend':
             result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
@@ -72,7 +69,6 @@ class ThreadController:
 
         def __init__(self, element, search, search_token_list, element_list):
             threading.Thread.__init__(self)
-            # self.ranked_element_list = []
             self.search = search
             self.element = element
             self.search_token_list = search_token_list

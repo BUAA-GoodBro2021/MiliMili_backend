@@ -57,16 +57,16 @@ def user_search(request):
     return JsonResponse(result)
 
 
-def tag_search(request, tag):
+def zone_search(request, zone):
     try:
-        tag_list = ThreadController(tag, 'tag').run()
+        zone_list = ThreadController(zone, 'zone').run()
         result = 1
         message = r'搜索分区成功'
     except Exception:
-        tag_list = None
+        zone_list = None
         result = 0
         message = r'搜索分区失败'
-    result = {'result': result, 'message': message, 'list': tag_list}
+    result = {'result': result, 'message': message, 'list': zone_list}
     return JsonResponse(result)
 
 

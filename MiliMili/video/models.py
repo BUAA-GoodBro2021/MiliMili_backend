@@ -161,3 +161,11 @@ class Favorite(models.Model):
 class FavoriteToVideo(models.Model):
     favorite_id = models.IntegerField(verbose_name='收藏夹编号', default=0)
     video_id = models.IntegerField(verbose_name='视频编号', default=0)
+
+
+class AuditedTag(models.Model):
+    tag = models.CharField(verbose_name='审核后的标签', max_length=64)
+
+
+class UnAuditedTag(models.Model):
+    tag = models.CharField(verbose_name='待审核的标签', max_length=64)

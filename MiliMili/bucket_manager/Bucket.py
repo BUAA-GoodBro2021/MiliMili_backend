@@ -182,3 +182,4 @@ class Bucket:
         pylab.axis('off')
         pylab.savefig(self.base_path + '/media/' + video_id + '.png', format='png', bbox_inches='tight', dpi=150,
                       transparent=True)
+        pylab.close()

@@ -49,18 +49,10 @@ def callback(request):
             # 调整状态
             video.isAudit = 1
             video.save()
-            video.title = '#'
-            video.save()
             # 如果视频没有封面，取第一帧为封面
             if video.avatar_url == '':
-                video.title = '##'
-                video.save()
                 bucket.cover_generator(video_id=str(video_id), suffix=suffix_video)
-                video.title = '###'
-                video.save()
                 upload_result = bucket.upload_file("cover", str(video_id) + ".png", str(video_id) + ".png")
-                video.title = '####'
-                video.save()
                 if upload_result == -1:
                     os.remove(os.path.join(BASE_DIR, "media/" + str(video_id) + ".png"))
                     # 删除视频

@@ -21,4 +21,5 @@ urlpatterns = [
     path('add-comment', views.add_comment),
     path('del-comment', views.del_comment),
     path('reply-comment', views.reply_comment),
+    path('update-comment', views.update_comment),
 ]

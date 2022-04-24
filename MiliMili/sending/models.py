@@ -10,7 +10,8 @@ class Message(models.Model):
 
     user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
     isRead = models.BooleanField("是否已读", default=False)
-    from_name = models.CharField('发送者', max_length=32,default="MiliMili小助手")
+    from_name = models.CharField('发送者', max_length=32, default="MiliMili小助手")
+
     def to_dic(self):
         return {
             "id": self.id,
@@ -18,7 +19,7 @@ class Message(models.Model):
             "content": self.content,
             "created_time": self.created_time,
             "isRead": self.isRead,
-            "from_name":self.from_name,
+            "from_name": self.from_name,
         }
 
     def __str__(self):

@@ -29,17 +29,43 @@ def list_message(user_id):
 
 
 # 创造一个人的站内信
-def create_message(user_id, title, content):
+def create_message(user_id, title, content, from_name="MiliMili小助手"):
     message = Message()
     message.title = title
     message.content = content
     message.user_id = user_id
     message.isRead = False
+    message.from_name = from_name
     message.save()
 
 
+# 向有一个用户发送私信
+def send_message(request):
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        title = request.POST.get('title', '')
+        content = request.POST.get('content', '')
+        if len(title) == 0 or len(content) ==0:
+            result = {'result': 0, 'message': r"标题或者内容不能为空!"}
+            return JsonResponse(result)
+        send_user_id = request.POST.get('send_user_id', '')
+        create_message(send_user_id, title, content, user.username)
+        result = {'result': 1, 'message': r"发送私信成功!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 # 用户读站内信
-def read_message(request, message_id):
+def read_message(request):
     # 检查表单信息
     if request.method == 'POST':
         JWT = request.POST.get('JWT', '')
@@ -50,6 +76,8 @@ def read_message(request, message_id):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
+
+        message_id = request.POST.get('message_id', '')
 
         try:
             message = Message.objects.get(id=message_id)
@@ -90,7 +118,7 @@ def read_all_message(request):
 
 
 # 用户删除站内信
-def del_message(request, message_id):
+def del_message(request):
     # 检查表单信息
     if request.method == 'POST':
         JWT = request.POST.get('JWT', '')
@@ -101,6 +129,8 @@ def del_message(request, message_id):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
+
+        message_id = request.POST.get('message_id', '')
 
         try:
             message = Message.objects.get(id=message_id)

@@ -85,15 +85,11 @@ def login(request):
 
 def findPassword(request):
     if request.method == 'POST':
-        # 检查表单信息
-        JWT = request.POST.get('JWT', '')
-        try:
-            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
-            user_id = token.get('user_id', '')
-            user = User.objects.get(id=user_id)
-        except Exception as e:
-            result = {'result': 0, 'message': r"请先登录!"}
+        username = request.POST.get('username', '')
+        if not User.objects.filter(username=username).exists():
+            result = {'result': 0, 'message': r'用户名不存在!'}
             return JsonResponse(result)
+        user = User.objects.get(username=username)
         # 获取密码
         password1 = request.POST.get('password1', '')
         password2 = request.POST.get('password2', '')

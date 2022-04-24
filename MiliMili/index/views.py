@@ -6,59 +6,6 @@ from user.models import UserToHistory
 from video.models import Video
 
 
-def get_ip_address(request):
-    # coding=UTF-8
-    res = ''
-    host = 'https://ips.market.alicloudapi.com'
-    path = '/iplocaltion'
-    method = 'GET'
-    appcode = '1437a6fc99dc4078bfe01338d7132c2c'  # 开通服务后 买家中心-查看AppCode
-    querys = "ip=" + request.META['REMOTE_ADDR']
-    print(querys)
-    bodys = {}
-    url = host + path + '?' + querys
-    header = {"Authorization": 'APPCODE ' + appcode}
-    try:
-        res = requests.get(url, headers=header)
-    except:
-        print("URL错误")
-        exit()
-    httpStatusCode = res.status_code
-
-    if httpStatusCode == 200:
-        print("正常请求计费(其他均不计费)")
-        print(res.text)
-        return JsonResponse(res.text)
-    else:
-        httpReason = res.headers['X-Ca-Error-Message']
-        if httpStatusCode == 400 and httpReason == 'Invalid Param Location':
-            print("参数错误")
-            return JsonResponse({"result": 0, "message": "参数错误"})
-        elif httpStatusCode == 400 and httpReason == 'Invalid AppCode':
-            print("AppCode错误")
-            return JsonResponse({"result": 0, "message": "AppCode错误"})
-        elif httpStatusCode == 400 and httpReason == 'Invalid Url':
-            print("请求的 Method、Path 或者环境错误")
-            return JsonResponse({"result": 0, "message": "请求的 Method、Path 或者环境错误"})
-        elif httpStatusCode == 403 and httpReason == 'Unauthorized':
-            print("服务未被授权（或URL和Path不正确）")
-            return JsonResponse({"result": 0, "message": "服务未被授权（或URL和Path不正确）"})
-        elif httpStatusCode == 403 and httpReason == 'Quota Exhausted':
-            print("套餐包次数用完")
-            return JsonResponse({"result": 0, "message": "套餐包次数用完"})
-        elif httpStatusCode == 403 and httpReason == 'Api Market Subscription quota exhausted':
-            print("套餐包次数用完，请续购套餐")
-            return JsonResponse({"result": 0, "message": "套餐包次数用完，请续购套餐"})
-        elif httpStatusCode == 500:
-            print("API网关错误")
-            return JsonResponse({"result": 0, "message": "API网关错误"})
-        else:
-            print("参数名错误 或 其他错误")
-            print(httpStatusCode)
-            print(httpReason)
-            return JsonResponse({"result": 0, "message": "参数名错误 或 其他错误"})
-
-
 def video_search(request):
     if request.method == 'POST':
         search_str = request.POST.get('search_str', '')
@@ -147,3 +94,56 @@ def recommend_video(request):
         message = r'推荐失败'
     result = {'result': result, 'message': message, 'list': recommend_list}
     return JsonResponse(result)
+
+
+def get_ip_address(request):
+    # coding=UTF-8
+    res = ''
+    host = 'https://ips.market.alicloudapi.com'
+    path = '/iplocaltion'
+    method = 'GET'
+    appcode = '1437a6fc99dc4078bfe01338d7132c2c'  # 开通服务后 买家中心-查看AppCode
+    querys = "ip=" + request.META['REMOTE_ADDR']
+    print(querys)
+    bodys = {}
+    url = host + path + '?' + querys
+    header = {"Authorization": 'APPCODE ' + appcode}
+    try:
+        res = requests.get(url, headers=header)
+    except:
+        print("URL错误")
+        exit()
+    httpStatusCode = res.status_code
+
+    if httpStatusCode == 200:
+        print("正常请求计费(其他均不计费)")
+        print(res.text)
+        return JsonResponse(res.text)
+    else:
+        httpReason = res.headers['X-Ca-Error-Message']
+        if httpStatusCode == 400 and httpReason == 'Invalid Param Location':
+            print("参数错误")
+            return JsonResponse({"result": 0, "message": "参数错误"})
+        elif httpStatusCode == 400 and httpReason == 'Invalid AppCode':
+            print("AppCode错误")
+            return JsonResponse({"result": 0, "message": "AppCode错误"})
+        elif httpStatusCode == 400 and httpReason == 'Invalid Url':
+            print("请求的 Method、Path 或者环境错误")
+            return JsonResponse({"result": 0, "message": "请求的 Method、Path 或者环境错误"})
+        elif httpStatusCode == 403 and httpReason == 'Unauthorized':
+            print("服务未被授权（或URL和Path不正确）")
+            return JsonResponse({"result": 0, "message": "服务未被授权（或URL和Path不正确）"})
+        elif httpStatusCode == 403 and httpReason == 'Quota Exhausted':
+            print("套餐包次数用完")
+            return JsonResponse({"result": 0, "message": "套餐包次数用完"})
+        elif httpStatusCode == 403 and httpReason == 'Api Market Subscription quota exhausted':
+            print("套餐包次数用完，请续购套餐")
+            return JsonResponse({"result": 0, "message": "套餐包次数用完，请续购套餐"})
+        elif httpStatusCode == 500:
+            print("API网关错误")
+            return JsonResponse({"result": 0, "message": "API网关错误"})
+        else:
+            print("参数名错误 或 其他错误")
+            print(httpStatusCode)
+            print(httpReason)
+            return JsonResponse({"result": 0, "message": "参数名错误 或 其他错误"})

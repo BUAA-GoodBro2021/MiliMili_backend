@@ -13,7 +13,7 @@ def get_ip_address(request):
     path = '/iplocaltion'
     method = 'GET'
     appcode = '1437a6fc99dc4078bfe01338d7132c2c'  # 开通服务后 买家中心-查看AppCode
-    querys = request.META['REMOTE_ADDR']
+    querys = "ip=" + request.META['REMOTE_ADDR']
     print(querys)
     bodys = {}
     url = host + path + '?' + querys

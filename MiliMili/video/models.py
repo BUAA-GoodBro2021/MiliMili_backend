@@ -163,3 +163,6 @@ class FavoriteToVideo(models.Model):
     video_id = models.IntegerField(verbose_name='视频编号', default=0)
 
 
+class Tag(models.Model):
+    tag = models.CharField(verbose_name='标签集合', max_length=64)
+    count = models.IntegerField(verbose_name='选用此标签的视频数量', default=0)

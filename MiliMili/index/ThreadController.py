@@ -55,7 +55,11 @@ class ThreadController:
             result = sorted(self.element_list, key=lambda x: (-x.get('view_num'), -x.get('like_num')))
         elif self.element == 'recommend':
             result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
-                                                                               -x.get('like_num')))[0:20]
+                                                                               -x.get('like_num')))
+            if len(result) >= 40:
+                result = result[:35] + result[-5:]
+            elif len(result) < 8:
+                result = list(Video.objects.filter(isAudit=1, need_verify=0).values())
             count = min(len(result), 8)
             result = random.sample(result, count)
         else:

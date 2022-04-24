@@ -189,7 +189,6 @@ def upload_video(request):
             return JsonResponse(result)
         # 上传成功，等待审核
         JobToVideo.objects.create(job_id=audit_dic.get("job_id"), video_id=video_id)
-        UnAuditedTag.objects.create(tag=recommend_tag)
         result = {'result': 1, 'message': r"正在审核中，别着急哦！", "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
@@ -201,8 +200,13 @@ def upload_video(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        tag_list = list(AuditedTag.objects.all().values())
-        result = {'result': 1, 'message': r"获取标签成功！", 'list': tag_list}
+        # 获取数据库中所有的标签以及使用次数来供用户进行选择
+        # 视频发布者倾向于选择符合自己视频的且使用次数多的标签
+        # 这样可以提高自己的视频曝光率
+        # TODO 个人想做一个即时变化的标签搜索栏，可以随着用户搜索的变化来返回相近的tag:count，（就是搜索栏）
+        #  算法这方面不知道需不需要提供接口，或者说前端有可以直接实现搜索的工具，这个需要确定一下
+        tag_list = list(Tag.objects.all().values())
+        result = {'result': 1, 'message': r"获取标签集成功", 'tag_list': tag_list}
         return JsonResponse(result)
 
 

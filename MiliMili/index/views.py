@@ -118,7 +118,7 @@ def get_ip_address(request):
     if httpStatusCode == 200:
         print("正常请求计费(其他均不计费)")
         print(res.text)
-        return JsonResponse(dict(res.text), safe=False)
+        return JsonResponse(eval(res.text))
     else:
         httpReason = res.headers['X-Ca-Error-Message']
         if httpStatusCode == 400 and httpReason == 'Invalid Param Location':

@@ -132,7 +132,7 @@ class UserToVideo(models.Model):
     video_id = models.IntegerField(verbose_name='收藏的视频', default=0)
 
 
-# 查看个人收藏的视频
+# 查看个人点赞的视频
 class UserToVideo_like(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)
     video_id = models.IntegerField(verbose_name='点赞的视频', default=0)

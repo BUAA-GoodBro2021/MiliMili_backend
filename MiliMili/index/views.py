@@ -11,15 +11,6 @@ from MiliMili.settings import SECRET_KEY
 
 def video_search(request):
     if request.method == 'POST':
-        # 检查表单信息
-        JWT = request.POST.get('JWT', '')
-        try:
-            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
-            user_id = token.get('user_id', '')
-            user = User.objects.get(id=user_id)
-        except Exception as e:
-            result = {'result': 0, 'message': r"请先登录!"}
-            return JsonResponse(result)
         search_str = request.POST.get('search_str', '')
         try:
             video_list = ThreadController(search_str, 'video').run()
@@ -46,15 +37,6 @@ def video_search(request):
 
 def user_search(request):
     if request.method == 'POST':
-        # 检查表单信息
-        JWT = request.POST.get('JWT', '')
-        try:
-            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
-            user_id = token.get('user_id', '')
-            user = User.objects.get(id=user_id)
-        except Exception as e:
-            result = {'result': 0, 'message': r"请先登录!"}
-            return JsonResponse(result)
         search_str = request.POST.get('search_str', '')
         try:
             user_list = ThreadController(search_str, 'user').run()
@@ -81,15 +63,6 @@ def user_search(request):
 
 def zone_search(request, zone):
     if request.method == 'POST':
-        # 检查表单信息
-        JWT = request.POST.get('JWT', '')
-        try:
-            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
-            user_id = token.get('user_id', '')
-            user = User.objects.get(id=user_id)
-        except Exception as e:
-            result = {'result': 0, 'message': r"请先登录!"}
-            return JsonResponse(result)
         try:
             zone_list = ThreadController(zone, 'zone').run()
             result = 1

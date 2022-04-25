@@ -760,3 +760,27 @@ def reply_comment(request):
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
+
+def video_page(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        video_id = request.POST.get('video_id', '')
+        video_info = Video.objects.get(id=video_id)
+        from index.ThreadController import ThreadController
+        video_tag = {}
+        for i in range(1, 6):
+            if eval('video_info.tag' + str(i)) != '':
+                video_tag[eval('video.tag' + str(i))] = 20
+        recommended_video = ThreadController(video_tag, 'recommend')
+        result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info, 'recommended_video': recommended_video}
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+    return JsonResponse(result)

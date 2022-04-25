@@ -461,3 +461,26 @@ def fan_list(request):
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
+
+def find_history(request):
+    from video.models import Video
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        # TODO 视频历史记录莫得时间（）
+        history = list(UserToSearchHistory.objects.filter(user_id=user_id).order_by('-id').values())
+        video_list = []
+        for h in history:
+            video_list.append(Video.objects.get(id=h.get('video_id')).values())
+        result = {'result': 1, 'message': r'获取历史记录成功', 'video_list': video_list}
+    else:
+        result = {'result': 0, 'message': r'获取历史记录失败'}
+    return JsonResponse(result)
+

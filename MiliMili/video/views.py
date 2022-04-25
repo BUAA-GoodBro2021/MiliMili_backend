@@ -674,6 +674,35 @@ def add_comment(request):
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
+# 修改评论
+def update_comment(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        video_id = request.POST.get('video_id', '')
+        comment_id = request.POST.get('comment_id', '')
+        content = request.POST.get('content', '')
+        video = Video.objects.get(id=video_id)
+
+        if len(content) == 0:
+            result = {'result': 0, 'message': r"评论不能为空！"}
+            return JsonResponse(result)
+        VideoComment.objects.filter(id=comment_id).update(content=content)
+        result = {'result': 1, 'message': r"修改评论成功！", "user": user.to_dic(),
+                  "comment": [x.to_dic() for x in video.videocomment_set.all()],
+                  "comment_num": len(video.videocomment_set.all())}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
 
 # 删除评论
 def del_comment(request):

@@ -112,7 +112,8 @@ def index_message(request):
             message = r'推荐失败'
         search_history_list = list(UserToSearchHistory.objects.filter(user_id=user_id).values())
         search_history_list = sorted(search_history_list, key=lambda x: -x.get('created_time').timestamp())[:8]
-        result = {'result': result, 'message': message, 'recommend_list': recommend_list, 'search_history_list': search_history_list}
+        result = {'result': result, 'message': message, 'recommend_list': recommend_list,
+                  'search_history_list': search_history_list}
         return JsonResponse(result)
 
 

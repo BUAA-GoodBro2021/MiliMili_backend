@@ -14,6 +14,4 @@ urlpatterns = [
     path('unfollow', views.unfollow),
     path('follow-list', views.follow_list),
     path('fan-list', views.fan_list),
-
-    path('find_history', views.find_history)
 ]

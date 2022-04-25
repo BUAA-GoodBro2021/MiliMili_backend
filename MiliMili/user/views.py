@@ -2,6 +2,7 @@ from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
 from sending.views import *
 from user.models import *
+from video.models import *
 
 
 def register(request):
@@ -462,6 +463,7 @@ def fan_list(request):
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
+
 def find_history(request):
     from video.models import Video
     if request.method == 'POST':
@@ -484,3 +486,25 @@ def find_history(request):
         result = {'result': 0, 'message': r'获取历史记录失败'}
     return JsonResponse(result)
 
+
+# 获取自己视频列表
+def video_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"获取视频列表成功！", "user": user.to_dic(),
+                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id)],
+                  "video_num": len(Video.objects.filter(user_id=user_id)),
+                  "station_message": list_message(user.id)}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)

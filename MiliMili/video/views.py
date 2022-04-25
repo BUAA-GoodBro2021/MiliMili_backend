@@ -761,7 +761,7 @@ def reply_comment(request):
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
-def video_page(request):
+def video_page(request, video_id):
     if request.method == 'POST':
         # 检查表单信息
         JWT = request.POST.get('JWT', '')
@@ -772,7 +772,6 @@ def video_page(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        video_id = request.POST.get('video_id', '')
         video_info = Video.objects.get(id=video_id)
         from index.ThreadController import ThreadController
         video_tag = {}

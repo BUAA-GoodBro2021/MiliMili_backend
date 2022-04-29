@@ -508,3 +508,107 @@ def video_list(request):
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
+
+
+def all_list(request):
+    if request.method == 'POST':
+        if request.method == 'POST':
+            # 检查表单信息
+            JWT = request.POST.get('JWT', '')
+            try:
+                token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+                user_id = token.get('user_id', '')
+                user = User.objects.get(id=user_id)
+            except Exception as e:
+                result = {'result': 0, 'message': r"请先登录!"}
+                return JsonResponse(result)
+
+            result = {'result': 1, 'message': r"获取详情列表成功！", "user": user.to_dic(),
+                      "follow_list": get_follow_list_detail(user_id),
+                      "fan_list": get_fan_list_detail(user_id),
+                      "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id)],
+                      "video_num": len(Video.objects.filter(user_id=user_id)),
+                      "station_message": list_message(user.id)}
+            return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 展示up主粉丝列表
+def up_fan_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        up_user_id = request.POST.get('up_user_id', '')
+        try:
+            up_user = User.objects.get(id=up_user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"获取粉丝列表失败！"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"获取粉丝列表成功！", "user": up_user.to_dic(),
+                  "fan_list": get_fan_list_detail(up_user_id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 展示up主关注列表
+def up_follow_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        up_user_id = request.POST.get('up_user_id', '')
+        try:
+            up_user = User.objects.get(id=up_user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"获取关注列表失败！"}
+            return JsonResponse(result)
+
+        result = {'result': 1, 'message': r"获取关注列表成功！", "user": up_user.to_dic(),
+                  "follow_list": get_follow_list_detail(up_user_id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 获取up主视频列表
+def up_video_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        up_user_id = request.POST.get('up_user_id', '')
+        try:
+            up_user = User.objects.get(id=up_user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"获取关注列表失败！"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"获取视频列表成功！", "user": up_user.to_dic(),
+                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=up_user_id)],
+                  "video_num": len(Video.objects.filter(user_id=up_user_id))}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+def up_all_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        up_user_id = request.POST.get('up_user_id', '')
+        try:
+            up_user = User.objects.get(id=up_user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"获取详情列表失败！"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"获取详情列表成功！", "user": up_user.to_dic(),
+                  "follow_list": get_follow_list_detail(up_user_id),
+                  "fan_list": get_fan_list_detail(up_user_id),
+                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=up_user_id)],
+                  "video_num": len(Video.objects.filter(user_id=up_user_id))}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)

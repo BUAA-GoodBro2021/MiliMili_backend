@@ -84,7 +84,7 @@ def login(request):
         return JsonResponse(result)
 
 
-def findPassword(request):
+def find_password(request):
     if request.method == 'POST':
         username = request.POST.get('username', '')
         if not User.objects.filter(username=username).exists():

@@ -5,8 +5,9 @@ BUAA2021第六组软工大作业——后端部分
 
 开发人员如下：
 
-[![Author](https://img.shields.io/badge/Author-周恩申(Zhoues)-yellow.svg "Author")](https://ACGkaka.github.io "Author")
-[![Author](https://img.shields.io/badge/Author-李毅骁(FireAngelx)-red.svg "Author")](https://ACGkaka.github.io "Author")
+[![Author](https://img.shields.io/badge/Author-周恩申(Zhoues)-yellow.svg "Author")](https://www.zhoues.com)
+[![Author](https://img.shields.io/badge/Author-李毅骁(FireAngelx)-red.svg "Author")](https://2947653177@qq.com)
 
-
+## 许可证
+[![License](https://img.shields.io/badge/License-Apache-green.svg "License")](https://www.apache.org/licenses/LICENSE-2.0)
 

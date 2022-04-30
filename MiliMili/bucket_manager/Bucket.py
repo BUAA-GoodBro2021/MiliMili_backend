@@ -8,6 +8,7 @@ import pylab
 import imageio
 import skimage
 import numpy as np
+from key import *
 
 
 class Bucket:
@@ -18,8 +19,8 @@ class Bucket:
         'https': '127.0.0.1:443'
     }
 
-    def __init__(self, secret_id='AKIDNZVAYfV5NO9dqmTv5zcz4sPggPr2yc07', secret_key='sTnqc7LJ0Q2NREl10h8IBn8CyTigNo31',
-                 app_id='-1309504341', region='ap-beijing', token=None):
+    def __init__(self, secret_id=bucket_secret_id, secret_key=bucket_secret_key, app_id=bucket_app_id,
+                 region=bucket_region, token=None):
         self.secret_id = secret_id
         self.secret_key = secret_key
         self.app_id = app_id
@@ -29,7 +30,7 @@ class Bucket:
                                 Token=self.token)
         self.client = CosS3Client(self.config)
 
-    def create_bucket(self, bucket_name, access='public-read'):
+    def create_bucket(self, bucket_name, access=bucket_access):
         """
         :param access: access status: public-read | private | public-read-write
         :param bucket_name: bucket's name

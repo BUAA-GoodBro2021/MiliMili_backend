@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
+from key import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -114,13 +115,12 @@ WSGI_APPLICATION = 'MiliMili.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': BASE_DIR / 'db.mysql',
-        'NAME': 'milimili',
-        'USER': 'buaa2021',
-        'PASSWORD': 'buaa(2021)',
-        'HOST': 'rm-wz974lh9hz3g6w0k5ko.mysql.rds.aliyuncs.com',
-        'PORT': '3306'
+        'ENGINE': db_ENGINE,
+        'NAME': db_NAME,
+        'USER': db_USER,
+        'PASSWORD': db_PASSWORD,
+        'HOST': db_HOST,
+        'PORT': db_PORT
     }
 }
 
@@ -165,16 +165,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.qq.com'  # 腾讯QQ邮箱SMTP服务器地址
-EMAIL_PORT = 25  # SMTP服务器端口号
-EMAIL_HOST_USER = '3044039051@qq.com'  # 发送邮件的QQ邮箱
-EMAIL_HOST_PASSWORD = 'zosulotgxochdehe'  # 授权码
-EMAIL_USE_TLS = False  # 与SMTP服务器通信时，是否启动TLS链接（安全链接）默认False
-
+# 管理UI信息
 SIMPLEUI_HOME_INFO = False  # simpleUI是否连接github/gitee首页
 SIMPLEUI_HOME_ACTION = False  # 不显示最近操作
-# SIMPLEUI_LOGO = 'https://www.zhoues.com/img/logo_starmap.225b2e1f.png'  # 首页图标
-# SIMPLEUI_INDEX = 'https://www.zhoues.com'  # 首页地址
-
-SECRET_KEY = 'super2021'

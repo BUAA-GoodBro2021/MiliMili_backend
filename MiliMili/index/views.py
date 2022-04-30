@@ -2,11 +2,13 @@ import datetime
 
 import jwt
 import requests
+
 from django.http import JsonResponse
+
+from MiliMili.settings import SECRET_KEY
 from index.ThreadController import ThreadController
 from user.models import *
 from video.models import Video
-from MiliMili.settings import SECRET_KEY
 
 
 def video_search(request):

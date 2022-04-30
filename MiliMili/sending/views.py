@@ -3,14 +3,14 @@ import platform
 from random import Random
 
 import jwt
-from django.conf import settings
-from django.conf.global_settings import SECRET_KEY
+
 from django.core.mail import EmailMessage
 from django.db.models import *
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template import loader
 
+from MiliMili.settings import SECRET_KEY
 from sending.models import Message
 from user.models import User
 
@@ -52,7 +52,7 @@ def send_message(request):
             return JsonResponse(result)
         title = request.POST.get('title', '')
         content = request.POST.get('content', '')
-        if len(title) == 0 or len(content) ==0:
+        if len(title) == 0 or len(content) == 0:
             result = {'result': 0, 'message': r"标题或者内容不能为空!"}
             return JsonResponse(result)
         send_user_id = request.POST.get('send_user_id', '')
@@ -186,7 +186,7 @@ def send_email(token, email, title):
         email_title = r"MiliMili重设密码"
         email_body = loader.render_to_string('EmailContent-find.html', data)
     try:
-        msg = EmailMessage(email_title, email_body, settings.EMAIL_HOST_USER, [email])
+        msg = EmailMessage(email_title, email_body, EMAIL_HOST_USER, [email])
         msg.content_subtype = 'html'
         send_status = msg.send()
         return send_status

@@ -3,7 +3,7 @@ import datetime
 import jwt
 import requests
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 from MiliMili.settings import SECRET_KEY
 from index.ThreadController import ThreadController
@@ -141,7 +141,8 @@ def get_ip_address(request):
     if httpStatusCode == 200:
         print("正常请求计费(其他均不计费)")
         print(res.text)
-        return JsonResponse(eval(res.text))
+        # return JsonResponse(eval(res.text))
+        return HttpResponse(eval(res.text))
     else:
         httpReason = res.headers['X-Ca-Error-Message']
         if httpStatusCode == 400 and httpReason == 'Invalid Param Location':

@@ -3,10 +3,11 @@ import datetime
 import jwt
 import requests
 
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 
 from MiliMili.settings import SECRET_KEY
 from index.ThreadController import ThreadController
+from key import *
 from user.models import *
 from video.models import Video
 
@@ -125,7 +126,7 @@ def get_ip_address(request):
     host = 'https://ips.market.alicloudapi.com'
     path = '/iplocaltion'
     method = 'GET'
-    appcode = '1437a6fc99dc4078bfe01338d7132c2c'  # 开通服务后 买家中心-查看AppCode
+    appcode = aliyun_appcode
     querys = "ip=" + request.META['REMOTE_ADDR']
     print(querys)
     bodys = {}

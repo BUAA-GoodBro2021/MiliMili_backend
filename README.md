@@ -1,5 +1,8 @@
 # MiliMili
-<img src="https://global-1309504341.cos.ap-beijing.myqcloud.com/MiliMili.svg" style="width:372px; height:280px;display:block;margin-right: 220px">
+<a href="https://milimili.super2021.com" target = "_blank">
+  <img src="https://global-1309504341.cos.ap-beijing.myqcloud.com/MiliMili.svg" style="width:372px; height:280px;display:block;margin-right: 220px">
+</a>
+
 
 
 BUAA2021第六组软工大作业——后端部分

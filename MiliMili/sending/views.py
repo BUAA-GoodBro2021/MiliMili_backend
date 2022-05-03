@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.template import loader
 
 from MiliMili.settings import SECRET_KEY
+from key import EMAIL_HOST_USER
 from sending.models import Message
 from user.models import User
 
@@ -178,7 +179,7 @@ def send_email(token, email, title):
     else:
         url = os.path.join("http://127.0.0.1/api/sending/", url)
     data = {'url': url}
-
+    email_title = email_body = ''
     if title == 'active':
         email_title = r"欢迎注册MiliMili短视频分享平台"
         email_body = loader.render_to_string('EmailContent-register.html', data)

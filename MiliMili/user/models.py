@@ -5,6 +5,7 @@ class User(models.Model):
     username = models.CharField('用户名', max_length=30)
     password = models.CharField('密码', max_length=32)
     email = models.EmailField()
+    location = models.CharField('所在地',max_length=32,default="中国大陆")
     video_num = models.IntegerField(verbose_name='视频数', default=0)
     like_num = models.IntegerField(verbose_name='收获的点赞数', default=0)
     collect_num = models.IntegerField(verbose_name='收获的收藏数', default=0)

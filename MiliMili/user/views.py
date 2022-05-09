@@ -487,7 +487,7 @@ def find_history(request):
     return JsonResponse(result)
 
 
-# 获取自己视频列表
+# 获取自己正常的视频列表
 def video_list(request):
     if request.method == 'POST':
         # 检查表单信息
@@ -500,13 +500,67 @@ def video_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         result = {'result': 1, 'message': r"获取视频列表成功！", "user": user.to_dic(),
-                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id)],
-                  "video_num": len(Video.objects.filter(user_id=user_id)),
+                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id, isAudit=1, need_verify=0)],
+                  "video_num": len(Video.objects.filter(user_id=user_id, isAudit=1, need_verify=0)),
                   "station_message": list_message(user.id)}
         return JsonResponse(result)
 
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 获取自己审核状态的视频列表
+def video_audit_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        video_all_list = Video.objects.filter(user_id=user_id)
+        result = {'result': 1, 'message': r"获取视频列表成功！", "user": user.to_dic(),
+                  "video_list": [x.to_dic() for x in video_all_list.filter(user_id=user_id)],
+                  "video_num": len(video_all_list.filter(user_id=user_id)),
+                  "video_list_auditing": [x.to_dic() for x in video_all_list.filter(isAudit=0)],
+                  "video_auditing_num": len(video_all_list.filter(isAudit=0)),
+                  "video_list_need_audit": [x.to_dic() for x in video_all_list.filter(isAudit=2)],
+                  "video_need_audit_num": len(video_all_list.filter(isAudit=2)),
+                  "video_list_audited": [x.to_dic() for x in video_all_list.filter(isAudit=1)],
+                  "video_audited_num": len(video_all_list.filter(isAudit=1)),
+                  "station_message": list_message(user.id)}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 获取自己投诉状态列表
+def complain_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        video_complain_list = VideoComplain.objects.all()
+        result = {'result': 1, 'message': r'获取成功',
+                  'video_complain_list': [x.to_dic() for x in video_complain_list],
+                  'video_complain_num': len(video_complain_list),
+                  'video_complaining_list': [x.to_dic() for x in video_complain_list.filter(verify_result=0)],
+                  'video_complaining_num': len(video_complain_list.filter(verify_result=0)),
+                  'video_finish_list': [x.to_dic() for x in video_complain_list.exclude(verify_result=0)],
+                  'video_finish_num': len(video_complain_list.exclude(verify_result=0)),
+                  }
         return JsonResponse(result)
 
 
@@ -584,8 +638,9 @@ def up_video_list(request):
             result = {'result': 0, 'message': r"获取关注列表失败！"}
             return JsonResponse(result)
         result = {'result': 1, 'message': r"获取视频列表成功！", "user": up_user.to_dic(),
-                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=up_user_id)],
-                  "video_num": len(Video.objects.filter(user_id=up_user_id))}
+                  "video_list": [x.to_dic() for x in
+                                 Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0)],
+                  "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0))}
         return JsonResponse(result)
 
     else:
@@ -605,8 +660,9 @@ def up_all_list(request):
         result = {'result': 1, 'message': r"获取详情列表成功！", "user": up_user.to_dic(),
                   "follow_list": get_follow_list_detail(up_user_id),
                   "fan_list": get_fan_list_detail(up_user_id),
-                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=up_user_id)],
-                  "video_num": len(Video.objects.filter(user_id=up_user_id))}
+                  "video_list": [x.to_dic() for x in
+                                 Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0)],
+                  "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0))}
         return JsonResponse(result)
 
     else:

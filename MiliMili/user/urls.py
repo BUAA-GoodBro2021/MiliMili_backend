@@ -15,6 +15,8 @@ urlpatterns = [
     path('follow-list', views.follow_list),
     path('fan-list', views.fan_list),
     path('video-list', views.video_list),
+    path('video-audit-list', views.video_audit_list),
+    path('video-complain-list', views.complain_list),
     path('all-list', views.all_list),
 
     path('up-follow-list', views.up_follow_list),

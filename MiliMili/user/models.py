@@ -28,6 +28,7 @@ class User(models.Model):
             "id": self.id,
             "username": self.username,
             "email": self.email,
+            'location' : self.location,
             "video_num": self.video_num,
             "like_num": self.like_num,
             "collect_num": self.collect_num,

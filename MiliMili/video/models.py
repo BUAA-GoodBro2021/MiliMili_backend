@@ -126,12 +126,14 @@ class VideoComplain(models.Model):
     description = models.TextField('描述')
     user_id = models.IntegerField(verbose_name='投诉人员编号', default=0)
     video = models.ForeignKey(Video, verbose_name='所属视频', on_delete=models.CASCADE, default=None)
+    verify_result = models.IntegerField(verbose_name='投诉结果', default=0)  # 0 - 正处于投诉状态，  1 - 投诉不成功   2 - 投诉成功
 
     def to_dic(self):
         return {
             'id': self.id,
             'title': self.title,
             'description': self.description,
+            'verify_result': self.verify_result,
             'video': self.video.to_dic(),
         }
 

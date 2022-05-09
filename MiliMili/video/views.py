@@ -301,6 +301,8 @@ def complain_video(request):
             return JsonResponse(result)
         VideoComplain.objects.create(title=title, description=description, user_id=user_id, video_id=video_id)
         video = Video.objects.get(id=video_id)
+
+        # TODO 是否需要提示用户
         upload_user = video.user
 
         result = {'result': 1, 'message': r"投诉视频成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
@@ -674,6 +676,7 @@ def add_comment(request):
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
+
 # 修改评论
 def update_comment(request):
     if request.method == 'POST':
@@ -703,6 +706,7 @@ def update_comment(request):
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
+
 
 # 删除评论
 def del_comment(request):
@@ -761,6 +765,7 @@ def reply_comment(request):
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
+
 def video_page(request, video_id):
     if request.method == 'POST':
         # 检查表单信息
@@ -779,7 +784,8 @@ def video_page(request, video_id):
             if eval('video_info.tag' + str(i)) != '':
                 video_tag[eval('video.tag' + str(i))] = 20
         recommended_video = ThreadController(video_tag, 'recommend')
-        result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info, 'recommended_video': recommended_video}
+        result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info,
+                  'recommended_video': recommended_video}
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
     return JsonResponse(result)

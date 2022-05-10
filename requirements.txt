@@ -1,5 +1,0 @@
-Django==4.0.4
-PyJWT==2.3.0
-PyMySQL==1.0.2
-
-jieba~=0.42.1

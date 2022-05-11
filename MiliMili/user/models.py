@@ -5,7 +5,11 @@ class User(models.Model):
     username = models.CharField('用户名', max_length=30)
     password = models.CharField('密码', max_length=32)
     email = models.EmailField()
-    location = models.CharField('所在地',max_length=32,default="中国大陆")
+    nickname = models.CharField('昵称', max_length=30, default='')
+    sex = models.CharField('性别', max_length=12, default='')
+    signature = models.CharField('个人签名', max_length=256, default='')
+    birthday = models.CharField('生日', max_length=32, default='')
+    location = models.CharField('所在地', max_length=32, default="中国大陆")
     video_num = models.IntegerField(verbose_name='视频数', default=0)
     like_num = models.IntegerField(verbose_name='收获的点赞数', default=0)
     collect_num = models.IntegerField(verbose_name='收获的收藏数', default=0)
@@ -28,7 +32,11 @@ class User(models.Model):
             "id": self.id,
             "username": self.username,
             "email": self.email,
-            'location' : self.location,
+            'nickname': self.nickname,
+            'sex': self.sex,
+            'signature': self.signature,
+            'birthday': self.birthday,
+            'location': self.location,
             "video_num": self.video_num,
             "like_num": self.like_num,
             "collect_num": self.collect_num,

@@ -132,15 +132,21 @@ def change_file(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
+
+        # 获取用户名
         username = request.POST.get('username', '')
 
+        # 用户名不允许为空
         if len(username) == 0:
             result = {'result': 0, 'message': r"用户名不可以为空!"}
             return JsonResponse(result)
 
-        if User.objects.filter(username=username, isActive=True).exists():
-            result = {'result': 0, 'message': r'用户已存在!'}
-            return JsonResponse(result)
+        # 用户名如果没有改变，不需要检查用户名是否已存在
+        if username != User.objects.get(id=user_id).username:
+            if User.objects.filter(username=username, isActive=True).exists():
+                result = {'result': 0, 'message': r'用户名已存在!'}
+                return JsonResponse(result)
+
         # 获取用户上传头像
         avatar = request.FILES.get("avatar", None)
         if avatar:
@@ -207,14 +213,26 @@ def change_file(request):
             # 删除本地文件
             os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
 
+        # 获取昵称,性别，生日
+        nickname = request.POST.get('nickname', '')
+        sex = request.POST.get('sex', '')
+        signature = request.POST.get('signature', '')
+        birthday = request.POST.get('birthday', '')
+        location = request.POST.get('location', '')
+
         user.username = username
+        user.nickname = nickname
+        user.sex = sex
+        user.signature = signature
+        user.birthday = birthday
+        user.location = location
         user.save()
         # 站内信
-        title = "用户名修改成功！"
+        title = "用户个人信息修改成功！"
         content = "亲爱的" + user.username + ''' 你好呀!\n个人资料已经更新啦，快去给好朋友分享分享叭！'''
         create_message(user_id, title, content)
 
-        result = {'result': 1, 'message': r"修改用户名成功!", "user": user.to_dic(),
+        result = {'result': 1, 'message': r"修改用户个人资料成功!", "user": user.to_dic(),
                   "station_message": list_message(user.id)}
         return JsonResponse(result)
 

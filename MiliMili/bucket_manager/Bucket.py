@@ -9,7 +9,13 @@ import imageio
 import skimage
 import numpy as np
 from key import *
-
+'''
+bucket_secret_id = 'AKIDNZVAYfV5NO9dqmTv5zcz4sPggPr2yc07'
+bucket_secret_key = 'sTnqc7LJ0Q2NREl10h8IBn8CyTigNo31',
+bucket_app_id = '-1309504341'
+bucket_region = 'ap-beijing'
+bucket_access = 'public-read'
+'''
 
 class Bucket:
     base_path = os.path.dirname(os.path.dirname(__file__))

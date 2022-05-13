@@ -11,4 +11,6 @@ urlpatterns = [
     path('del-message/detail', views.del_message),
     path('del-message/all', views.del_all_message),
     path('message/send-message', views.send_message),
+    path('message/list-message-simple', views.list_message_simple),
+    path('message/list-message-detail', views.list_message_detail),
 ]

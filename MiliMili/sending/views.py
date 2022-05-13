@@ -29,14 +29,71 @@ def list_message(user_id):
     }
 
 
+# 返回不分类的站内信(有总共未读个数)
+def list_message_simple(request):
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        message_filter = Message.objects.filter(user_id=user_id)
+        message_list = [x.to_dic() for x in message_filter]
+        # 统计未读数目
+        not_read_num = message_filter.filter(isRead=False).aggregate(not_read_num=Count('title'))
+        result = {'result': 1, 'message': r"获取不分类分类私信成功!", "message_list": message_list, "not_read_num": not_read_num}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 返回分类之后的站内信
+def list_message_detail(request):
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        # 0 - 系统通知 1 - 评论回复我的 2 - 收到的赞 3 - 收藏 4 - 我的消息(私信) 5 - 新增粉丝
+        message_filter = Message.objects.filter(user_id=user_id)
+        message_sys = message_filter.filter(from_type=0)
+        message_reply = message_filter.filter(from_type=1)
+        message_like = message_filter.filter(from_type=2)
+        message_collect = message_filter.filter(from_type=3)
+        message_self = message_filter.filter(from_type=4)
+        message_fan = message_filter.filter(from_type=6)
+        result = {'result': 1, 'message': r"获取分类私信详情成功!",
+                  "message_sys": [x.to_dic() for x in message_sys],
+                  "message_reply": [x.to_dic() for x in message_reply],
+                  "message_like": [x.to_dic() for x in message_like],
+                  "message_collect": [x.to_dic() for x in message_collect],
+                  "message_self": [x.to_dic() for x in message_self],
+                  "message_fan": [x.to_dic() for x in message_fan],
+                  }
+
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 # 创造一个人的站内信
-def create_message(user_id, title, content, from_name="MiliMili小助手"):
+def create_message(user_id, title, content, from_type=0, from_id=1):
     message = Message()
     message.title = title
     message.content = content
     message.user_id = user_id
     message.isRead = False
-    message.from_name = from_name
+    message.from_id = from_id
+    message.from_type = from_type
     message.save()
 
 
@@ -57,7 +114,7 @@ def send_message(request):
             result = {'result': 0, 'message': r"标题或者内容不能为空!"}
             return JsonResponse(result)
         send_user_id = request.POST.get('send_user_id', '')
-        create_message(send_user_id, title, content, user.username)
+        create_message(send_user_id, title, content, 4, user_id)
         result = {'result': 1, 'message': r"发送私信成功!", "user": user.to_dic(), "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:

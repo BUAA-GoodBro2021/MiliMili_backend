@@ -358,7 +358,7 @@ def like_video(request):
         # 发送站内信
         title = "视频收获点赞啦！"
         content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发布的视频有收获好朋友的点赞了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
-        create_message(upload_user.id, title, content)
+        create_message(upload_user.id, title, content, 2, user_id)
 
         result = {'result': 1, 'message': r"点赞成功！", "user": user.to_dic(), "like_list": get_like_list_detail(user_id),
                   "station_message": list_message(user_id)}
@@ -561,7 +561,7 @@ def collect_video(request):
         # 发送站内信
         title = "视频收获收藏啦！"
         content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发布的视频有好多好朋友的收藏了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
-        create_message(upload_user.id, title, content)
+        create_message(upload_user.id, title, content, 3, user_id)
 
         result = {'result': 1, 'message': r"收藏成功！", "user": user.to_dic(), "station_message": list_message(user_id),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
@@ -751,12 +751,15 @@ def reply_comment(request):
         content = request.POST.get('content', '')
         reply_comment_id = request.POST.get('reply_comment_id', '')
         reply_username = request.POST.get('reply_username', '')
+        reply_user = User.objects.get(username=reply_username)
         if len(content) == 0:
             result = {'result': 0, 'message': r"评论不能为空！"}
             return JsonResponse(result)
         VideoComment.objects.create(username=username, content=content, video_id=video_id,
                                     reply_comment_id=reply_comment_id, reply_username=reply_username)
-
+        # 发送站内信
+        title = "回复评论"
+        create_message(reply_user.id, title, content, 1, user_id)
         result = {'result': 1, 'message': r"回复评论成功！", "user": user.to_dic(),
                   "comment": [x.to_dic() for x in video.videocomment_set.all()],
                   "comment_num": len(video.videocomment_set.all())}

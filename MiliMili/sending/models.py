@@ -10,7 +10,8 @@ class Message(models.Model):
 
     user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
     isRead = models.BooleanField("是否已读", default=False)
-    from_name = models.CharField('发送者', max_length=32, default="MiliMili小助手")
+    from_id = models.IntegerField('发送者id', default=1)
+    from_type = models.IntegerField('分类', default=0)  # 0 - 系统通知 1 - 评论回复我的 2 - 收到的赞 3 - 收藏 4 - 我的消息(私信) 5 - 新增粉丝
 
     def to_dic(self):
         return {
@@ -19,18 +20,23 @@ class Message(models.Model):
             "content": self.content,
             "created_time": self.created_time,
             "isRead": self.isRead,
-            "from_name": self.from_name,
+            "from_id": self.from_id,
+            "from_type": self.from_type,
+            'from_user': User.objects.get(id=self.from_id).to_dic(),
         }
 
-    def __str__(self):
-        return '站内信' + self.title
 
-    class Meta:
-        ordering = ['-created_time']  # 按文章创建日期降序
-        db_table = 'message'  # 改变当前模型类对应的表名
-        verbose_name = '站内信'
-        verbose_name_plural = '站内信列表'
+def __str__(self):
+    return '站内信' + self.title
 
-    def read(self):
-        self.isRead = True
-        self.save(update_fields=['isRead'])
+
+class Meta:
+    ordering = ['-created_time']  # 按文章创建日期降序
+    db_table = 'message'  # 改变当前模型类对应的表名
+    verbose_name = '站内信'
+    verbose_name_plural = '站内信列表'
+
+
+def read(self):
+    self.isRead = True
+    self.save(update_fields=['isRead'])

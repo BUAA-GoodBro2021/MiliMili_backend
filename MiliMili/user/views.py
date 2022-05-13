@@ -389,7 +389,7 @@ def follow(request):
         # 发送站内信
         title = "又有好朋友关注你啦！"
         content = "亲爱的" + follow_user.username + ''' 你好呀!\n又有一位好朋友关注了你，不打算看看是哪位嘛！'''
-        create_message(follow_id, title, content)
+        create_message(follow_id, title, content, 5, user_id)
 
         result = {'result': 1, 'message': r"关注成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
         return JsonResponse(result)

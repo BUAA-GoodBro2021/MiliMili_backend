@@ -69,7 +69,7 @@ def list_message_detail(request):
         message_like = message_filter.filter(from_type=2)
         message_collect = message_filter.filter(from_type=3)
         message_self = message_filter.filter(from_type=4)
-        message_fan = message_filter.filter(from_type=6)
+        message_fan = message_filter.filter(from_type=5)
         result = {'result': 1, 'message': r"获取分类私信详情成功!",
                   "message_sys": [x.to_dic() for x in message_sys],
                   "message_reply": [x.to_dic() for x in message_reply],

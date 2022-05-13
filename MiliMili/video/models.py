@@ -28,6 +28,17 @@ class Video(models.Model):
     need_verify = models.IntegerField('状态', default=0)  # 0 - 正常视频  1 - 投诉过多需要临时下架进行人工检查的视频
 
     def to_dic(self):
+        tag_list = []
+        if self.tag1 != '':
+            tag_list.append(self.tag1)
+        if self.tag2 != '':
+            tag_list.append(self.tag2)
+        if self.tag3 != '':
+            tag_list.append(self.tag3)
+        if self.tag4 != '':
+            tag_list.append(self.tag4)
+        if self.tag5 != '':
+            tag_list.append(self.tag5)
         return {
             'id': self.id,
             'title': self.title,
@@ -38,11 +49,7 @@ class Video(models.Model):
             'collect_num': self.collect_num,
             'view_num': self.view_num,
             'zone': self.zone,
-            'tag1': self.tag1,
-            'tag2': self.tag2,
-            'tag3': self.tag3,
-            'tag4': self.tag4,
-            'tag5': self.tag5,
+            'tag_list': tag_list,
             'user': self.user.to_dic(),
             'created_time': self.created_time,
             'updated_time': self.updated_time,

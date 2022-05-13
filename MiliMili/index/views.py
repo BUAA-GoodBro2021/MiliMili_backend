@@ -1,5 +1,3 @@
-import datetime
-
 import jwt
 import requests
 
@@ -89,8 +87,7 @@ def index_message(request):
         try:
             token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
             user_id = token.get('user_id', '')
-            user = User.objects.get(id=user_id)
-        except Exception as e:
+        except Exception:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         history_list = list(UserToHistory.objects.all().values())[0:20]
@@ -125,16 +122,14 @@ def get_ip_address(request):
     res = ''
     host = 'https://ips.market.alicloudapi.com'
     path = '/iplocaltion'
-    method = 'GET'
     appcode = aliyun_appcode
     querys = "ip=" + request.META['REMOTE_ADDR']
     print(querys)
-    bodys = {}
     url = host + path + '?' + querys
     header = {"Authorization": 'APPCODE ' + appcode}
     try:
         res = requests.get(url, headers=header)
-    except:
+    except Exception:
         print("URL错误")
         exit()
     httpStatusCode = res.status_code

@@ -101,8 +101,8 @@ def callback(request):
             create_message(user_id, title, content)
 
             # 给所有粉丝发站内信
-            fan_list = get_fan_list_simple(user_id=user_id)
-            for fan_id in fan_list:
+            fan_list_all = get_fan_list_simple(user_id=user_id)
+            for fan_id in fan_list_all:
                 title = "你关注的博主发布新视频啦！"
                 content = "亲爱的" + User.objects.get(id=fan_id).username + '你好呀!\n' \
                                                                          '你关注的博主发布新视频啦！快去看看，然后在评论区留下自己的感受叭~'

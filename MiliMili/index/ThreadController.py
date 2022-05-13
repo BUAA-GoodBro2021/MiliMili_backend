@@ -18,16 +18,16 @@ class ThreadController:
         self.search_token_list = list(jieba.cut_for_search(search))
         self.search = search
         if element == 'video':
-            self.element_list = list(Video.objects.filter(isAudit=1, need_verify=0).values())
+            self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0)]
         elif element == 'user':
             self.element_list = list(User.objects.all().values())
         elif element == 'zone':
-            self.element_list = list(Video.objects.filter(isAudit=1, need_verify=0, zone=search).values())
+            self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0, zone=search)]
         elif element == 'recommend':
             key = search.keys()
-            self.element_list = list(Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
-                                                           Q(tag3__in=key) | Q(tag4__in=key) |
-                                                           Q(tag5__in=key)), isAudit=1, need_verify=0).values())
+            self.element_list = [x.to_dic() for x in Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
+                                                                           Q(tag3__in=key) | Q(tag4__in=key) |
+                                                                           Q(tag5__in=key)), isAudit=1, need_verify=0)]
         else:
             self.element_list = []
         block_size = math.floor(len(self.element_list) / thread_num)
@@ -134,7 +134,8 @@ class ThreadController:
                         index_list += index
                         hit_count += is_hit
                     public_strlen = self.find_change(title, self.search)[1]
-                    video_info['distance'] = abs(hit_count - len(self.search_token_list)) + len(self.search) + len(title) - 2 * public_strlen
+                    video_info['distance'] = abs(hit_count - len(self.search_token_list)) + len(self.search) + len(
+                        title) - 2 * public_strlen
                     if hit_count != 0:
                         video_info['index_list'] = index_list
                         self.ranked_element_list.append(video_info)

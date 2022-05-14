@@ -619,7 +619,7 @@ def not_collect_video(request):
         favorite = Favorite.objects.get(id=favorite_id)
         favorite_video_id_list = get_favorite_list_video_id(favorite_id)
         if len(favorite_video_id_list) == 0:
-            favorite.avatar_url = default_avatar_url
+            favorite.avatar_url = default_favorite_url
         else:
             favorite.avatar_url = Video.objects.get(id=favorite_video_id_list[0]).avatar_url
         favorite.save()

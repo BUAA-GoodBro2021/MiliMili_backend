@@ -108,7 +108,7 @@ def callback(request):
                                                                          '你关注的博主发布新视频啦！快去看看，然后在评论区留下自己的感受叭~'
                 create_message(fan_id, title, content)
 
-            result = {'result': 1, 'message': r"视频发送成功！"}
+            result = {'result': 1, 'message': r"视频发送成功！", "not_read": not_read(user_id)}
     else:
         result = {'result': -1, 'label': None, 'job_id': None}
     return JsonResponse(result)

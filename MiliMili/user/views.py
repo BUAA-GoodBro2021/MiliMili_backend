@@ -76,8 +76,7 @@ def login(request):
         }
         # 令牌
         JWT = jwt.encode(token, SECRET_KEY, algorithm='HS256')
-        result = {'result': 1, 'message': r"登录成功！", 'JWT': JWT, 'user': user.to_dic(),
-                  "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"登录成功！", 'JWT': JWT, "not_read": not_read(user.id), 'user': user.to_dic()}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -115,7 +114,7 @@ def find_password(request):
             result = {'result': 0, 'message': r'发送失败!请检查邮箱格式'}
             return JsonResponse(result)
         else:
-            result = {'result': 1, 'message': r'发送成功!请及时在邮箱中查收.'}
+            result = {'result': 1, 'message': r'发送成功!请及时在邮箱中查收.', "not_read": not_read(user.id)}
             return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -232,8 +231,7 @@ def change_file(request):
         content = "亲爱的" + user.username + ''' 你好呀!\n个人资料已经更新啦，快去给好朋友分享分享叭！'''
         create_message(user_id, title, content)
 
-        result = {'result': 1, 'message': r"修改用户个人资料成功!", "user": user.to_dic(),
-                  "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"修改用户个人资料成功!", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
 
     else:
@@ -325,7 +323,7 @@ def upload_avatar(request):
         content = "亲爱的" + user.username + ''' 你好呀!\n头像已经更新啦，快去给好朋友分享分享叭！'''
         create_message(user_id, title, content)
 
-        result = {'result': 1, 'message': r"上传成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"上传成功！", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -391,7 +389,7 @@ def follow(request):
         content = "亲爱的" + follow_user.username + ''' 你好呀!\n又有一位好朋友关注了你，不打算看看是哪位嘛！'''
         create_message(follow_id, title, content, 5, user_id)
 
-        result = {'result': 1, 'message': r"关注成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"关注成功！", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
 
     else:
@@ -433,7 +431,7 @@ def unfollow(request):
         user.del_follow()
         follow_user.del_fan()
 
-        result = {'result': 1, 'message': r"取消成功！", "user": user.to_dic(), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"取消成功！", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -453,8 +451,8 @@ def follow_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
 
-        result = {'result': 1, 'message': r"获取关注列表成功！", "user": user.to_dic(),
-                  "follow_list": get_follow_list_detail(user_id), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"获取关注列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "follow_list": get_follow_list_detail(user_id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -474,8 +472,8 @@ def fan_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
 
-        result = {'result': 1, 'message': r"获取粉丝列表成功！", "user": user.to_dic(),
-                  "fan_list": get_fan_list_detail(user_id), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"获取粉丝列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "fan_list": get_fan_list_detail(user_id), }
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -499,7 +497,7 @@ def find_history(request):
         video_list = []
         for h in history:
             video_list.append(Video.objects.get(id=h.get('video_id')).values())
-        result = {'result': 1, 'message': r'获取历史记录成功', 'video_list': video_list}
+        result = {'result': 1, 'message': r'获取历史记录成功', "not_read": not_read(user_id), 'video_list': video_list}
     else:
         result = {'result': 0, 'message': r'获取历史记录失败'}
     return JsonResponse(result)
@@ -517,10 +515,9 @@ def video_list(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        result = {'result': 1, 'message': r"获取视频列表成功！", "user": user.to_dic(),
+        result = {'result': 1, 'message': r"获取视频列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id, isAudit=1, need_verify=0)],
-                  "video_num": len(Video.objects.filter(user_id=user_id, isAudit=1, need_verify=0)),
-                  "station_message": list_message(user.id)}
+                  "video_num": len(Video.objects.filter(user_id=user_id, isAudit=1, need_verify=0))}
         return JsonResponse(result)
 
     else:
@@ -541,7 +538,7 @@ def video_audit_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         video_all_list = Video.objects.filter(user_id=user_id)
-        result = {'result': 1, 'message': r"获取视频列表成功！", "user": user.to_dic(),
+        result = {'result': 1, 'message': r"获取视频列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   "video_list": [x.to_dic() for x in video_all_list.filter(user_id=user_id)],
                   "video_num": len(video_all_list.filter(user_id=user_id)),
                   "video_list_auditing": [x.to_dic() for x in video_all_list.filter(isAudit=0)],
@@ -549,8 +546,7 @@ def video_audit_list(request):
                   "video_list_need_audit": [x.to_dic() for x in video_all_list.filter(isAudit=2)],
                   "video_need_audit_num": len(video_all_list.filter(isAudit=2)),
                   "video_list_audited": [x.to_dic() for x in video_all_list.filter(isAudit=1)],
-                  "video_audited_num": len(video_all_list.filter(isAudit=1)),
-                  "station_message": list_message(user.id)}
+                  "video_audited_num": len(video_all_list.filter(isAudit=1))}
         return JsonResponse(result)
 
     else:
@@ -571,7 +567,7 @@ def complain_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         video_complain_list = VideoComplain.objects.all()
-        result = {'result': 1, 'message': r'获取成功',
+        result = {'result': 1, 'message': r'获取成功', "not_read": not_read(user_id),
                   'video_complain_list': [x.to_dic() for x in video_complain_list],
                   'video_complain_num': len(video_complain_list),
                   'video_complaining_list': [x.to_dic() for x in video_complain_list.filter(verify_result=0)],
@@ -595,12 +591,12 @@ def all_list(request):
                 result = {'result': 0, 'message': r"请先登录!"}
                 return JsonResponse(result)
 
-            result = {'result': 1, 'message': r"获取详情列表成功！", "user": user.to_dic(),
+            result = {'result': 1, 'message': r"获取详情列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                       "follow_list": get_follow_list_detail(user_id),
                       "fan_list": get_fan_list_detail(user_id),
                       "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id)],
                       "video_num": len(Video.objects.filter(user_id=user_id)),
-                      "station_message": list_message(user.id)}
+                      }
             return JsonResponse(result)
 
     else:

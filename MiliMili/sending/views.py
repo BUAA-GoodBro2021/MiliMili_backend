@@ -29,6 +29,14 @@ def list_message(user_id):
     }
 
 
+def not_read(user_id):
+    message_filter = Message.objects.filter(user_id=user_id, isRead=False)
+    if not message_filter.exists():
+        return 0
+    else:
+        return 1
+
+
 # 返回不分类的站内信(有总共未读个数)
 def list_message_simple(request):
     if request.method == 'POST':
@@ -44,7 +52,8 @@ def list_message_simple(request):
         message_list = [x.to_dic() for x in message_filter]
         # 统计未读数目
         not_read_num = message_filter.filter(isRead=False).aggregate(not_read_num=Count('title'))
-        result = {'result': 1, 'message': r"获取不分类分类私信成功!", "message_list": message_list, "not_read_num": not_read_num}
+        result = {'result': 1, 'message': r"获取不分类分类私信成功!", "not_read": not_read(user_id), "message_list": message_list,
+                  "not_read_num": not_read_num}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -71,6 +80,7 @@ def list_message_detail(request):
         message_self = message_filter.filter(from_type=4)
         message_fan = message_filter.filter(from_type=5)
         result = {'result': 1, 'message': r"获取分类私信详情成功!",
+                  "not_read": not_read(user_id),
                   "message_sys": [x.to_dic() for x in message_sys],
                   "message_reply": [x.to_dic() for x in message_reply],
                   "message_like": [x.to_dic() for x in message_like],
@@ -115,7 +125,7 @@ def send_message(request):
             return JsonResponse(result)
         send_user_id = request.POST.get('send_user_id', '')
         create_message(send_user_id, title, content, 4, user_id)
-        result = {'result': 1, 'message': r"发送私信成功!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"发送私信成功!", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -147,7 +157,8 @@ def read_message(request):
             return JsonResponse(result)
         message.isRead = True
         message.save()
-        result = {'result': 1, 'message': r"已读信息!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"已读信息!", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -168,7 +179,8 @@ def read_all_message(request):
             return JsonResponse(result)
 
         Message.objects.filter(user_id=user_id).update(isRead=True)
-        result = {'result': 1, 'message': r"已读全部信息!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"已读全部信息!", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -199,7 +211,8 @@ def del_message(request):
             result = {'result': 0, 'message': r"用户错误!"}
             return JsonResponse(result)
         message.delete()
-        result = {'result': 1, 'message': r"删除成功!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"删除成功!", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -220,7 +233,8 @@ def del_all_message(request):
             return JsonResponse(result)
 
         Message.objects.filter(user_id=user_id).delete()
-        result = {'result': 1, 'message': r"全部删除成功!", "user": user.to_dic(), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"全部删除成功!", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "station_message": list_message(user.id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

@@ -22,6 +22,7 @@ def need_verify_video_list(request):
         # 需要人工审核的视频
         # 投诉的视频
         result = {'result': 1, 'message': r'获取成功',
+                  "not_read": not_read(user_id),
                   'video_audit_list': [x.to_dic() for x in Video.objects.filter(isAudit=2)],
                   'video_complain_list':
                       [{'user_detail': User.objects.get(id=x.user_id).to_dic(), 'complain_detail': x.to_dic()} for x in

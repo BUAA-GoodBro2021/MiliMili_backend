@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from MiliMili.settings import SECRET_KEY
 from index.ThreadController import ThreadController
 from key import *
+from sending.views import not_read
 from user.models import *
 from video.models import Video
 
@@ -112,7 +113,7 @@ def index_message(request):
             message = r'推荐失败'
         search_history_list = list(UserToSearchHistory.objects.filter(user_id=user_id).values())
         search_history_list = sorted(search_history_list, key=lambda x: -x.get('created_time').timestamp())[:8]
-        result = {'result': result, 'message': message, 'recommend_list': recommend_list,
+        result = {'result': result, 'message': message, "not_read": not_read(user_id),'recommend_list': recommend_list,
                   'search_history_list': search_history_list}
         return JsonResponse(result)
 

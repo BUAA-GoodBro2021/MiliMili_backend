@@ -188,7 +188,7 @@ def upload_video(request):
             return JsonResponse(result)
         # 上传成功，等待审核
         JobToVideo.objects.create(job_id=audit_dic.get("job_id"), video_id=video_id)
-        result = {'result': 1, 'message': r"正在审核中，别着急哦！", "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"正在审核中，别着急哦！", "not_read": not_read(user_id)}
         # 获取标签
         for i in range(1, 6):
             tag = eval('tag' + str(i))
@@ -215,7 +215,7 @@ def upload_video(request):
         # TODO 个人想做一个即时变化的标签搜索栏，可以随着用户搜索的变化来返回相近的tag:count，（就是搜索栏）
         #  算法这方面不知道需不需要提供接口，或者说前端有可以直接实现搜索的工具，这个需要确定一下
         tag_list = list(Tag.objects.all().values())
-        result = {'result': 1, 'message': r"获取标签集成功", 'tag_list': tag_list}
+        result = {'result': 1, 'message': r"获取标签集成功", "not_read": not_read(user_id), 'tag_list': tag_list}
         return JsonResponse(result)
 
 
@@ -264,7 +264,7 @@ def del_video(request):
                                           '视频删除成功了，真的是好可惜呢~'
         create_message(user_id, title, content)
 
-        result = {'result': 1, 'message': r"删除视频成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"删除视频成功！", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
 
     else:
@@ -305,7 +305,7 @@ def complain_video(request):
         # TODO 是否需要提示用户
         upload_user = video.user
 
-        result = {'result': 1, 'message': r"投诉视频成功！", "user": user.to_dic(), "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"投诉视频成功！", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
 
     else:
@@ -360,8 +360,8 @@ def like_video(request):
         content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发布的视频有收获好朋友的点赞了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
         create_message(upload_user.id, title, content, 2, user_id)
 
-        result = {'result': 1, 'message': r"点赞成功！", "user": user.to_dic(), "like_list": get_like_list_detail(user_id),
-                  "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"点赞成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "like_list": get_like_list_detail(user_id)}
         return JsonResponse(result)
 
     else:
@@ -395,8 +395,9 @@ def dislike_video(request):
         upload_user = video.user
         upload_user.del_like()
 
-        result = {'result': 1, 'message': r"取消成功！", "user": user.to_dic(), "like_list": get_like_list_detail(user_id),
-                  "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"取消成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "like_list": get_like_list_detail(user_id)
+                  }
         return JsonResponse(result)
 
     else:
@@ -417,8 +418,8 @@ def like_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
 
-        result = {'result': 1, 'message': r"获取点赞列表成功！", "user": user.to_dic(),
-                  "like_list": get_like_list_detail(user_id), "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"获取点赞列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "like_list": get_like_list_detail(user_id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -460,7 +461,7 @@ def favorite_list(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        result = {'result': 1, 'message': r"获取收藏夹详情成功!", 'user': user.to_dic(),
+        result = {'result': 1, 'message': r"获取收藏夹详情成功!", "not_read": not_read(user_id), 'user': user.to_dic(),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
     else:
@@ -486,7 +487,7 @@ def create_favorite(request):
         # 创建收藏夹
         Favorite.objects.create(title=title, description=description, isPrivate=isPrivate, user_id=user_id)
         user.add_favorite()
-        result = {'result': 1, 'message': r"创建收藏夹成功!", 'user': user.to_dic(),
+        result = {'result': 1, 'message': r"创建收藏夹成功!", "not_read": not_read(user_id), 'user': user.to_dic(),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
 
@@ -519,8 +520,8 @@ def change_favorite(request):
         favorite.description = description
         favorite.isPrivate = isPrivate
         favorite.save()
-        result = {'result': 1, 'message': r"修改收藏夹信息成功！", "user": user.to_dic(),
-                  "station_message": list_message(user_id), 'favorite_list_detail': get_favorite_list_detail(user_id)}
+        result = {'result': 1, 'message': r"修改收藏夹信息成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -563,7 +564,7 @@ def collect_video(request):
         content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发布的视频有好多好朋友的收藏了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
         create_message(upload_user.id, title, content, 3, user_id)
 
-        result = {'result': 1, 'message': r"收藏成功！", "user": user.to_dic(), "station_message": list_message(user_id),
+        result = {'result': 1, 'message': r"收藏成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
     else:
@@ -597,7 +598,7 @@ def not_collect_video(request):
         # 视频上传者状态减少
         upload_user = Video.objects.get(id=video_id).user
         upload_user.del_collect()
-        result = {'result': 1, 'message': r"取消收藏成功！", "user": user.to_dic(), "station_message": list_message(user_id),
+        result = {'result': 1, 'message': r"取消收藏成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
     else:
@@ -638,7 +639,7 @@ def del_favorite(request):
             upload_user.del_collect()
         favorite = Favorite.objects.get(id=favorite_id)
         favorite.delete()
-        result = {'result': 1, 'message': r"删除收藏夹成功！", "user": user.to_dic(), "station_message": list_message(user_id),
+        result = {'result': 1, 'message': r"删除收藏夹成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
     else:
@@ -668,7 +669,7 @@ def add_comment(request):
         VideoComment.objects.create(username=username, content=content, video_id=video_id)
 
         video = Video.objects.get(id=video_id)
-        result = {'result': 1, 'message': r"评论成功！", "user": user.to_dic(),
+        result = {'result': 1, 'message': r"评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   "comment": [x.to_dic() for x in video.videocomment_set.all()],
                   "comment_num": len(video.videocomment_set.all())}
         return JsonResponse(result)
@@ -698,7 +699,7 @@ def update_comment(request):
             result = {'result': 0, 'message': r"评论不能为空！"}
             return JsonResponse(result)
         VideoComment.objects.filter(id=comment_id).update(content=content)
-        result = {'result': 1, 'message': r"修改评论成功！", "user": user.to_dic(),
+        result = {'result': 1, 'message': r"修改评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   "comment": [x.to_dic() for x in video.videocomment_set.all()],
                   "comment_num": len(video.videocomment_set.all())}
         return JsonResponse(result)
@@ -726,7 +727,7 @@ def del_comment(request):
         comment.delete()
         # 把点赞关系也删除
         UserToComment_like.objects.filter(comment_id=comment_id).delete()
-        result = {'result': 1, 'message': r"删除评论成功！", "user": user.to_dic(),
+        result = {'result': 1, 'message': r"删除评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   "comment": [x.to_dic() for x in video.videocomment_set.all()],
                   "comment_num": len(video.videocomment_set.all())}
         return JsonResponse(result)
@@ -762,7 +763,7 @@ def reply_comment(request):
         # 发送站内信
         title = "回复评论"
         create_message(reply_user.id, title, content, 1, user_id)
-        result = {'result': 1, 'message': r"回复评论成功！", "user": user.to_dic(),
+        result = {'result': 1, 'message': r"回复评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   "comment": [x.to_dic() for x in video.videocomment_set.all()],
                   "comment_num": len(video.videocomment_set.all())}
         return JsonResponse(result)
@@ -832,8 +833,9 @@ def like_comment(request):
             if every_comment.get('id') in comment_like_dict:
                 every_comment['islike'] = 1
 
-        result = {'result': 1, 'message': r"点赞评论成功！", "user": user.to_dic(), "comment_list": comment_list,
-                  "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"点赞评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "comment_list": comment_list,
+                  }
         return JsonResponse(result)
 
     else:
@@ -882,8 +884,9 @@ def dislike_comment(request):
             if every_comment.get('id') in comment_like_dict:
                 every_comment['islike'] = 1
 
-        result = {'result': 1, 'message': r"取消点赞成功！", "user": user.to_dic(), "comment_list": comment_list,
-                  "station_message": list_message(user_id)}
+        result = {'result': 1, 'message': r"取消点赞成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "comment_list": comment_list,
+                  }
         return JsonResponse(result)
 
     else:
@@ -909,7 +912,7 @@ def video_page(request, video_id):
             if eval('video_info.tag' + str(i)) != '':
                 video_tag[eval('video.tag' + str(i))] = 20
         recommended_video = ThreadController(video_tag, 'recommend')
-        result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info,
+        result = {'result': 1, 'message': r"获取主页信息成功！", "not_read": not_read(user_id), 'video_info': video_info,
                   'recommended_video': recommended_video}
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

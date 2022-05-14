@@ -23,4 +23,5 @@ urlpatterns = [
     path('up-fan-list', views.up_fan_list),
     path('up-video-list', views.up_video_list),
     path('up-all-list', views.up_all_list),
+    path('up-public-favorite', views.up_public_favorite),
 ]

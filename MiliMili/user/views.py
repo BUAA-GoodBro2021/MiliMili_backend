@@ -1,8 +1,4 @@
-from MiliMili.settings import BASE_DIR
-from bucket_manager.Bucket import Bucket
-from sending.views import *
-from user.models import *
-from video.models import *
+from video.views import *
 
 
 def register(request):
@@ -662,6 +658,21 @@ def up_video_list(request):
         return JsonResponse(result)
 
 
+# 获取公开收藏夹详情
+def up_public_favorite(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        up_user_id = request.POST.get('up_user_id', '')
+        try:
+            up_user = User.objects.get(id=up_user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"获取关注的收藏夹详情失败！"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"获取收藏夹详情成功!", 'user': up_user.to_dic(),
+                  'favorite_list_detail': get_favorite_list_detail(up_user_id, 0)}
+        return JsonResponse(result)
+
+
 def up_all_list(request):
     if request.method == 'POST':
         # 检查表单信息
@@ -676,7 +687,8 @@ def up_all_list(request):
                   "fan_list": get_fan_list_detail(up_user_id),
                   "video_list": [x.to_dic() for x in
                                  Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0)],
-                  "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0))}
+                  "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0)),
+                  'favorite_list_detail': get_favorite_list_detail(up_user_id, 0)}
         return JsonResponse(result)
 
     else:

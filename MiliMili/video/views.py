@@ -426,9 +426,12 @@ def like_list(request):
         return JsonResponse(result)
 
 
-# 获取自己所有视频的收藏夹id
-def get_favorite_list_id(user_id):
-    return [x.id for x in Favorite.objects.filter(user_id=user_id)]
+# 获取自己所有视频的收藏夹id(默认是所有的)
+def get_favorite_list_id(user_id, isPrivate=2):
+    if isPrivate == 2:
+        return [x.id for x in Favorite.objects.filter(user_id=user_id)]
+    else:
+        return [x.id for x in Favorite.objects.filter(user_id=user_id, isPrivate=isPrivate)]
 
 
 # 获取收藏夹内部的视频视频id
@@ -442,11 +445,19 @@ def get_favorite_list_video_detail(favorite_id):
 
 
 # 获取自己所有收藏夹以及内部的详细信息
-def get_favorite_list_detail(user_id):
-    return [
-        {'favorite_list_detail': Favorite.objects.get(id=x).to_dic(),
-         'favorite_list_video_detail': get_favorite_list_video_detail(x), 'num': len(get_favorite_list_video_detail(x))}
-        for x in get_favorite_list_id(user_id)]
+def get_favorite_list_detail(user_id, isPrivate=2):
+    if isPrivate == 2:
+        return [
+            {'favorite_list_detail': Favorite.objects.get(id=x).to_dic(),
+             'favorite_list_video_detail': get_favorite_list_video_detail(x),
+             'num': len(get_favorite_list_video_detail(x))}
+            for x in get_favorite_list_id(user_id)]
+    else:
+        return [
+            {'favorite_list_detail': Favorite.objects.get(id=x).to_dic(),
+             'favorite_list_video_detail': get_favorite_list_video_detail(x),
+             'num': len(get_favorite_list_video_detail(x))}
+            for x in get_favorite_list_id(user_id, isPrivate)]
 
 
 # 展示自己的收藏夹详情

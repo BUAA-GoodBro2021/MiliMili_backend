@@ -148,6 +148,12 @@ class UserToVideo_like(models.Model):
     video_id = models.IntegerField(verbose_name='点赞的视频', default=0)
 
 
+# 查看个人点赞的评论
+class UserToComment_like(models.Model):
+    user_id = models.IntegerField(verbose_name='主体', default=0)
+    comment_id = models.IntegerField(verbose_name='点赞的评论', default=0)
+
+
 # 查看用户历史记录
 class UserToHistory(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)

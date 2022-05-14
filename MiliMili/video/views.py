@@ -769,6 +769,130 @@ def reply_comment(request):
         return JsonResponse(result)
 
 
+# 获取视频中评论的id
+def get_comment_like_list_simple(video_id):
+    return [x.id for x in Video.objects.get(id=video_id).videocomment_set.all()]
+
+
+# 获取视频中评论的详情(具体信息)
+def get_comment_like_list_detail(video_id):
+    return [VideoComment.objects.get(id=x).to_dic() for x in get_comment_like_list_simple(video_id)]
+
+
+# 点赞评论
+def like_comment(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        # 获取点赞视频编号 并添加点击记录
+        comment_id = request.POST.get('comment_id', '')
+
+        # 判断是否已经点赞过
+        if UserToComment_like.objects.filter(user_id=user_id, comment_id=comment_id).exists():
+            result = {'result': 0, 'message': r"已经点赞过，请不要重复点赞!", "user": user.to_dic(),
+                      "station_message": list_message(user_id)}
+            return JsonResponse(result)
+
+        try:
+            comment = VideoComment.objects.get(id=comment_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"该评论不存在!"}
+            return JsonResponse(result)
+        # 添加点赞记录
+        UserToComment_like.objects.create(user_id=user_id, comment_id=comment_id)
+        comment.add_like()
+
+        # 获取评论的视频
+        video = comment.video
+
+        # 获取评论的发布者 其收获的点赞数+1
+        upload_user = video.user
+        upload_user.add_like()
+
+        # 发送站内信
+        title = "评论收获点赞啦！"
+        content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发表的评论有收获好朋友的点赞了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
+        create_message(upload_user.id, title, content, 2, user_id)
+
+        # 返回最新评论字典(含自己是否点赞)
+        comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}
+        # 当前视频所有所有评论
+        comment_list = get_comment_like_list_detail(video_id=video.id)
+        # 标注是否自己已经评论过
+        for every_comment in comment_list:
+            if every_comment.get('id') in comment_like_dict:
+                every_comment['islike'] = 1
+
+        result = {'result': 1, 'message': r"点赞评论成功！", "user": user.to_dic(), "comment_list": comment_list,
+                  "station_message": list_message(user_id)}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 取消点赞评论
+def dislike_comment(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+
+        # 获取取消点赞评论编号 并删除点赞记录
+        comment_id = request.POST.get('comment_id', '')
+        try:
+            comment = VideoComment.objects.get(id=comment_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"该评论不存在!"}
+            return JsonResponse(result)
+
+        if not UserToComment_like.objects.filter(user_id=user_id, comment_id=comment_id).exists():
+            result = {'result': 0, 'message': r"已经取消点赞，不要重复取消！", "user": user.to_dic(),
+                      "station_message": list_message(user_id)}
+            return JsonResponse(result)
+
+        # 删除点赞记录
+        UserToComment_like.objects.get(user_id=user_id, comment_id=comment_id).delete()
+        comment.del_like()
+        # 获取评论的视频
+        video = comment.video
+        # 获取评论的发布者 其收获的点赞数-1
+        upload_user = video.user
+        upload_user.del_like()
+
+        # 返回最新评论字典(含自己是否点赞)
+        comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}
+        # 当前视频所有所有评论
+        comment_list = get_comment_like_list_detail(video_id=video.id)
+        # 标注是否自己已经评论过
+        for every_comment in comment_list:
+            if every_comment.get('id') in comment_like_dict:
+                every_comment['islike'] = 1
+
+        result = {'result': 1, 'message': r"取消点赞成功！", "user": user.to_dic(), "comment_list": comment_list,
+                  "station_message": list_message(user_id)}
+        return JsonResponse(result)
+
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 def video_page(request, video_id):
     if request.method == 'POST':
         # 检查表单信息

@@ -724,6 +724,8 @@ def del_comment(request):
         comment = VideoComment.objects.get(id=comment_id)
         video = comment.video
         comment.delete()
+        # 把点赞关系也删除
+        UserToComment_like.objects.filter(comment_id=comment_id).delete()
         result = {'result': 1, 'message': r"删除评论成功！", "user": user.to_dic(),
                   "comment": [x.to_dic() for x in video.videocomment_set.all()],
                   "comment_num": len(video.videocomment_set.all())}
@@ -813,9 +815,8 @@ def like_comment(request):
         # 获取评论的视频
         video = comment.video
 
-        # 获取评论的发布者 其收获的点赞数+1
+        # 获取评论的发布者
         upload_user = video.user
-        upload_user.add_like()
 
         # 发送站内信
         title = "评论收获点赞啦！"
@@ -871,9 +872,6 @@ def dislike_comment(request):
         comment.del_like()
         # 获取评论的视频
         video = comment.video
-        # 获取评论的发布者 其收获的点赞数-1
-        upload_user = video.user
-        upload_user.del_like()
 
         # 返回最新评论字典(含自己是否点赞)
         comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}

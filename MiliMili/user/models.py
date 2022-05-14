@@ -1,5 +1,7 @@
 from django.db import models
 
+from key import default_avatar_url
+
 
 class User(models.Model):
     username = models.CharField('用户名', max_length=30)
@@ -16,8 +18,7 @@ class User(models.Model):
     favorite_num = models.IntegerField(verbose_name='收藏夹数', default=0)
     fan_num = models.IntegerField(verbose_name='粉丝数', default=0)
     follow_num = models.IntegerField(verbose_name='关注数', default=0)
-    avatar_url = models.CharField('用户头像路径', max_length=128, default='https://global-1309504341.cos.ap-beijing'
-                                                                    '.myqcloud.com/default.jpg')
+    avatar_url = models.CharField('用户头像路径', max_length=128, default=default_avatar_url)
     avatar = models.FileField('用户头像', upload_to='')
     isActive = models.BooleanField('是否有效', default=False)
     isSuperAdmin = models.BooleanField('是否为超级管理员', default=False)

@@ -1,4 +1,6 @@
 from django.db import models
+
+from key import default_favorite_url
 from user.models import User
 
 
@@ -61,7 +63,7 @@ class Video(models.Model):
         return '视频' + self.title
 
     class Meta:
-        ordering = ['-updated_time']  # 按文章创建日期降序
+        ordering = ['-updated_time']  # 按视频创建日期降序
         db_table = 'video'  # 改变当前模型类对应的表名
         verbose_name = '视频'
         verbose_name_plural = '视频列表'
@@ -173,12 +175,14 @@ class Favorite(models.Model):
     description = models.TextField('描述')
     isPrivate = models.IntegerField("是否为私有", default=0)  # 0 - 公开    1 - 私有
     user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
+    avatar_url = models.CharField('封面路径', max_length=128, default=default_favorite_url)
 
     def to_dic(self):
         return {
             'id': self.id,
             'title': self.title,
             'description': self.description,
+            'avatar_url': self.avatar_url,
             'isPrivate': self.isPrivate,
         }
 

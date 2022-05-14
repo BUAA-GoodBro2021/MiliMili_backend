@@ -557,11 +557,11 @@ def collect_video(request):
         # 先判断视频状态
         need_verify(video_id)
         if FavoriteToVideo.objects.filter(favorite_id=favorite_id, video_id=video_id).exists():
-            result = {'result': 0, 'message': r"已经收藏过，请不要重复收藏!", "user": user.to_dic(),
-                      "station_message": list_message(user_id),
+            result = {'result': 0, 'message': r"已经收藏过，请不要重复收藏!", "not_read": not_read(user_id), "user": user.to_dic(),
                       'favorite_list_detail': get_favorite_list_detail(user_id)}
             return JsonResponse(result)
         FavoriteToVideo.objects.create(favorite_id=favorite_id, video_id=video_id)
+
         # 视频状态添加
         video = Video.objects.get(id=video_id)
         video.add_collect()
@@ -569,6 +569,11 @@ def collect_video(request):
         # 视频上传者状态添加
         upload_user = Video.objects.get(id=video_id).user
         upload_user.add_collect()
+
+        # 收藏封面变更
+        favorite = Favorite.objects.get(id=favorite_id)
+        favorite.avatar_url = video.avatar_url
+        favorite.save()
 
         # 发送站内信
         title = "视频收获收藏啦！"
@@ -609,6 +614,16 @@ def not_collect_video(request):
         # 视频上传者状态减少
         upload_user = Video.objects.get(id=video_id).user
         upload_user.del_collect()
+
+        # 收藏封面变更
+        favorite = Favorite.objects.get(id=favorite_id)
+        favorite_video_id_list = get_favorite_list_video_id(favorite_id)
+        if len(favorite_video_id_list) == 0:
+            favorite.avatar_url = default_avatar_url
+        else:
+            favorite.avatar_url = Video.objects.get(id=favorite_video_id_list[0]).avatar_url
+        favorite.save()
+
         result = {'result': 1, 'message': r"取消收藏成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)

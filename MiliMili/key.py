@@ -26,3 +26,7 @@ aliyun_appcode = '1437a6fc99dc4078bfe01338d7132c2c'  # 开通服务后 买家中
 
 # token加密所需的密钥
 TOKEN_SECRET_KEY = 'django-insecure-7_zr&s64q6sv+hnto6smvc!5$s96+cw7%)tf@fab9%lpanbr%x'
+
+# 默认图片地址
+default_favorite_url = 'https://global-1309504341.cos.ap-beijing.myqcloud.com/default-favorite.jpg'
+default_avatar_url = 'https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg'

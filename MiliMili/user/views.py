@@ -187,7 +187,7 @@ def change_file(request):
 
             # 判断用户是不是默认头像   如果不是，要删除以前的
             # 判断用户是不是默认头像   如果不是，要删除以前的
-            if user.avatar_url != "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg":
+            if user.avatar_url != default_avatar_url:
                 bucket.delete_object("avatar", str(user_id) + suffix)
 
             # 上传是否成功
@@ -292,8 +292,7 @@ def upload_avatar(request):
         bucket.delete_object("avatar", key + suffix)
 
         # 判断用户是不是默认头像   如果不是，要删除以前的
-        # 判断用户是不是默认头像   如果不是，要删除以前的
-        if user.avatar_url != "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg":
+        if user.avatar_url != default_avatar_url:
             bucket.delete_object("avatar", str(user_id) + suffix)
 
         # 上传是否成功

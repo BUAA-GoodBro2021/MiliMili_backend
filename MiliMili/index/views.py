@@ -14,6 +14,7 @@ from video.models import Video
 def video_search(request):
     if request.method == 'POST':
         search_str = request.POST.get('search_str', '')
+
         try:
             video_list = ThreadController(search_str, 'video').run()
             result = 1
@@ -29,12 +30,29 @@ def video_search(request):
             video_list = sorted(video_list, key=lambda x: -x.get('updated_time').timestamp())
         elif order == 'view':
             video_list = sorted(video_list, key=lambda x: -x.get('view_num'))
+
+        # 是否是登录状态
+        JWT = request.POST.get('JWT', '')
+        if JWT == '':
+            result = {'result': result, 'message': message, 'not_read': -1, 'list': video_list}
+            return JsonResponse(result)
+        else:
+            JWT = request.POST.get('JWT', '')
+            try:
+                token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+                user_id = token.get('user_id', '')
+                user = User.objects.get(id=user_id)
+            except Exception as e:
+                result = {'result': 0, 'message': r"JWT错误，请先登录!"}
+                return JsonResponse(result)
+            result = {'result': result, 'message': message, 'not_read': not_read(user_id), 'list': video_list}
+            return JsonResponse(result)
     else:
         video_list = None
         result = 0
         message = r'搜索视频失败'
-    result = {'result': result, 'message': message, 'list': video_list}
-    return JsonResponse(result)
+        result = {'result': result, 'message': message, 'not_read': -1, 'list': video_list}
+        return JsonResponse(result)
 
 
 def user_search(request):
@@ -55,12 +73,29 @@ def user_search(request):
             user_list = sorted(user_list, key=lambda x: -x.get('fan_num'))
         else:
             pass
+        # 是否是登录状态
+        JWT = request.POST.get('JWT', '')
+        if JWT == '':
+            result = {'result': result, 'message': message, 'not_read': -1, 'list': user_list}
+            return JsonResponse(result)
+        else:
+            JWT = request.POST.get('JWT', '')
+            try:
+                token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+                user_id = token.get('user_id', '')
+                user = User.objects.get(id=user_id)
+            except Exception as e:
+                result = {'result': 0, 'message': r"JWT错误，请先登录!"}
+                return JsonResponse(result)
+            result = {'result': result, 'message': message, 'not_read': not_read(user_id), 'list': user_list}
+            return JsonResponse(result)
+
     else:
         user_list = None
         result = 0
         message = r'搜索用户失败'
-    result = {'result': result, 'message': message, 'list': user_list}
-    return JsonResponse(result)
+        result = {'result': result, 'message': message, 'not_read': -1, 'list': user_list}
+        return JsonResponse(result)
 
 
 def zone_search(request, zone):
@@ -73,12 +108,30 @@ def zone_search(request, zone):
             zone_list = None
             result = 0
             message = r'搜索分区失败'
+
+        # 是否是登录状态
+        JWT = request.POST.get('JWT', '')
+        if JWT == '':
+            result = {'result': result, 'message': message, 'not_read': -1, 'list': zone_list}
+            return JsonResponse(result)
+        else:
+            JWT = request.POST.get('JWT', '')
+            try:
+                token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+                user_id = token.get('user_id', '')
+                user = User.objects.get(id=user_id)
+            except Exception as e:
+                result = {'result': 0, 'message': r"JWT错误，请先登录!"}
+                return JsonResponse(result)
+            result = {'result': result, 'message': message, 'not_read': not_read(user_id), 'list': zone_list}
+            return JsonResponse(result)
+
     else:
         zone_list = None
         result = 0
         message = r'搜索分区失败'
-    result = {'result': result, 'message': message, 'list': zone_list}
-    JsonResponse(result)
+        result = {'result': result, 'message': message, 'not_read': -1, 'list': zone_list}
+        JsonResponse(result)
 
 
 def index_message(request):
@@ -113,7 +166,7 @@ def index_message(request):
             message = r'推荐失败'
         search_history_list = list(UserToSearchHistory.objects.filter(user_id=user_id).values())
         search_history_list = sorted(search_history_list, key=lambda x: -x.get('created_time').timestamp())[:8]
-        result = {'result': result, 'message': message, "not_read": not_read(user_id),'recommend_list': recommend_list,
+        result = {'result': result, 'message': message, "not_read": not_read(user_id), 'recommend_list': recommend_list,
                   'search_history_list': search_history_list}
         return JsonResponse(result)
 

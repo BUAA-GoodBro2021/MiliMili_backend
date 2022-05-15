@@ -195,3 +195,8 @@ class FavoriteToVideo(models.Model):
 class Tag(models.Model):
     tag = models.CharField(verbose_name='标签集合', max_length=64)
     count = models.IntegerField(verbose_name='选用此标签的视频数量', default=0)
+
+
+class Zone(models.Model):
+    zone = models.CharField(verbose_name='分区名称', max_length=64)
+

@@ -15,7 +15,10 @@ class ThreadController:
         :param element: the type of search (video, user, tag)
         :param thread_num: the number of threading
         """
-        self.search_token_list = list(jieba.cut_for_search(search))
+        if type(search) == str:
+            self.search_token_list = list(jieba.cut_for_search(search))
+        else:
+            self.search_token_list = []
         self.search = search
         if element == 'video':
             self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0)]
@@ -28,6 +31,7 @@ class ThreadController:
             self.element_list = [x.to_dic() for x in Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
                                                                            Q(tag3__in=key) | Q(tag4__in=key) |
                                                                            Q(tag5__in=key)), isAudit=1, need_verify=0)]
+
         else:
             self.element_list = []
         block_size = math.floor(len(self.element_list) / thread_num)

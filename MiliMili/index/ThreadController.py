@@ -9,17 +9,19 @@ from user.models import User
 
 
 class ThreadController:
-    def __init__(self, search, element, thread_num=10):
+    def __init__(self, search, element, tag_dict = None, thread_num=10):
         """
-        :param search: the searched string or dict ({tag: count})
+        :param search: the searched string
         :param element: the type of search (video, user, tag)
         :param thread_num: the number of threading
+        :param tag_dict: dict ({tag: count})
         """
-        if type(search) == str:
+        if search is not None:
             self.search_token_list = list(jieba.cut_for_search(search))
         else:
             self.search_token_list = []
         self.search = search
+        self.tag_dict = tag_dict
         if element == 'video':
             self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0)]
         elif element == 'user':
@@ -27,10 +29,14 @@ class ThreadController:
         elif element == 'zone':
             self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0, zone=search)]
         elif element == 'recommend':
-            key = search.keys()
-            self.element_list = [x.to_dic() for x in Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
-                                                                           Q(tag3__in=key) | Q(tag4__in=key) |
-                                                                           Q(tag5__in=key)), isAudit=1, need_verify=0)]
+            if search is not None:
+                self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0, zone=search)]
+            else:
+                key = tag_dict.keys()
+                self.element_list = [x.to_dic() for x in Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
+                                                                               Q(tag3__in=key) | Q(tag4__in=key) |
+                                                                               Q(tag5__in=key)), isAudit=1,
+                                                                              need_verify=0)]
 
         else:
             self.element_list = []
@@ -40,7 +46,7 @@ class ThreadController:
         distribution_list = [[block_size * i, block_size * (i + 1)] for i in range(thread_num)]
         distribution_list[thread_num - 1][1] = len(self.element_list)
         self.element = element
-        self.threads = [self.Threading(element, self.search, self.search_token_list,
+        self.threads = [self.Threading(element, self.search, self.tag_dict, self.search_token_list,
                                        self.element_list[distribution_list[i][0]:distribution_list[i][1]])
                         for i in range(thread_num)]
 
@@ -49,6 +55,7 @@ class ThreadController:
             t.start()
         for t in self.threads:
             t.join()
+
         if self.element == 'video':
             result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
                                                                                -x.get('like_num')))
@@ -62,7 +69,7 @@ class ThreadController:
                                                                                -x.get('like_num')))
             if len(result) >= 40:
                 result = result[:35] + result[-5:]
-            elif len(result) < 8:
+            elif len(result) < 8 and self.search is None:
                 result = list(Video.objects.filter(isAudit=1, need_verify=0).values())
             count = min(len(result), 8)
             result = random.sample(result, count)
@@ -74,10 +81,11 @@ class ThreadController:
     class Threading(threading.Thread):
         ranked_element_list = []
 
-        def __init__(self, element, search, search_token_list, element_list):
+        def __init__(self, element, search, tag_dict, search_token_list, element_list):
             threading.Thread.__init__(self)
             self.search = search
             self.element = element
+            self.tag_dict = tag_dict
             self.search_token_list = search_token_list
             self.element_list = element_list
 
@@ -151,11 +159,12 @@ class ThreadController:
                         user_info['index_list'] = index_list
                         self.ranked_element_list.append(user_info)
             elif self.element == 'recommend':
-                for video_info in self.element_list:
-                    score = 0
-                    for i in range(1, 6):
-                        score += self.search.get(video_info.get('tag' + str(i)), 0)
-                    video_info['distance'] = 100 - score
+                if self.tag_dict is not None:
+                    for video_info in self.element_list:
+                        score = 0
+                        for i in range(1, 6):
+                            score += self.tag_dict.get(video_info.get('tag' + str(i)), 0)
+                        video_info['distance'] = 100 - score
                 self.ranked_element_list += self.element_list
             else:
                 pass

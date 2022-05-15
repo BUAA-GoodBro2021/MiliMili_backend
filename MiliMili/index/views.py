@@ -8,7 +8,7 @@ from index.ThreadController import ThreadController
 from key import *
 from sending.views import not_read
 from user.models import *
-from video.models import Video
+from video.models import Video, Zone
 
 
 def video_search(request):
@@ -156,10 +156,9 @@ def index_message(request):
                             tag_dict[tag] = 1
                         else:
                             tag_dict[tag] += 1
-        zone_list = list(Video.objects.filter(isAudit=1, need_verify=0).values())
-        print(zone_list)
+        zone_list = list(Zone.objects.all().values())
         try:
-            recommend_list = ThreadController(tag_dict, 'recommend').run()
+            recommend_list = ThreadController(None, 'recommend', tag_dict).run()[:6]
             result = 1
             message = r'推荐成功'
         except Exception as e:
@@ -167,11 +166,23 @@ def index_message(request):
             recommend_list = None
             result = 0
             message = r'推荐失败'
+        try:
+            zone_video_list = []
+            for i in zone_list:
+                zone_video_list.append({'id': i['id']})
+                zone_video_list[i['id'] - 1]['recommend_list'] = ThreadController(i['zone'], 'recommend', tag_dict).run()[:8]
+                zone_video_list[i['id'] - 1]['rank_list'] = ThreadController(i['zone'], 'zone').run()[:10]
+        except Exception as e:
+            print(e)
+            zone_video_list = None
+            result = 0
+            message = r'推荐失败'
         search_history_list = list(UserToSearchHistory.objects.filter(user_id=user_id).values())
         search_history_list = sorted(search_history_list, key=lambda x: -x.get('created_time').timestamp())[:8]
 
         result = {'result': result, 'message': message, "not_read": not_read(user_id), 'recommend_list': recommend_list,
-                  'search_history_list': search_history_list}
+                  'search_history_list': search_history_list, 'zone_list': zone_list,
+                  'zone_video_list': zone_video_list}
         return JsonResponse(result)
 
 

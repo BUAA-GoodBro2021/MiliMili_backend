@@ -215,6 +215,7 @@ def change_file(request):
                 return JsonResponse(result)
             # 获取对象存储的桶地址
             user.avatar_url = url
+            user.save()
             # 删除本地文件
             os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
 
@@ -331,6 +332,7 @@ def upload_avatar(request):
             return JsonResponse(result)
         # 获取对象存储的桶地址
         user.avatar_url = url
+        user.save()
         # 删除本地文件
         os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
 

@@ -25,18 +25,15 @@ class Message(models.Model):
             'from_user': User.objects.get(id=self.from_id).to_dic(),
         }
 
+    def __str__(self):
+        return '站内信' + self.title
 
-def __str__(self):
-    return '站内信' + self.title
+    class Meta:
+        ordering = ['-created_time']  # 按文章创建日期降序
+        db_table = 'message'  # 改变当前模型类对应的表名
+        verbose_name = '站内信'
+        verbose_name_plural = '站内信列表'
 
-
-class Meta:
-    ordering = ['-created_time']  # 按文章创建日期降序
-    db_table = 'message'  # 改变当前模型类对应的表名
-    verbose_name = '站内信'
-    verbose_name_plural = '站内信列表'
-
-
-def read(self):
-    self.isRead = True
-    self.save(update_fields=['isRead'])
+    def read(self):
+        self.isRead = True
+        self.save(update_fields=['isRead'])

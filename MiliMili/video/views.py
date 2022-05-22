@@ -45,6 +45,9 @@ def upload_video(request):
         if title == '' or description == '' or zone == '':
             result = {'result': 0, 'message': r"视频标题或描述或分区不能为空!", "station_message": list_message(user.id)}
             return JsonResponse(result)
+        if len(title) > 256:
+            result = {'result': 0, 'message': r"标题太长咯!", "station_message": list_message(user.id)}
+            return JsonResponse(result)
 
         # 常见对象存储的对象
         bucket = Bucket()

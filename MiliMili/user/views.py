@@ -186,9 +186,19 @@ def change_file(request):
             bucket.delete_object("avatar", key + suffix)
 
             # 判断用户是不是默认头像   如果不是，要删除以前的
-            # 判断用户是不是默认头像   如果不是，要删除以前的
             if user.avatar_url != default_avatar_url:
-                bucket.delete_object("avatar", str(user_id) + suffix)
+                try:
+                    bucket.delete_object("avatar", str(user_id) + ".png")
+                except Expression:
+                    pass
+                try:
+                    bucket.delete_object("avatar", str(user_id) + ".jpg")
+                except Expression:
+                    pass
+                try:
+                    bucket.delete_object("avatar", str(user_id) + ".jpeg")
+                except Expression:
+                    pass
 
             # 上传是否成功
             upload_result = bucket.upload_file("avatar", str(user_id) + suffix, avatar.name)
@@ -205,6 +215,7 @@ def change_file(request):
                 return JsonResponse(result)
             # 获取对象存储的桶地址
             user.avatar_url = url
+            user.save()
             # 删除本地文件
             os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
 
@@ -293,7 +304,18 @@ def upload_avatar(request):
 
         # 判断用户是不是默认头像   如果不是，要删除以前的
         if user.avatar_url != default_avatar_url:
-            bucket.delete_object("avatar", str(user_id) + suffix)
+            try:
+                bucket.delete_object("avatar", str(user_id) + ".png")
+            except Expression:
+                pass
+            try:
+                bucket.delete_object("avatar", str(user_id) + ".jpg")
+            except Expression:
+                pass
+            try:
+                bucket.delete_object("avatar", str(user_id) + ".jpeg")
+            except Expression:
+                pass
 
         # 上传是否成功
         upload_result = bucket.upload_file("avatar", str(user_id) + suffix, avatar.name)
@@ -310,6 +332,7 @@ def upload_avatar(request):
             return JsonResponse(result)
         # 获取对象存储的桶地址
         user.avatar_url = url
+        user.save()
         # 删除本地文件
         os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
 

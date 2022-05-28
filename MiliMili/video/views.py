@@ -943,3 +943,12 @@ def video_page(request, video_id):
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
     return JsonResponse(result)
+
+
+def is_follow(user_id, video_id):
+    try:
+        target_id = Video.objects.get(video_id=video_id).user_id
+        UserToFollow.objects.get(user_id=user_id, follow_id=target_id)
+    except Exception as e:
+        return False
+    return True

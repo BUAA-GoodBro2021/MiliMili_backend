@@ -9,6 +9,7 @@ from key import *
 from sending.views import not_read
 from user.models import *
 from video.models import Video, Zone
+from video.views import is_follow
 
 
 def video_search(request):
@@ -87,6 +88,11 @@ def user_search(request):
             except Exception as e:
                 result = {'result': 0, 'message': r"JWT错误，请先登录!"}
                 return JsonResponse(result)
+            for user in user_list:
+                if is_follow(user_id, user.get('id')):
+                    user['is_follow'] = True
+                else:
+                    user['is_follow'] = False
             result = {'result': result, 'message': message, 'not_read': not_read(user_id), 'list': user_list}
             return JsonResponse(result)
 

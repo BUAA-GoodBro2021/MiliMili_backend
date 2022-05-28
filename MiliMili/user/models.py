@@ -28,6 +28,13 @@ class User(models.Model):
 
     complain_time = models.DecimalField('投诉时间', max_digits=12, decimal_places=2, default=0.0)
 
+    def to_simple_dic(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "avatar_url": self.avatar_url,
+        }
+
     def to_dic(self):
         return {
             "id": self.id,

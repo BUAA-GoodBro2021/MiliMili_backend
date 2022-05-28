@@ -22,7 +22,7 @@ class Message(models.Model):
             "isRead": self.isRead,
             "from_id": self.from_id,
             "from_type": self.from_type,
-            'from_user': User.objects.get(id=self.from_id).to_dic(),
+            'from_user': User.objects.get(id=self.from_id).to_simple_dic(),
         }
 
     def __str__(self):

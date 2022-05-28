@@ -5,7 +5,7 @@ from user.models import User
 
 
 class Video(models.Model):
-    title = models.CharField('标题', max_length=64)
+    title = models.CharField('标题', max_length=256)
     description = models.TextField('描述')
     video = models.FileField('视频', upload_to='', default='')
     avatar = models.FileField('封面', upload_to='', default='')

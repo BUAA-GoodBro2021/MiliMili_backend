@@ -25,5 +25,5 @@ urlpatterns = [
     path('like-comment', views.like_comment),
     path('dislike-comment', views.dislike_comment),
     # 视频信息及推荐
-    path('<str:video_id>', views.video_page)
+    path('detail/<str:video_id>', views.video_page)
 ]

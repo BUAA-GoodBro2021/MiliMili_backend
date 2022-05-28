@@ -1,5 +1,4 @@
 import time
-from decimal import Decimal
 
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
@@ -925,23 +924,33 @@ def dislike_comment(request):
 
 def video_page(request, video_id):
     if request.method == 'POST':
-        # 检查表单信息
+        # 获取具体视频
+        video_info = Video.objects.get(id=video_id)
+        # 视频浏览量 + 1
+        video_info.add_view()
+        # 进行相似视频推荐
+        from index.ThreadController import ThreadController
+        video_tag = {}
+        for i in range(1, 6):
+            if eval('video_info.tag' + str(i)) != '':
+                video_tag[eval('video_info.tag' + str(i))] = 20
+        recommended_video = ThreadController(video_tag, 'recommend').run()
+
+        # 检查表单信息，判断是否登录
         JWT = request.POST.get('JWT', '')
         try:
             token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
             user_id = token.get('user_id', '')
             user = User.objects.get(id=user_id)
-        except Exception as e:
-            result = {'result': 0, 'message': r"请先登录!"}
+        except Exception:
+            # 游客情况
+            result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info.to_dic(),
+                      'recommended_video': recommended_video}
             return JsonResponse(result)
-        video_info = Video.objects.get(id=video_id)
-        from index.ThreadController import ThreadController
-        video_tag = {}
-        for i in range(1, 6):
-            if eval('video_info.tag' + str(i)) != '':
-                video_tag[eval('video.tag' + str(i))] = 20
-        recommended_video = ThreadController(video_tag, 'recommend')
-        result = {'result': 1, 'message': r"获取主页信息成功！", "not_read": not_read(user_id), 'video_info': video_info,
+        # 用户情况  需要添加历史记录
+        UserToHistory.objects.create(user_id=user_id, video_id=video_id)
+        result = {'result': 1, 'message': r"获取主页信息成功！", "not_read": not_read(user_id),
+                  'video_info': video_info.to_dic(),
                   'recommended_video': recommended_video}
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

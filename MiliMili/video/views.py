@@ -926,6 +926,7 @@ def video_page(request, video_id):
     if request.method == 'POST':
         # 获取具体视频
         video_info = Video.objects.get(id=video_id)
+
         # 视频浏览量 + 1
         video_info.add_view()
         # 进行相似视频推荐
@@ -957,6 +958,7 @@ def video_page(request, video_id):
     return JsonResponse(result)
 
 
+# 判断是否属于已关注该视频的up主
 def is_follow(user_id, video_id):
     try:
         target_id = Video.objects.get(video_id=video_id).user_id

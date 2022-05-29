@@ -800,14 +800,9 @@ def reply_comment(request):
         return JsonResponse(result)
 
 
-# 获取视频中评论的id
-def get_comment_like_list_simple(video_id):
-    return [x.id for x in Video.objects.get(id=video_id).videocomment_set.all()]
-
-
 # 获取视频中评论的详情(具体信息)
 def get_comment_like_list_detail(video_id):
-    return [VideoComment.objects.get(id=x).to_dic() for x in get_comment_like_list_simple(video_id)]
+    return [x.to_dic() for x in Video.objects.get(id=video_id).videocomment_set.all()]
 
 
 # 点赞评论
@@ -945,14 +940,26 @@ def video_page(request, video_id):
             user = User.objects.get(id=user_id)
         except Exception:
             # 游客情况
+            # 当前视频所有所有评论
+            comment_list = get_comment_like_list_detail(video_id=video_id)
             result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info.to_dic(),
-                      'recommended_video': recommended_video}
+                      'recommended_video': recommended_video,
+                      'comment_list': comment_list}
             return JsonResponse(result)
         # 用户情况  需要添加历史记录
         UserToHistory.objects.create(user_id=user_id, video_id=video_id)
+        # 返回最新评论字典(含自己是否点赞)
+        comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}
+        # 当前视频所有所有评论
+        comment_list = get_comment_like_list_detail(video_id=video_id)
+        # 标注是否自己已经评论过
+        for every_comment in comment_list:
+            if every_comment.get('id') in comment_like_dict:
+                every_comment['islike'] = 1
         result = {'result': 1, 'message': r"获取主页信息成功！", "not_read": not_read(user_id),
                   'video_info': video_info.to_dic(),
-                  'recommended_video': recommended_video}
+                  'recommended_video': recommended_video,
+                  'comment_list': comment_list}
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
     return JsonResponse(result)

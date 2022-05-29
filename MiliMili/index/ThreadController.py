@@ -9,7 +9,7 @@ from user.models import User
 
 
 class ThreadController:
-    def __init__(self, search, element, tag_dict = None, thread_num=10):
+    def __init__(self, search, element, tag_dict=None, thread_num=10, video_id=-1):
         """
         :param search: the searched string
         :param element: the type of search (video, user, tag)
@@ -23,17 +23,17 @@ class ThreadController:
         self.search = search
         self.tag_dict = tag_dict
         if element == 'video':
-            self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0)]
+            self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1, need_verify=0)]
         elif element == 'user':
             self.element_list = list(User.objects.all().values())
         elif element == 'zone':
-            self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0, zone=search)]
+            self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1, need_verify=0, zone=search)]
         elif element == 'recommend':
             if search is not None:
-                self.element_list = [x.to_dic() for x in Video.objects.filter(isAudit=1, need_verify=0, zone=search)]
+                self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1, need_verify=0, zone=search)]
             else:
                 key = tag_dict.keys()
-                self.element_list = [x.to_dic() for x in Video.objects.filter((Q(tag1__in=key) | Q(tag2__in=key) |
+                self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), (Q(tag1__in=key) | Q(tag2__in=key) |
                                                                                Q(tag3__in=key) | Q(tag4__in=key) |
                                                                                Q(tag5__in=key)), isAudit=1,
                                                                               need_verify=0)]

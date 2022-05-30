@@ -1,3 +1,5 @@
+import re
+
 from video.views import *
 
 
@@ -186,7 +188,7 @@ def change_file(request):
             bucket.delete_object("avatar", key + suffix)
 
             # 判断用户是不是默认头像   如果不是，要删除以前的
-            if user.avatar_url != default_avatar_url:
+            if re.match(default_avatar_url_match + r'\d\.png', user.avatar_url) is None:
                 try:
                     bucket.delete_object("avatar", str(user_id) + ".png")
                 except Expression:
@@ -275,7 +277,6 @@ def upload_avatar(request):
 
         # 常见对象存储的对象
         bucket = Bucket()
-
         # 先生成一个随机 Key 保存在桶中进行审核
         key = create_code()
         upload_result = bucket.upload_file("avatar", key + suffix, avatar.name)
@@ -303,7 +304,7 @@ def upload_avatar(request):
         bucket.delete_object("avatar", key + suffix)
 
         # 判断用户是不是默认头像   如果不是，要删除以前的
-        if user.avatar_url != default_avatar_url:
+        if re.match(default_avatar_url_match + r'\d\.png', user.avatar_url) is None:
             try:
                 bucket.delete_object("avatar", str(user_id) + ".png")
             except Expression:

@@ -1,5 +1,6 @@
 import os
 import platform
+import random
 from random import Random
 
 import jwt
@@ -11,7 +12,7 @@ from django.shortcuts import render
 from django.template import loader
 
 from MiliMili.settings import SECRET_KEY
-from key import EMAIL_HOST_USER
+from key import *
 from sending.models import Message
 from user.models import User
 
@@ -282,7 +283,8 @@ def active(request, url):
         # 激活用户 验证邮箱
         user.isActive = True
         user.email = email
-        user.avatar_url = "https://global-1309504341.cos.ap-beijing.myqcloud.com/default.jpg"
+        avatar_url = default_avatar_url_match + str(random.choice(range(1, 51))) + '.png'
+        user.avatar_url = avatar_url
         user.save()
         # 删除其他伪用户
         user = User.objects.filter(username=username, isActive=False)

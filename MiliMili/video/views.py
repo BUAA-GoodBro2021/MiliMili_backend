@@ -966,9 +966,8 @@ def video_page(request, video_id):
 
 
 # 判断是否属于已关注该视频的up主
-def is_follow(user_id, video_id):
+def is_follow(user_id, target_id):
     try:
-        target_id = Video.objects.get(video_id=video_id).user_id
         UserToFollow.objects.get(user_id=user_id, follow_id=target_id)
     except Exception as e:
         return False

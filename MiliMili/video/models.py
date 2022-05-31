@@ -26,7 +26,7 @@ class Video(models.Model):
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     updated_time = models.DateTimeField('更新时间', auto_now=True)
 
-    isAudit = models.IntegerField('状态', default=0)  # 0 - 待审核   1 - 审核通过    2 - 需要人工审核
+    isAudit = models.IntegerField('状态', default=0)  # 0 - 待审核   1 - 审核通过    2 - 需要人工审核   3 - 被管理员手动改为审核
     need_verify = models.IntegerField('状态', default=0)  # 0 - 正常视频  1 - 投诉过多需要临时下架进行人工检查的视频
 
     def to_dic(self):

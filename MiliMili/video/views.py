@@ -932,7 +932,9 @@ def video_page(request, video_id):
     if request.method == 'POST':
         # 获取具体视频
         video_info = Video.objects.get(id=video_id)
-
+        # 自己是否已经点赞或者收藏过该视频
+        is_like = 0
+        is_collect = 0
         # 视频浏览量 + 1
         video_info.add_view()
         # 进行相似视频推荐
@@ -955,6 +957,7 @@ def video_page(request, video_id):
             # 当前视频所有所有评论
             comment_list = get_comment_like_list_detail(video_id=video_id)
             result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info.to_dic(),
+                      'is_like': is_like, 'is_collect': is_collect,
                       'recommended_video': recommended_video,
                       'comment_list': comment_list}
             return JsonResponse(result)
@@ -974,9 +977,7 @@ def video_page(request, video_id):
                 every_comment['is_own'] = 1
                 if every_comment.get('id') in comment_like_dict:
                     every_comment['is_like'] = 1
-        # 自己是否已经点赞或者收藏过该视频
-        is_like = 0
-        is_collect = 0
+
         if UserToVideo_like.objects.filter(video_id=video_id, user_id=user_id).exists():
             is_like = 1
         if UserToVideo_collect.objects.filter(video_id=video_id, user_id=user_id).exists():

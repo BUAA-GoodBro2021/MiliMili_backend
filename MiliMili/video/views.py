@@ -757,7 +757,7 @@ def add_comment(request):
         if len(content) == 0:
             result = {'result': 0, 'message': r"评论不能为空！"}
             return JsonResponse(result)
-        comment = VideoComment.objects.create(username=username, content=content, video_id=video_id)
+        comment = VideoComment.objects.create(username=username, user_id=user_id, content=content, video_id=video_id)
 
         # 如果是添加评论，根ID是自己
         comment.root_id = comment.id
@@ -857,7 +857,7 @@ def reply_comment(request):
         if len(content) == 0:
             result = {'result': 0, 'message': r"评论不能为空！"}
             return JsonResponse(result)
-        comment = VideoComment.objects.create(username=username, content=content, video_id=video_id,
+        comment = VideoComment.objects.create(username=username, user_id=user_id, content=content, video_id=video_id,
                                               reply_comment_id=reply_comment_id, reply_username=reply_username)
         # 更新根节点
         comment.root_id = VideoComment.objects.get(id=reply_comment_id).root_id

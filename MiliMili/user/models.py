@@ -143,9 +143,21 @@ class UserToFollow(models.Model):
 
 
 # 查看个人收藏的视频
-class UserToVideo(models.Model):
+class UserToVideo_collect(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)
     video_id = models.IntegerField(verbose_name='收藏的视频', default=0)
+    cnt = models.IntegerField(verbose_name='收藏次数', default=1)
+
+    # 添加收藏
+    def add_cnt(self):
+        self.cnt += 1
+        self.save(update_fields=['cnt'])
+
+    # 减少收藏
+    def del_cnt(self):
+        if self.cnt > 0:
+            self.cnt -= 1
+            self.save(update_fields=['cnt'])
 
 
 # 查看个人点赞的视频

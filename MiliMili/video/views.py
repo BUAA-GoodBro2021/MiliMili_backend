@@ -562,8 +562,13 @@ def collect_video(request):
             result = {'result': 0, 'message': r"已经收藏过，请不要重复收藏!", "not_read": not_read(user_id), "user": user.to_dic(),
                       'favorite_list_detail': get_favorite_list_detail(user_id)}
             return JsonResponse(result)
+        # 创建收藏夹与视频的联系
         FavoriteToVideo.objects.create(favorite_id=favorite_id, video_id=video_id)
-
+        # 创建人与视频的联系,如果没有就创建一个，如果有就次数+1
+        if UserToVideo_collect.objects.filter(user_id=user_id, video_id=video_id).exists():
+            UserToVideo_collect.objects.get(user_id=user_id, video_id=video_id).add_cnt()
+        else:
+            UserToVideo_collect.objects.create(user_id=user_id, video_id=video_id)
         # 视频状态添加
         video = Video.objects.get(id=video_id)
         video.add_collect()
@@ -609,6 +614,12 @@ def not_collect_video(request):
                       "station_message": list_message(user_id)}
             return JsonResponse(result)
         FavoriteToVideo.objects.get(favorite_id=favorite_id, video_id=video_id).delete()
+        # 删除人与视频的联系，如果减为0，直接删去
+        if UserToVideo_collect.objects.filter(user_id=user_id, video_id=video_id).exists():
+            connect = UserToVideo_collect.objects.get(user_id=user_id, video_id=video_id)
+            if connect.cnt == 0:
+                UserToVideo_collect.objects.get(user_id=user_id, video_id=video_id).delete()
+
         # 视频状态减少
         video = Video.objects.get(id=video_id)
         video.del_collect()
@@ -934,6 +945,7 @@ def video_page(request, video_id):
 
         # 检查表单信息，判断是否登录
         JWT = request.POST.get('JWT', '')
+        user_id = 0
         try:
             token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
             user_id = token.get('user_id', '')
@@ -954,9 +966,20 @@ def video_page(request, video_id):
         comment_list = get_comment_like_list_detail(video_id=video_id)
         # 标注是否自己已经评论过
         for every_comment in comment_list:
-            if every_comment.get('id') in comment_like_dict:
-                every_comment['islike'] = 1
+            # 如果是自己评论的
+            if every_comment.get('username') == user.username:
+                every_comment['is_own'] = 1
+                if every_comment.get('id') in comment_like_dict:
+                    every_comment['is_like'] = 1
+        # 自己是否已经点赞或者收藏过该视频
+        is_like = 0
+        is_collect = 0
+        if UserToVideo_like.objects.filter(video_id=video_id, user_id=user_id).exists():
+            is_like = 1
+        if UserToVideo_collect.objects.filter(video_id=video_id, user_id=user_id).exists():
+            is_collect = 1
         result = {'result': 1, 'message': r"获取主页信息成功！", "not_read": not_read(user_id),
+                  'is_like': is_like, 'is_collect': is_collect,
                   'video_info': video_info.to_dic(),
                   'recommended_video': recommended_video,
                   'comment_list': comment_list}

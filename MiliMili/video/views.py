@@ -13,7 +13,7 @@ from video.models import *
 # 判断该视频是否需要整改
 def need_verify(video_id):
     video = Video.objects.get(id=video_id)
-    if video.isAudit != 1 or video.need_verify != 0:
+    if video.isAudit != 1:
         result = {'result': 0, 'message': r"该视频好像出了一点问题哦，待会再来看看叭!"}
         return JsonResponse(result)
 

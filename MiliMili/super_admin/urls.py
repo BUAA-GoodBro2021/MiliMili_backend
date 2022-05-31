@@ -3,7 +3,11 @@ from . import views
 
 urlpatterns = [
     # 视频系列
-    path('list', views.need_verify_video_list),
+    path('video-list', views.all_list),
+    path('audit-video-list', views.audit_verify_video_list),
+
     # 审核系列
-    path('judge', views.audit_need_verify_video)
+    path('audit-video', views.audit_video),
+    path('redo-audit-video', views.redo_audit_video),
+    path('verify-complain-video', views.verify_complain_video)
 ]

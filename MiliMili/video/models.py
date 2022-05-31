@@ -27,7 +27,6 @@ class Video(models.Model):
     updated_time = models.DateTimeField('更新时间', auto_now=True)
 
     isAudit = models.IntegerField('状态', default=0)  # 0 - 待审核   1 - 审核通过    2 - 需要人工审核   3 - 被管理员手动改为审核
-    need_verify = models.IntegerField('状态', default=0)  # 0 - 正常视频  1 - 投诉过多需要临时下架进行人工检查的视频
 
     def to_dic(self):
         tag_list = []
@@ -56,7 +55,6 @@ class Video(models.Model):
             'created_time': self.created_time,
             'updated_time': self.updated_time,
             'isAudit': self.isAudit,
-            'need_verify': self.need_verify,
         }
 
     def to_simple_dic(self):
@@ -174,7 +172,7 @@ class VideoComplain(models.Model):
             'title': self.title,
             'description': self.description,
             'verify_result': self.verify_result,
-            'video': self.video.to_dic(),
+            'video': self.video.to_simple_dic(),
         }
 
 

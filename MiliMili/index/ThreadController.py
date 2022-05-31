@@ -23,20 +23,20 @@ class ThreadController:
         self.search = search
         self.tag_dict = tag_dict
         if element == 'video':
-            self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1, need_verify=0)]
+            self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1)]
         elif element == 'user':
             self.element_list = list(User.objects.all().values())
         elif element == 'zone':
-            self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1, need_verify=0, zone=search)]
+            self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1, zone=search)]
         elif element == 'recommend':
             if search is not None:
-                self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1, need_verify=0, zone=search)]
+                self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1, zone=search)]
             else:
                 key = tag_dict.keys()
-                self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), (Q(tag1__in=key) | Q(tag2__in=key) |
-                                                                               Q(tag3__in=key) | Q(tag4__in=key) |
-                                                                               Q(tag5__in=key)), isAudit=1,
-                                                                              need_verify=0)]
+                self.element_list = [x.to_dic() for x in
+                                     Video.objects.filter(~Q(id=video_id), (Q(tag1__in=key) | Q(tag2__in=key) |
+                                                                            Q(tag3__in=key) | Q(tag4__in=key) |
+                                                                            Q(tag5__in=key)), isAudit=1)]
 
         else:
             self.element_list = []
@@ -70,7 +70,7 @@ class ThreadController:
             if len(result) >= 40:
                 result = result[:35] + result[-5:]
             elif len(result) < 8 and self.search is None:
-                result = list(Video.objects.filter(isAudit=1, need_verify=0).values())
+                result = list(Video.objects.filter(isAudit=1).values())
             count = min(len(result), 8)
             result = random.sample(result, count)
         else:

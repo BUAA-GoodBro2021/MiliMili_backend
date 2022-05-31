@@ -535,8 +535,8 @@ def video_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         result = {'result': 1, 'message': r"获取视频列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id, isAudit=1, need_verify=0)],
-                  "video_num": len(Video.objects.filter(user_id=user_id, isAudit=1, need_verify=0))}
+                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id, isAudit=1)],
+                  "video_num": len(Video.objects.filter(user_id=user_id, isAudit=1))}
         return JsonResponse(result)
 
     else:
@@ -585,7 +585,7 @@ def complain_list(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        video_complain_list = VideoComplain.objects.all()
+        video_complain_list = VideoComplain.objects.filter(user_id=user_id)
         result = {'result': 1, 'message': r'获取成功', "not_read": not_read(user_id),
                   'video_complain_list': [x.to_dic() for x in video_complain_list],
                   'video_complain_num': len(video_complain_list),
@@ -671,8 +671,8 @@ def up_video_list(request):
             return JsonResponse(result)
         result = {'result': 1, 'message': r"获取视频列表成功！", "user": up_user.to_dic(),
                   "video_list": [x.to_dic() for x in
-                                 Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0)],
-                  "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0))}
+                                 Video.objects.filter(user_id=up_user_id, isAudit=1)],
+                  "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1))}
         return JsonResponse(result)
 
     else:
@@ -708,8 +708,8 @@ def up_all_list(request):
                   "follow_list": get_follow_list_detail(up_user_id),
                   "fan_list": get_fan_list_detail(up_user_id),
                   "video_list": [x.to_dic() for x in
-                                 Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0)],
-                  "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1, need_verify=0)),
+                                 Video.objects.filter(user_id=up_user_id, isAudit=1)],
+                  "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1)),
                   'favorite_list_detail': get_favorite_list_detail(up_user_id, 0)}
         return JsonResponse(result)
 

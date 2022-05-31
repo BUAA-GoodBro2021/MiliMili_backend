@@ -686,6 +686,58 @@ def del_favorite(request):
         return JsonResponse(result)
 
 
+# 获取视频中评论的详情(具体信息)
+def get_comment_like_list_detail(video_id):
+    return [x.to_dic() for x in Video.objects.get(id=video_id).videocomment_set.all()]
+
+
+def get_video_comment(video_id, user_id):
+    if user_id != 0:
+        user = User.objects.get(id=user_id)
+        # 返回最新评论字典(含自己是否点赞)
+        comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}
+
+    # 当前视频所有所有评论
+    comment_list = get_comment_like_list_detail(video_id=video_id)
+    # 对comment_list进行按照root_id进行二级列表划分
+    comment_child_dict = {}
+    comment_root_dict = {}
+    # 标注是否自己已经点赞过
+    print(comment_list)
+    print('\n\n\n')
+    for every_comment in comment_list:
+        if user_id != 0:
+            if every_comment.get('username') == user.username:
+                every_comment['is_own'] = 1
+                if every_comment.get('id') in comment_like_dict:
+                    every_comment['is_like'] = 1
+        root_id = every_comment['root_id']
+        # 如果是一级根存在
+        if root_id == every_comment['id']:
+            # 添加至根列表
+            comment_root_dict[root_id] = every_comment
+        # 如果是回复的评论且是第一个
+        elif root_id not in comment_child_dict.keys():
+
+            child_list = [every_comment]
+            comment_child_dict[root_id] = child_list
+        else:
+            comment_child_dict[root_id].append(every_comment)
+
+    print(comment_child_dict)
+    print(comment_root_dict)
+
+    result_list = []
+    for root_id in comment_root_dict.keys():
+        comment_root = comment_root_dict[root_id]
+        if root_id in comment_child_dict:
+            child_list = comment_child_dict[root_id]
+        else:
+            child_list = []
+        result_list.append({'comment_root': comment_root, 'child_list': child_list})
+    return result_list
+
+
 # 添加评论
 def add_comment(request):
     if request.method == 'POST':
@@ -705,12 +757,17 @@ def add_comment(request):
         if len(content) == 0:
             result = {'result': 0, 'message': r"评论不能为空！"}
             return JsonResponse(result)
-        VideoComment.objects.create(username=username, content=content, video_id=video_id)
+        comment = VideoComment.objects.create(username=username, content=content, video_id=video_id)
+
+        # 如果是添加评论，根ID是自己
+        comment.root_id = comment.id
+        comment.save()
 
         video = Video.objects.get(id=video_id)
+        comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment": [x.to_dic() for x in video.videocomment_set.all()],
-                  "comment_num": len(video.videocomment_set.all())}
+                  "comment": comment_list,
+                  "comment_num": len(video.videocomment_set.filter(video_id=video_id))}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -738,9 +795,10 @@ def update_comment(request):
             result = {'result': 0, 'message': r"评论不能为空！"}
             return JsonResponse(result)
         VideoComment.objects.filter(id=comment_id).update(content=content)
+        comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"修改评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment": [x.to_dic() for x in video.videocomment_set.all()],
-                  "comment_num": len(video.videocomment_set.all())}
+                  "comment": comment_list,
+                  "comment_num": len(video.videocomment_set.filter(video_id=video_id))}
         return JsonResponse(result)
 
     else:
@@ -763,12 +821,14 @@ def del_comment(request):
         comment_id = request.POST.get('comment_id', '')
         comment = VideoComment.objects.get(id=comment_id)
         video = comment.video
+        video_id = video.id
         comment.delete()
         # 把点赞关系也删除
         UserToComment_like.objects.filter(comment_id=comment_id).delete()
+        comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"删除评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment": [x.to_dic() for x in video.videocomment_set.all()],
-                  "comment_num": len(video.videocomment_set.all())}
+                  "comment": comment_list,
+                  "comment_num": len(video.videocomment_set.filter(video_id=video_id))}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -797,23 +857,22 @@ def reply_comment(request):
         if len(content) == 0:
             result = {'result': 0, 'message': r"评论不能为空！"}
             return JsonResponse(result)
-        VideoComment.objects.create(username=username, content=content, video_id=video_id,
-                                    reply_comment_id=reply_comment_id, reply_username=reply_username)
+        comment = VideoComment.objects.create(username=username, content=content, video_id=video_id,
+                                              reply_comment_id=reply_comment_id, reply_username=reply_username)
+        # 更新根节点
+        comment.root_id = VideoComment.objects.get(id=reply_comment_id).root_id
+        comment.save()
         # 发送站内信
         title = "回复评论"
         create_message(reply_user.id, title, content, 1, user_id)
+        comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"回复评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment": [x.to_dic() for x in video.videocomment_set.all()],
-                  "comment_num": len(video.videocomment_set.all())}
+                  "comment": comment_list,
+                  "comment_num": len(video.videocomment_set.filter(video_id=video_id))}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
-
-
-# 获取视频中评论的详情(具体信息)
-def get_comment_like_list_detail(video_id):
-    return [x.to_dic() for x in Video.objects.get(id=video_id).videocomment_set.all()]
 
 
 # 点赞评论
@@ -849,7 +908,7 @@ def like_comment(request):
 
         # 获取评论的视频
         video = comment.video
-
+        video_id = video.id
         # 获取评论的发布者
         upload_user = video.user
 
@@ -858,18 +917,10 @@ def like_comment(request):
         content = "亲爱的" + upload_user.username + ''' 你好呀!\n你发表的评论有收获好朋友的点赞了，不好奇是哪位嘛(有可能ta在默默关注你呢~'''
         create_message(upload_user.id, title, content, 2, user_id)
 
-        # 返回最新评论字典(含自己是否点赞)
-        comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}
-        # 当前视频所有所有评论
-        comment_list = get_comment_like_list_detail(video_id=video.id)
-        # 标注是否自己已经评论过
-        for every_comment in comment_list:
-            if every_comment.get('id') in comment_like_dict:
-                every_comment['islike'] = 1
+        comment_list = get_video_comment(video_id, user_id)
 
         result = {'result': 1, 'message': r"点赞评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment_list": comment_list,
-                  }
+                  "comment_list": comment_list}
         return JsonResponse(result)
 
     else:
@@ -908,19 +959,11 @@ def dislike_comment(request):
         comment.del_like()
         # 获取评论的视频
         video = comment.video
+        video_id = video.id
 
-        # 返回最新评论字典(含自己是否点赞)
-        comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}
-        # 当前视频所有所有评论
-        comment_list = get_comment_like_list_detail(video_id=video.id)
-        # 标注是否自己已经评论过
-        for every_comment in comment_list:
-            if every_comment.get('id') in comment_like_dict:
-                every_comment['islike'] = 1
-
+        comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"取消点赞成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment_list": comment_list,
-                  }
+                  "comment_list": comment_list}
         return JsonResponse(result)
 
     else:
@@ -947,7 +990,6 @@ def video_page(request, video_id):
 
         # 检查表单信息，判断是否登录
         JWT = request.POST.get('JWT', '')
-        user_id = 0
         try:
             token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
             user_id = token.get('user_id', '')
@@ -955,7 +997,7 @@ def video_page(request, video_id):
         except Exception:
             # 游客情况
             # 当前视频所有所有评论
-            comment_list = get_comment_like_list_detail(video_id=video_id)
+            comment_list = get_video_comment(video_id, 0)
             result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info.to_dic(),
                       'is_like': is_like, 'is_collect': is_collect,
                       'recommended_video': recommended_video,
@@ -966,17 +1008,8 @@ def video_page(request, video_id):
             UserToHistory.objects.get(user_id=user_id, video_id=video_id).delete()
         # 添加历史记录
         UserToHistory.objects.create(user_id=user_id, video_id=video_id)
-        # 返回最新评论字典(含自己是否点赞)
-        comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}
-        # 当前视频所有所有评论
-        comment_list = get_comment_like_list_detail(video_id=video_id)
-        # 标注是否自己已经评论过
-        for every_comment in comment_list:
-            # 如果是自己评论的
-            if every_comment.get('username') == user.username:
-                every_comment['is_own'] = 1
-                if every_comment.get('id') in comment_like_dict:
-                    every_comment['is_like'] = 1
+
+        comment_list = get_video_comment(video_id, user_id)
 
         if UserToVideo_like.objects.filter(video_id=video_id, user_id=user_id).exists():
             is_like = 1

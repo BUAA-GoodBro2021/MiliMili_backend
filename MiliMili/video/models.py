@@ -117,6 +117,7 @@ class VideoComment(models.Model):
 
     reply_comment_id = models.IntegerField("回复评论编号", default=0)
     reply_username = models.CharField('回复评论用户名', max_length=30, default="null")
+    root_id = models.IntegerField("根编号", default=0)
 
     like_num = models.IntegerField(verbose_name='点赞数', default=0)
     is_like = models.IntegerField(verbose_name='是否已点赞', default=0)
@@ -140,6 +141,7 @@ class VideoComment(models.Model):
             'created_time': self.created_time,
             'updated_time': self.updated_time,
             'video_id': self.video.id,
+            'root_id': self.root_id,
             'reply_comment_id': self.reply_comment_id,
             'reply_username': self.reply_username,
             'is_like': self.is_like,

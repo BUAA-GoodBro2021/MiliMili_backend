@@ -703,8 +703,6 @@ def get_video_comment(video_id, user_id):
     comment_child_dict = {}
     comment_root_dict = {}
     # 标注是否自己已经点赞过
-    print(comment_list)
-    print('\n\n\n')
     for every_comment in comment_list:
         if user_id != 0:
             if every_comment.get('username') == user.username:
@@ -723,9 +721,6 @@ def get_video_comment(video_id, user_id):
             comment_child_dict[root_id] = child_list
         else:
             comment_child_dict[root_id].append(every_comment)
-
-    print(comment_child_dict)
-    print(comment_root_dict)
 
     result_list = []
     for root_id in comment_root_dict.keys():
@@ -1005,7 +1000,7 @@ def video_page(request, video_id):
             return JsonResponse(result)
         # 用户情况  需要添加历史记录,但是需要先需要判断是否已存在该记录
         if UserToHistory.objects.filter(user_id=user_id, video_id=video_id).exists():
-            UserToHistory.objects.get(user_id=user_id, video_id=video_id).delete()
+            UserToHistory.objects.filter(user_id=user_id, video_id=video_id).delete()
         # 添加历史记录
         UserToHistory.objects.create(user_id=user_id, video_id=video_id)
 

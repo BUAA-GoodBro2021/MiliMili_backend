@@ -958,7 +958,10 @@ def video_page(request, video_id):
                       'recommended_video': recommended_video,
                       'comment_list': comment_list}
             return JsonResponse(result)
-        # 用户情况  需要添加历史记录
+        # 用户情况  需要添加历史记录,但是需要先需要判断是否已存在该记录
+        if UserToHistory.objects.filter(user_id=user_id, video_id=video_id).exists():
+            UserToHistory.objects.get(user_id=user_id, video_id=video_id).delete()
+        # 添加历史记录
         UserToHistory.objects.create(user_id=user_id, video_id=video_id)
         # 返回最新评论字典(含自己是否点赞)
         comment_like_dict = {x.comment_id: 1 for x in UserToComment_like.objects.filter(user_id=user_id)}

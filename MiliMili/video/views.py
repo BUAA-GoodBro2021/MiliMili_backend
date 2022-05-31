@@ -346,7 +346,7 @@ def like_video(request):
         # 判断是否已经点赞过
         if UserToVideo_like.objects.filter(user_id=user_id, video_id=video_id).exists():
             result = {'result': 0, 'message': r"已经点赞过，请不要重复点赞!", "user": user.to_dic(),
-                      "station_message": list_message(user_id)}
+                      "not_read": not_read(user_id)}
             return JsonResponse(result)
 
         UserToVideo_like.objects.create(user_id=user_id, video_id=video_id)

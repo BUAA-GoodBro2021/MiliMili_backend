@@ -4,5 +4,6 @@ from . import views
 urlpatterns = [
     # 视频系列
     path('list', views.need_verify_video_list),
-
+    # 审核系列
+    path('judge', views.audit_need_verify_video)
 ]

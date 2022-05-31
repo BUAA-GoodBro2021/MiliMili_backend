@@ -172,16 +172,6 @@ class UserToComment_like(models.Model):
     comment_id = models.IntegerField(verbose_name='点赞的评论', default=0)
 
 
-# 查看用户历史记录
-class UserToHistory(models.Model):
-    user_id = models.IntegerField(verbose_name='主体', default=0)
-    video_id = models.IntegerField(verbose_name='看过的视频', default=0)
-    created_time = models.DateTimeField('创建时间', auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_time']
-
-
 # 查看用户搜索历史
 class UserToSearchHistory(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)

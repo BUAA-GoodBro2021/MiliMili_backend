@@ -599,24 +599,23 @@ def complain_list(request):
 
 def all_list(request):
     if request.method == 'POST':
-        if request.method == 'POST':
-            # 检查表单信息
-            JWT = request.POST.get('JWT', '')
-            try:
-                token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
-                user_id = token.get('user_id', '')
-                user = User.objects.get(id=user_id)
-            except Exception as e:
-                result = {'result': 0, 'message': r"请先登录!"}
-                return JsonResponse(result)
-
-            result = {'result': 1, 'message': r"获取详情列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                      "follow_list": get_follow_list_detail(user_id),
-                      "fan_list": get_fan_list_detail(user_id),
-                      "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id)],
-                      "video_num": len(Video.objects.filter(user_id=user_id)),
-                      }
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
+
+        result = {'result': 1, 'message': r"获取详情列表成功！", "not_read": not_read(user_id), "user": user.to_dic(),
+                  "follow_list": get_follow_list_detail(user_id),
+                  "fan_list": get_fan_list_detail(user_id),
+                  "video_list": [x.to_dic() for x in Video.objects.filter(user_id=user_id)],
+                  "video_num": len(Video.objects.filter(user_id=user_id)),
+                  }
+        return JsonResponse(result)
 
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

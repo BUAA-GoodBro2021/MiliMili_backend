@@ -7,4 +7,5 @@ urlpatterns = [
     path('user', views.user_search),
     path('zone/<str:zone>', views.zone_search),
     path('ip_address', views.get_ip_address),
+    path('history', views.history_view),
 ]

@@ -8,7 +8,7 @@ from index.ThreadController import ThreadController
 from key import *
 from sending.views import not_read
 from user.models import *
-from video.models import Video, Zone
+from video.models import Video, Zone, UserToHistory
 from video.views import is_follow
 
 
@@ -176,7 +176,8 @@ def index_message(request):
             zone_video_list = []
             for i in zone_list:
                 zone_video_list.append({'id': i['id']})
-                zone_video_list[i['id'] - 1]['recommend_list'] = ThreadController(i['zone'], 'recommend', tag_dict).run()[:8]
+                zone_video_list[i['id'] - 1]['recommend_list'] = ThreadController(i['zone'], 'recommend',
+                                                                                  tag_dict).run()[:8]
                 zone_video_list[i['id'] - 1]['rank_list'] = ThreadController(i['zone'], 'zone').run()[:10]
         except Exception as e:
             print(e)
@@ -189,6 +190,26 @@ def index_message(request):
         result = {'result': result, 'message': message, "not_read": not_read(user_id), 'recommend_list': recommend_list,
                   'search_history_list': search_history_list, 'zone_list': zone_list,
                   'zone_video_list': zone_video_list}
+        return JsonResponse(result)
+
+
+def history_view(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        history_filter = UserToHistory.objects.filter(user_id=user_id)
+        history_list = [x.to_dic() for x in history_filter]
+        result = {'result': 1, 'message': r"获取详情列表成功！", "not_read": not_read(user_id), "history": history_list}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
 

@@ -52,11 +52,24 @@ class Video(models.Model):
             'view_num': self.view_num,
             'zone': self.zone,
             'tag_list': tag_list,
-            'user': self.user.to_dic(),
+            'user': self.user.to_simple_dic(),
             'created_time': self.created_time,
             'updated_time': self.updated_time,
             'isAudit': self.isAudit,
             'need_verify': self.need_verify,
+        }
+
+    def to_simple_dic(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'video_url': self.video_url,
+            'avatar_url': self.avatar_url,
+            'view_num': self.view_num,
+            'user': self.user.to_simple_dic(),
+            'created_time': self.created_time,
+            'updated_time': self.updated_time,
         }
 
     def __str__(self):
@@ -201,3 +214,18 @@ class Tag(models.Model):
 
 class Zone(models.Model):
     zone = models.CharField(verbose_name='分区名称', max_length=64)
+
+
+# 查看用户历史记录
+class UserToHistory(models.Model):
+    user_id = models.IntegerField(verbose_name='主体', default=0)
+    video_id = models.IntegerField(verbose_name='看过的视频', default=0)
+    created_time = models.DateTimeField('创建时间', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_time']
+
+    def to_dic(self):
+        return {
+            'video': Video.objects.get(id=self.video_id).to_simple_dic()
+        }

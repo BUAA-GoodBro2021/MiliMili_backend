@@ -981,7 +981,7 @@ def video_page(request, video_id):
             is_like = 1
         if UserToVideo_collect.objects.filter(video_id=video_id, user_id=user_id).exists():
             is_collect = 1
-        result = {'result': 1, 'message': r"获取主页信息成功！", "not_read": not_read(user_id),
+        result = {'result': 1, 'message': r"获取视频信息成功！", "not_read": not_read(user_id),
                   'is_like': is_like, 'is_collect': is_collect,
                   'video_info': video_info.to_dic(),
                   'recommended_video': recommended_video,

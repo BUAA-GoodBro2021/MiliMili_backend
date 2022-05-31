@@ -150,13 +150,13 @@ def index_message(request):
         except Exception:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        history_list = list(UserToHistory.objects.all().values())[0:20]
+        history_list = list(UserToHistory.objects.filter(user_id=user_id).values())[0:20]
         tag_dict = {}
         for history_info in history_list:
             video_info = Video.objects.get(id=history_info.get('video_id', ''))
             if video_info is not None:
                 for i in range(1, 6):
-                    tag = video_info.get('tag' + str(i))
+                    tag = video_info['tag' + str(i)]
                     if tag != '':
                         if tag not in tag_dict.keys():
                             tag_dict[tag] = 1

@@ -36,7 +36,7 @@ def video_search(request):
 
         # 是否是登录状态
         JWT = request.POST.get('JWT', '')
-        if JWT == '':
+        if JWT == '' or JWT is None:
             result = {'result': result, 'message': message, 'not_read': -1, 'list': video_list}
             return JsonResponse(result)
         else:
@@ -78,7 +78,7 @@ def user_search(request):
             pass
         # 是否是登录状态
         JWT = request.POST.get('JWT', '')
-        if JWT == '':
+        if JWT == '' or JWT is None:
             result = {'result': result, 'message': message, 'not_read': -1, 'list': user_list}
             return JsonResponse(result)
         else:
@@ -120,7 +120,7 @@ def zone_search(request, zone):
 
         # 是否是登录状态
         JWT = request.POST.get('JWT', '')
-        if JWT == '':
+        if JWT == '' or JWT is None:
             result = {'result': result, 'message': message, 'not_read': -1,
                       'random_list': random.sample(zone_list[0], min(5, len(zone_list[0]))),
                       'all_list': zone_list[0],

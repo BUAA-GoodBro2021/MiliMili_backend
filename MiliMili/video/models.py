@@ -113,7 +113,7 @@ class VideoComment(models.Model):
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
     updated_time = models.DateTimeField('更新时间', auto_now=True)
     content = models.TextField('评论内容')
-    video = models.ForeignKey(Video, verbose_name='所属文章', on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, verbose_name='所属视频', on_delete=models.CASCADE)
 
     reply_comment_id = models.IntegerField("回复评论编号", default=0)
     reply_username = models.CharField('回复评论用户名', max_length=30, default="null")

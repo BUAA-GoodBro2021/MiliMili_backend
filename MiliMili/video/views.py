@@ -707,8 +707,8 @@ def get_video_comment(video_id, user_id):
         if user_id != 0:
             if every_comment.get('username') == user.username:
                 every_comment['is_own'] = 1
-                if every_comment.get('id') in comment_like_dict:
-                    every_comment['is_like'] = 1
+            if every_comment.get('id') in comment_like_dict:
+                every_comment['is_like'] = 1
         root_id = every_comment['root_id']
         # 如果是一级根存在
         if root_id == every_comment['id']:

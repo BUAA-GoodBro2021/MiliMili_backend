@@ -42,10 +42,10 @@ def upload_video(request):
         tag5 = request.POST.get('tag5', '')
 
         if title == '' or description == '' or zone == '':
-            result = {'result': 0, 'message': r"视频标题或描述或分区不能为空!", "station_message": list_message(user.id)}
+            result = {'result': 0, 'message': r"视频标题或描述或分区不能为空!", "not_read": not_read(user.id)}
             return JsonResponse(result)
         if len(title) > 256:
-            result = {'result': 0, 'message': r"标题太长咯!", "station_message": list_message(user.id)}
+            result = {'result': 0, 'message': r"标题太长咯!", "not_read": not_read(user.id)}
             return JsonResponse(result)
 
         # 常见对象存储的对象
@@ -61,7 +61,7 @@ def upload_video(request):
         if avatar:
             if avatar.size > 1024 * 1024:
                 Video.objects.get(id=video_id).delete()
-                result = {'result': 0, 'message': r"图片不能超过1M！", "station_message": list_message(user.id)}
+                result = {'result': 0, 'message': r"图片不能超过1M！", "not_read": not_read(user.id)}
                 return JsonResponse(result)
             # 获取文件尾缀并修改名称
             suffix_avatar = '.' + avatar.name.split(".")[-1]
@@ -78,7 +78,7 @@ def upload_video(request):
                 result = {'result': 0, 'message': r"上传失败！"}
                 Video.objects.get(id=video_id).delete()
                 os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
-                result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
+                result = {'result': 0, 'message': r"上传失败！", "not_read": not_read(user.id)}
                 return JsonResponse(result)
 
             # 审核
@@ -95,7 +95,7 @@ def upload_video(request):
                 title = "视频封面审核失败！"
                 content = "亲爱的" + user.username + ' 你好呀!\n视频封面好像带有一点' + audit_dic.get("label") + '呢！'
                 create_message(user_id, title, content)
-                result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
+                result = {'result': 0, 'message': r"上传失败！", "not_read": not_read(user.id)}
                 return JsonResponse(result)
 
             # 删除审核对象
@@ -106,7 +106,7 @@ def upload_video(request):
             if upload_result == -1:
                 os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
                 Video.objects.get(id=video_id).delete()
-                result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
+                result = {'result': 0, 'message': r"上传失败！", "not_read": not_read(user.id)}
                 return JsonResponse(result)
 
             # 上传是否可以获取路径
@@ -114,7 +114,7 @@ def upload_video(request):
             if not url:
                 os.remove(os.path.join(BASE_DIR, "media/" + avatar.name))
                 Video.objects.get(id=video_id).delete()
-                result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
+                result = {'result': 0, 'message': r"上传失败！", "not_read": not_read(user.id)}
                 return JsonResponse(result)
             # 获取对象存储的桶地址
             video.avatar_url = url
@@ -129,14 +129,14 @@ def upload_video(request):
                 # 删除封面
                 bucket.delete_object("cover", str(video_id) + suffix_avatar)
             Video.objects.get(id=video_id).delete()
-            result = {'result': 0, 'message': r"请上传视频！", "station_message": list_message(user.id)}
+            result = {'result': 0, 'message': r"请上传视频！", "not_read": not_read(user.id)}
             return JsonResponse(result)
         if video_upload.size > 1024 * 1024 * 100:
             if video.video_url != '':
                 # 删除封面
                 bucket.delete_object("cover", str(video_id) + suffix_avatar)
             Video.objects.get(id=video_id).delete()
-            result = {'result': 0, 'message': r"视频大小不能超过100M！", "station_message": list_message(user.id)}
+            result = {'result': 0, 'message': r"视频大小不能超过100M！", "not_read": not_read(user.id)}
             return JsonResponse(result)
         # 获取文件尾缀并修改名称
         suffix_video = '.' + video_upload.name.split(".")[-1]
@@ -154,7 +154,7 @@ def upload_video(request):
                 bucket.delete_object("cover", str(video_id) + suffix_avatar)
             os.remove(os.path.join(BASE_DIR, "/media/" + video_upload.name))
             Video.objects.get(id=video_id).delete()
-            result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
+            result = {'result': 0, 'message': r"上传失败！", "not_read": not_read(user.id)}
             return JsonResponse(result)
         # 上传是否可以获取路径
         url = bucket.query_object("video", str(video_id) + suffix_video)
@@ -164,7 +164,7 @@ def upload_video(request):
                 bucket.delete_object("cover", str(video_id) + suffix_avatar)
             os.remove(os.path.join(BASE_DIR, "/media/" + video_upload.name))
             Video.objects.get(id=video_id).delete()
-            result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
+            result = {'result': 0, 'message': r"上传失败！", "not_read": not_read(user.id)}
             return JsonResponse(result)
 
         # 获取对象存储的桶地址
@@ -186,7 +186,7 @@ def upload_video(request):
             bucket.delete_object("video", str(video_id) + suffix_video)
             # 删除本地文件
             os.remove(os.path.join(BASE_DIR, "/media/" + video_upload.name))
-            result = {'result': 0, 'message': r"上传失败！", "station_message": list_message(user.id)}
+            result = {'result': 0, 'message': r"上传失败！", "not_read": not_read(user.id)}
             return JsonResponse(result)
         # 上传成功，等待审核
         JobToVideo.objects.create(job_id=audit_dic.get("job_id"), video_id=video_id)
@@ -388,7 +388,7 @@ def dislike_video(request):
         video_id = request.POST.get('video_id', '')
         if not UserToVideo_like.objects.filter(user_id=user_id, video_id=video_id).exists():
             result = {'result': 0, 'message': r"已经取消点赞，不要重复取消！", "user": user.to_dic(),
-                      "station_message": list_message(user_id)}
+                      "not_read": not_read(user.id)}
             return JsonResponse(result)
         UserToVideo_like.objects.get(user_id=user_id, video_id=video_id).delete()
         video = Video.objects.get(id=video_id)
@@ -611,7 +611,7 @@ def not_collect_video(request):
         video_id = request.POST.get('video_id', '')
         if not FavoriteToVideo.objects.filter(favorite_id=favorite_id, video_id=video_id).exists():
             result = {'result': 0, 'message': r"已取消收藏，请不要重复取消!", "user": user.to_dic(),
-                      "station_message": list_message(user_id)}
+                      "not_read": not_read(user.id)}
             return JsonResponse(result)
         FavoriteToVideo.objects.get(favorite_id=favorite_id, video_id=video_id).delete()
         # 删除人与视频的联系，如果减为0，直接删去
@@ -897,7 +897,7 @@ def like_comment(request):
         # 判断是否已经点赞过
         if UserToComment_like.objects.filter(user_id=user_id, comment_id=comment_id).exists():
             result = {'result': 0, 'message': r"已经点赞过，请不要重复点赞!", "user": user.to_dic(),
-                      "station_message": list_message(user_id)}
+                      "not_read": not_read(user.id)}
             return JsonResponse(result)
 
         try:
@@ -923,7 +923,8 @@ def like_comment(request):
         comment_list = get_video_comment(video_id, user_id)
 
         result = {'result': 1, 'message': r"点赞评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment_list": comment_list}
+                  "comment_list": comment_list,
+                  "comment_num": len(video.videocomment_set.filter(video_id=video_id))}
         return JsonResponse(result)
 
     else:
@@ -954,7 +955,7 @@ def dislike_comment(request):
 
         if not UserToComment_like.objects.filter(user_id=user_id, comment_id=comment_id).exists():
             result = {'result': 0, 'message': r"已经取消点赞，不要重复取消！", "user": user.to_dic(),
-                      "station_message": list_message(user_id)}
+                      "not_read": not_read(user.id)}
             return JsonResponse(result)
 
         # 删除点赞记录
@@ -966,7 +967,8 @@ def dislike_comment(request):
 
         comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"取消点赞成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment_list": comment_list}
+                  "comment_list": comment_list,
+                  "comment_num": len(video.videocomment_set.filter(video_id=video_id))}
         return JsonResponse(result)
 
     else:
@@ -1022,7 +1024,8 @@ def video_page(request, video_id):
                   'is_like': is_like, 'is_collect': is_collect,
                   'video_info': video_info.to_dic(),
                   'recommended_video': recommended_video,
-                  'comment_list': comment_list}
+                  'comment_list': comment_list,
+                  "comment_num": len(video_info.videocomment_set.filter(video_id=video_id))}
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
     return JsonResponse(result)

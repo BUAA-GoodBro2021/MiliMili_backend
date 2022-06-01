@@ -173,7 +173,7 @@ def change_file(request):
             audit_dic = bucket.image_audit("avatar", key + suffix)
             if audit_dic.get("result") != 0:
                 result = {'result': 0, 'message': r"审核失败！", "user": user.to_dic(),
-                          "station_message": list_message(user.id)}
+                          "not_read": not_read(user.id)}
                 # 删除审核对象
                 bucket.delete_object("avatar", key + suffix)
                 # 删除本地对象
@@ -289,7 +289,7 @@ def upload_avatar(request):
         # 审核
         audit_dic = bucket.image_audit("avatar", key + suffix)
         if audit_dic.get("result") != 0:
-            result = {'result': 0, 'message': r"审核失败！", "user": user.to_dic(), "station_message": list_message(user.id)}
+            result = {'result': 0, 'message': r"审核失败！", "user": user.to_dic(), "not_read": not_read(user.id)}
             # 删除审核对象
             bucket.delete_object("avatar", key + suffix)
             # 删除本地对象

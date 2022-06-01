@@ -813,9 +813,9 @@ def del_comment(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        comment_id = request.POST.get('comment_id', '')
+        comment_id = int(request.POST.get('comment_id', ''))
         comment = VideoComment.objects.get(id=comment_id)
-        root_id = comment.root_id
+        root_id = int(comment.root_id)
         video = comment.video
         video_id = video.id
 

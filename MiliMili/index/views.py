@@ -121,7 +121,12 @@ def zone_search(request, zone):
         # 是否是登录状态
         JWT = request.POST.get('JWT', '')
         if JWT == '':
-            result = {'result': result, 'message': message, 'not_read': -1, 'list': zone_list}
+            result = {'result': result, 'message': message, 'not_read': -1,
+                      'random_list': random.sample(zone_list[0], min(5, len(zone_list[0]))),
+                      'all_list': zone_list[0],
+                      'view_rank_list': zone_list[0],
+                      'like_rank_list': zone_list[1],
+                      'collect_rank_list': zone_list[2]}
             return JsonResponse(result)
         else:
             JWT = request.POST.get('JWT', '')

@@ -63,7 +63,10 @@ class ThreadController:
             result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('fan_num'),
                                                                                -x.get('like_num')))
         elif self.element == 'zone':
-            result = sorted(self.element_list, key=lambda x: (-x.get('view_num'), -x.get('like_num')))
+            result = list()
+            result.append(sorted(self.element_list, key=lambda x: (-x.get('view_num'))))
+            result.append(sorted(self.element_list, key=lambda x: (-x.get('like_num'))))
+            result.append(sorted(self.element_list, key=lambda x: (-x.get('collect_num'))))
         elif self.element == 'recommend':
             result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
                                                                                -x.get('like_num')))

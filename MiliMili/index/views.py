@@ -1,3 +1,5 @@
+import random
+
 import jwt
 import requests
 
@@ -130,7 +132,12 @@ def zone_search(request, zone):
             except Exception as e:
                 result = {'result': 0, 'message': r"JWT错误，请先登录!"}
                 return JsonResponse(result)
-            result = {'result': result, 'message': message, 'not_read': not_read(user_id), 'list': zone_list}
+            result = {'result': result, 'message': message, 'not_read': not_read(user_id),
+                      'random_list': random.sample(zone_list[0], min(5, len(zone_list[0]))),
+                      'all_list': zone_list[0],
+                      'view_rank_list': zone_list[0],
+                      'like_rank_list': zone_list[1],
+                      'collect_rank_list': zone_list[2]}
             return JsonResponse(result)
 
     else:

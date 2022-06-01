@@ -621,6 +621,7 @@ def all_list(request):
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
 
+
 def simple_list(request):
     if request.method == 'POST':
         # 检查表单信息
@@ -633,9 +634,11 @@ def simple_list(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         result = {'result': 1, 'message': r"获取简略列表成功！", "not_read": not_read(user_id), "user": user.to_simple_dic()}
+        return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
+
 
 # 展示up主粉丝列表
 def up_fan_list(request):
@@ -731,5 +734,3 @@ def up_all_list(request):
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
-
-

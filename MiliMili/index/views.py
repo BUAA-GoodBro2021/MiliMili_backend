@@ -148,8 +148,7 @@ def index_message(request):
             token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
             user_id = token.get('user_id', '')
         except Exception:
-            result = {'result': 0, 'message': r"请先登录!"}
-            return JsonResponse(result)
+            user_id = -1
         history_list = list(UserToHistory.objects.filter(user_id=user_id).values())[0:20]
         tag_dict = {}
         for history_info in history_list:

@@ -107,7 +107,8 @@ def user_search(request):
 def zone_search(request, zone):
     if request.method == 'POST':
         try:
-            zone_list = ThreadController(zone, 'zone').run()
+            zone = Zone.objects.get(id=zone)
+            zone_list = ThreadController(zone.zone, 'zone').run()
             result = 1
             message = r'搜索分区成功'
         except Exception:

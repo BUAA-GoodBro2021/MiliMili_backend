@@ -815,11 +815,19 @@ def del_comment(request):
             return JsonResponse(result)
         comment_id = request.POST.get('comment_id', '')
         comment = VideoComment.objects.get(id=comment_id)
+        root_id = comment.root_id
         video = comment.video
         video_id = video.id
-        comment.delete()
-        # 把点赞关系也删除
-        UserToComment_like.objects.filter(comment_id=comment_id).delete()
+
+        # 判断是否为一级评论，如果是，将要删除所有二级评论
+        if comment_id == root_id:
+            VideoComment.objects.filter(root_id=root_id).delete()
+            UserToComment_like.objects.filter(root_id=root_id).delete()
+        else:
+            comment.delete()
+            # 把点赞关系也删除
+            UserToComment_like.objects.filter(comment_id=comment_id).delete()
+
         comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"删除评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   "comment": comment_list,
@@ -898,7 +906,7 @@ def like_comment(request):
             result = {'result': 0, 'message': r"该评论不存在!"}
             return JsonResponse(result)
         # 添加点赞记录
-        UserToComment_like.objects.create(user_id=user_id, comment_id=comment_id)
+        UserToComment_like.objects.create(user_id=user_id, comment_id=comment_id, root_id=comment.root_id)
         comment.add_like()
 
         # 获取评论的视频

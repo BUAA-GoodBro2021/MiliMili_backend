@@ -170,6 +170,7 @@ class UserToVideo_like(models.Model):
 class UserToComment_like(models.Model):
     user_id = models.IntegerField(verbose_name='主体', default=0)
     comment_id = models.IntegerField(verbose_name='点赞的评论', default=0)
+    root_id = models.IntegerField(verbose_name='点赞的根评论', default=0)
 
 
 # 查看用户搜索历史

@@ -117,6 +117,7 @@ class VideoComment(models.Model):
 
     reply_comment_id = models.IntegerField("回复评论编号", default=0)
     reply_username = models.CharField('回复评论用户名', max_length=30, default="null")
+    reply_user_id = models.IntegerField('回复评论用户id', default=0)
     root_id = models.IntegerField("根编号", default=0)
     user_id = models.IntegerField("所属用户号", default=0)
 
@@ -147,6 +148,7 @@ class VideoComment(models.Model):
             'root_id': self.root_id,
             'reply_comment_id': self.reply_comment_id,
             'reply_username': self.reply_username,
+            'reply_user_id': self.reply_user_id,
             'is_like': self.is_like,
             'is_own': self.is_own,
         }

@@ -857,17 +857,19 @@ def reply_comment(request):
         reply_comment_id = request.POST.get('reply_comment_id', '')
         reply_username = request.POST.get('reply_username', '')
         reply_user = User.objects.get(username=reply_username)
+        reply_user_id = reply_user.id
         if len(content) == 0:
             result = {'result': 0, 'message': r"评论不能为空！"}
             return JsonResponse(result)
         comment = VideoComment.objects.create(username=username, user_id=user_id, content=content, video_id=video_id,
-                                              reply_comment_id=reply_comment_id, reply_username=reply_username)
+                                              reply_comment_id=reply_comment_id, reply_username=reply_username,
+                                              reply_user_id=reply_user_id)
         # 更新根节点
         comment.root_id = VideoComment.objects.get(id=reply_comment_id).root_id
         comment.save()
         # 发送站内信
         title = "回复评论"
-        create_message(reply_user.id, title, content, 1, user_id)
+        create_message(reply_user_id, title, content, 1, user_id)
         comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"回复评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
                   "comment": comment_list,

@@ -30,13 +30,12 @@ class PublicData:
 
 
 class Threading(threading.Thread):
-    recommend_list = []
-    search_history_list = []
-    zone_list = []
-    zone_video_list = []
-
     def __init__(self, user_id):
         threading.Thread.__init__(self)
+        self.recommend_list = []
+        self.search_history_list = []
+        self.zone_list = []
+        self.zone_video_list = []
         self.flag = False
         self.user_id = user_id
 

@@ -165,52 +165,6 @@ def index_message(request):
             user_id = token.get('user_id', '')
         except Exception:
             user_id = -1
-        # history_list = list(UserToHistory.objects.filter(user_id=user_id).values())[0:20]
-        # tag_dict = {}
-        # for history_info in history_list:
-        #     video_info = Video.objects.get(id=history_info.get('video_id', ''))
-        #     if video_info is not None:
-        #         for i in range(1, 6):
-        #             tag = ''
-        #             if i == 1:
-        #                 tag = video_info.tag1
-        #             elif i == 2:
-        #                 tag = video_info.tag2
-        #             elif i == 3:
-        #                 tag = video_info.tag3
-        #             elif i == 4:
-        #                 tag = video_info.tag4
-        #             elif i == 5:
-        #                 tag = video_info.tag5
-        #             if tag != '':
-        #                 if tag not in tag_dict.keys():
-        #                     tag_dict[tag] = 1
-        #                 else:
-        #                     tag_dict[tag] += 1
-        # zone_list = list(Zone.objects.all().values())
-        # try:
-        #     recommend_list = ThreadController(None, 'recommend', tag_dict).run()[:6]
-        #     result = 1
-        #     message = r'推荐成功'
-        # except Exception as e:
-        #     print(e)
-        #     recommend_list = None
-        #     result = 0
-        #     message = r'推荐失败'
-        # try:
-        #     zone_video_list = []
-        #     for i in zone_list:
-        #         zone_video_list.append({'id': i['id']})
-        #         zone_video_list[i['id'] - 1]['recommend_list'] = ThreadController(i['zone'], 'recommend',
-        #                                                                           tag_dict).run()[:8]
-        #         zone_video_list[i['id'] - 1]['rank_list'] = ThreadController(i['zone'], 'zone').run()[:10]
-        # except Exception as e:
-        #     print(e)
-        #     zone_video_list = None
-        #     result = 0
-        #     message = r'推荐失败'
-        # search_history_list = list(UserToSearchHistory.objects.filter(user_id=user_id).values())
-        # search_history_list = sorted(search_history_list, key=lambda x: -x.get('created_time').timestamp())[:8]
         list_map = PublicData(user_id).get_data()
         result = 1
         message = '主页刷新成功'

@@ -168,7 +168,17 @@ def index_message(request):
             video_info = Video.objects.get(id=history_info.get('video_id', ''))
             if video_info is not None:
                 for i in range(1, 6):
-                    tag = video_info['tag' + str(i)]
+                    tag = ''
+                    if i == 1:
+                        tag = video_info.tag1
+                    elif i == 2:
+                        tag = video_info.tag2
+                    elif i == 3:
+                        tag = video_info.tag3
+                    elif i == 4:
+                        tag = video_info.tag4
+                    elif i == 5:
+                        tag = video_info.tag5
                     if tag != '':
                         if tag not in tag_dict.keys():
                             tag_dict[tag] = 1

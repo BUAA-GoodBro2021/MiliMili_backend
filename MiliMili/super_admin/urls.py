@@ -9,5 +9,8 @@ urlpatterns = [
     # 审核系列
     path('audit-video', views.audit_video),
     path('redo-audit-video', views.redo_audit_video),
-    path('verify-complain-video', views.verify_complain_video)
+    path('verify-complain-video', views.verify_complain_video),
+
+    # 加载主页系列
+    path('load-index', views.load_index)
 ]

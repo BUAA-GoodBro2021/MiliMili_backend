@@ -1,5 +1,6 @@
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
+from data_utils import PublicData
 from sending.views import *
 from user.models import UserToVideo_like
 from user.views import get_fan_list_simple
@@ -285,6 +286,31 @@ def audit_video(request):
                 create_message(user_id, title, content)
                 result = {'result': 1, 'message': r"完成人工审核，审核通过"}
                 return JsonResponse(result)
+
+
+# 加载所有用户的主页信息
+def load_index(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        isSuperAdmin = token.get('isSuperAdmin', '')
+        if not isSuperAdmin:
+            result = {'result': 0, 'message': r"你没有超级管理员权限，请联系超级管理员给予权限!"}
+            return JsonResponse(result)
+        user_list = User.objects.filter(isActive=True)
+        try:
+            for user in user_list:
+                PublicData(user.id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"加载主界面数据失败!"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"已开始加载全部用户主界面数据!"}
+        return JsonResponse(result)
 
 # def audit_tag(request):
 #     if request.method == 'POST':

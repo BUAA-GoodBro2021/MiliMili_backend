@@ -304,6 +304,7 @@ def load_index(request):
             return JsonResponse(result)
         user_list = User.objects.filter(isActive=True)
         try:
+            PublicData(-1)
             for user in user_list:
                 PublicData(user.id)
         except Exception as e:

@@ -923,7 +923,7 @@ def like_comment(request):
         comment_list = get_video_comment(video_id, user_id)
 
         result = {'result': 1, 'message': r"点赞评论成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment_list": comment_list,
+                  "comment": comment_list,
                   "comment_num": len(video.videocomment_set.filter(video_id=video_id))}
         return JsonResponse(result)
 
@@ -967,7 +967,7 @@ def dislike_comment(request):
 
         comment_list = get_video_comment(video_id, user_id)
         result = {'result': 1, 'message': r"取消点赞成功！", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "comment_list": comment_list,
+                  "comment": comment_list,
                   "comment_num": len(video.videocomment_set.filter(video_id=video_id))}
         return JsonResponse(result)
 

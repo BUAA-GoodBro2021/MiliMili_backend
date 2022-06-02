@@ -59,9 +59,9 @@ def upload_video(request):
         # 如果有封面，审核封面
         suffix_avatar = ''
         if avatar:
-            if avatar.size > 1024 * 1024:
+            if avatar.size > 2 * 1024 * 1024:
                 Video.objects.get(id=video_id).delete()
-                result = {'result': 0, 'message': r"图片不能超过1M！", "not_read": not_read(user.id)}
+                result = {'result': 0, 'message': r"图片不能超过2M！", "not_read": not_read(user.id)}
                 return JsonResponse(result)
             # 获取文件尾缀并修改名称
             suffix_avatar = '.' + avatar.name.split(".")[-1]

@@ -41,8 +41,8 @@ class Threading(threading.Thread):
 
     def run(self):
         cnt = 0
-        # 每个线程存活2小时
-        while cnt < 24:
+        # 每个线程存活半小时
+        while cnt < 6:
             cnt += 1
             history_list = list(UserToHistory.objects.filter(user_id=self.user_id).values())[0:20]
             tag_dict = {}

@@ -630,6 +630,7 @@ def not_collect_video_logic(user, user_id, video_id, favorite_id):
     # 删除人与视频的联系，如果减为0，直接删去
     if UserToVideo_collect.objects.filter(user_id=user_id, video_id=video_id).exists():
         connect = UserToVideo_collect.objects.get(user_id=user_id, video_id=video_id)
+        connect.del_cnt()
         if connect.cnt == 0:
             UserToVideo_collect.objects.get(user_id=user_id, video_id=video_id).delete()
 

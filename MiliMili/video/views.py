@@ -502,14 +502,12 @@ def favorite_simple_list(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        video_id = int(request.POST.get('video_id', ''))
+        video_id = int(request.POST.get('video_id', 0))
         # 获取到自己的所有收藏夹的简要信息
         favorite_list_simple = get_favorite_list_simple(user_id)
         for x in favorite_list_simple:
             # 获取到该收藏夹内部的视频id
             favorite_list_video_id = get_favorite_list_video_id(x.get('id'))
-            print(favorite_list_video_id)
-            print(video_id)
             if video_id in favorite_list_video_id:
                 x['is_collect'] = 1
                 x['updating_collection'] = 1
@@ -670,16 +668,12 @@ def collect_action(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         video_id = request.POST.get('video_id', 0)
-        print(video_id, type(video_id))
-        favorite_id_list = request.POST.get('collect_id_list', [])
-        print(favorite_id_list, type(favorite_id_list))
-        not_favorite_id_list = request.POST.get('not_collect_id_list', [])
-        print(not_favorite_id_list, type(not_favorite_id_list))
+        favorite_id_list = request.POST.get('collect_id_list', '')
+        favorite_id_list = favorite_id_list.split()
+        not_favorite_id_list = request.POST.get('not_collect_id_list', '').split()
         for favorite_id in favorite_id_list:
-            print("$$$$$$$$$$$$$$$$")
             collect_video_logic(user, user_id, video_id, favorite_id)
         for favorite_id in not_favorite_id_list:
-            print("!!!!!!!!!!!!!!!!")
             not_collect_video_logic(user, user_id, video_id, favorite_id)
         result = {'result': 1, 'message': r"完成收藏操作!", "not_read": not_read(user_id)}
         return JsonResponse(result)

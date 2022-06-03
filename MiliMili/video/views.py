@@ -436,6 +436,14 @@ def get_favorite_list_id(user_id, isPrivate=2):
         return [x.id for x in Favorite.objects.filter(user_id=user_id, isPrivate=isPrivate)]
 
 
+# 获取自己所有视频的收藏夹的极简信息(默认是所有的)
+def get_favorite_list_simple(user_id, isPrivate=2):
+    if isPrivate == 2:
+        return [x.to_simple_dic() for x in Favorite.objects.filter(user_id=user_id)]
+    else:
+        return [x.to_simple_dic() for x in Favorite.objects.filter(user_id=user_id, isPrivate=isPrivate)]
+
+
 # 获取收藏夹内部的视频视频id
 def get_favorite_list_video_id(favorite_id):
     return [x.video_id for x in FavoriteToVideo.objects.filter(favorite_id=favorite_id)]
@@ -476,6 +484,39 @@ def favorite_list(request):
             return JsonResponse(result)
         result = {'result': 1, 'message': r"获取收藏夹详情成功!", "not_read": not_read(user_id), 'user': user.to_dic(),
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 获取收藏夹简要信息(包括将要收藏的视频是否在这个收藏夹内部)
+def favorite_simple_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        video_id = int(request.POST.get('video_id', ''))
+        # 获取到自己的所有收藏夹的简要信息
+        favorite_list_simple = get_favorite_list_simple(user_id)
+        for x in favorite_list_simple:
+            # 获取到该收藏夹内部的视频id
+            favorite_list_video_id = get_favorite_list_video_id(x.get('id'))
+            print(favorite_list_video_id)
+            print(video_id)
+            if video_id in favorite_list_video_id:
+                x['is_collect'] = 1
+            else:
+                x['is_collect'] = 0
+            x['video_num'] = len(favorite_list_video_id)
+        result = {'result': 1, 'message': r"获取收藏夹简要信息成功!", "not_read": not_read(user_id), 'user': user.to_dic(),
+                  'favorite_list_simple': favorite_list_simple}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

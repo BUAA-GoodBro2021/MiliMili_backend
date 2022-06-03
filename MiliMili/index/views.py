@@ -4,7 +4,6 @@ import jwt
 import requests
 
 from django.http import JsonResponse
-from django.views.decorators.cache import cache_page
 
 from MiliMili.settings import SECRET_KEY
 from data_utils import IndexData, SearchData
@@ -12,7 +11,7 @@ from index.ThreadController import ThreadController
 from key import *
 from sending.views import not_read
 from user.models import *
-from video.models import Video, Zone, UserToHistory
+from video.models import Zone, UserToHistory
 from video.views import is_follow
 
 
@@ -156,7 +155,6 @@ def zone_search(request, zone):
         JsonResponse(result)
 
 
-@cache_page(60 * 5)
 def index_message(request):
     if request.method == 'POST':
         # 检查表单信息

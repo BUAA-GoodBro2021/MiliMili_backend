@@ -12,6 +12,7 @@ urlpatterns = [
     path('like-list', views.like_list),
     # 收藏系列
     path('favorite-list', views.favorite_list),
+    path('favorite-simple-list', views.favorite_simple_list),
     path('create-favorite', views.create_favorite),
     path('del-favorite', views.del_favorite),
     path('change-favorite', views.change_favorite),

@@ -206,6 +206,13 @@ class Favorite(models.Model):
             'isPrivate': self.isPrivate,
         }
 
+    def to_simple_dic(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'avatar_url': self.avatar_url,
+        }
+
 
 class FavoriteToVideo(models.Model):
     favorite_id = models.IntegerField(verbose_name='收藏夹编号', default=0)

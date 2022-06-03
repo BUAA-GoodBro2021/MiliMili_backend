@@ -16,7 +16,12 @@ class PublicData:
             self.id_thread[user_id] = thread
             thread.start()
         elif not self.id_thread.get(user_id).is_alive():
-            self.id_thread.get(user_id).start()
+            thread = Threading(user_id)
+            thread = Threading(user_id, thread.recommend_list,
+                               thread.search_history_list, thread.zone_list,
+                               thread.zone_video_list, True)
+            self.id_thread[user_id] = thread
+            thread.start()
 
     def get_data(self):
         thread = self.id_thread.get(self.user_id)
@@ -26,17 +31,26 @@ class PublicData:
                         'search_history_list': thread.search_history_list,
                         'zone_list': thread.zone_list,
                         'zone_video_list': thread.zone_video_list}
-            time.sleep(3)
+            time.sleep(1)
 
 
 class Threading(threading.Thread):
-    def __init__(self, user_id):
+    def __init__(self, user_id, recommend_list=None,
+                 search_history_list=None, zone_list=None,
+                 zone_video_list=None, flag=False):
         threading.Thread.__init__(self)
-        self.recommend_list = []
-        self.search_history_list = []
-        self.zone_list = []
-        self.zone_video_list = []
-        self.flag = False
+        if not flag:
+            self.recommend_list = []
+            self.search_history_list = []
+            self.zone_list = []
+            self.zone_video_list = []
+            self.flag = False
+        else:
+            self.recommend_list = recommend_list
+            self.search_history_list = search_history_list
+            self.zone_list = zone_list
+            self.zone_video_list = zone_video_list
+            self.flag = True
         self.user_id = user_id
 
     def run(self):

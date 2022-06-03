@@ -1,6 +1,6 @@
 import re
 
-from data_utils import PublicData
+from data_utils import IndexData
 from video.views import *
 
 
@@ -31,7 +31,7 @@ def register(request):
 
         # 验证部分
         user = User.objects.create(username=username, password=password1, isActive=False)
-        PublicData(user.id)
+        IndexData(user.id)
         # 需要加密的信息
         token = {
             'user_id': user.id,

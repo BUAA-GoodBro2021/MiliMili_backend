@@ -6,25 +6,71 @@ from user.models import UserToSearchHistory
 from video.models import UserToHistory, Video, Zone
 
 
-class PublicData:
+# 搜索缓存
+class SearchData:
+    search_thread = {'video': {},
+                     'user': {}}
+
+    def __init__(self, search_str, element):
+        self.element = element
+        thread_dict = self.search_thread[element]
+        self.search_str = search_str
+        if search_str not in thread_dict.keys():
+            thread = SearchThreading(search_str, element)
+            thread_dict[search_str] = thread
+            thread.start()
+        elif not thread_dict[search_str].is_alive():
+            thread = thread_dict[search_str]
+            thread = SearchThreading(search_str, element, thread.element_list, True)
+            thread_dict[search_str] = thread
+            thread.start()
+
+    def get_data(self):
+        thread = self.search_thread[self.element][self.search_str]
+        while True:
+            if thread.flag:
+                return {'element_list': thread.element_list}
+            time.sleep(1)
+
+
+# 缓存线程
+class SearchThreading(threading.Thread):
+    def __init__(self, search_str, element, element_list=None, flag=False):
+        threading.Thread.__init__(self)
+        if not flag:
+            self.element_list = []
+            self.flag = False
+        else:
+            self.element_list = element_list
+            self.flag = True
+        self.search_str = search_str
+        self.element = element
+
+    def run(self):
+        self.element_list = ThreadController(self.search_str, self.element).run()
+        self.flag = True
+
+
+# 主页信息缓存
+class IndexData:
     id_thread = {}
 
     def __init__(self, user_id):
         self.user_id = user_id
         if user_id not in self.id_thread.keys():
-            thread = Threading(user_id)
+            thread = IndexThreading(user_id)
             self.id_thread[user_id] = thread
             thread.start()
-        elif not self.id_thread.get(user_id).is_alive():
-            thread = Threading(user_id)
-            thread = Threading(user_id, thread.recommend_list,
-                               thread.search_history_list, thread.zone_list,
-                               thread.zone_video_list, True)
+        elif not self.id_thread[user_id].is_alive():
+            thread = self.id_thread[user_id]
+            thread = IndexThreading(user_id, thread.recommend_list,
+                                    thread.search_history_list, thread.zone_list,
+                                    thread.zone_video_list, True)
             self.id_thread[user_id] = thread
             thread.start()
 
     def get_data(self):
-        thread = self.id_thread.get(self.user_id)
+        thread = self.id_thread[self.user_id]
         while True:
             if thread.flag:
                 return {'recommend_list': thread.recommend_list,
@@ -34,7 +80,8 @@ class PublicData:
             time.sleep(1)
 
 
-class Threading(threading.Thread):
+# 主页多线程
+class IndexThreading(threading.Thread):
     def __init__(self, user_id, recommend_list=None,
                  search_history_list=None, zone_list=None,
                  zone_video_list=None, flag=False):

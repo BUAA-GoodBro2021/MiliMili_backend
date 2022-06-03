@@ -1,6 +1,6 @@
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
-from data_utils import PublicData
+from data_utils import IndexData
 from sending.views import *
 from user.models import UserToVideo_like
 from user.views import get_fan_list_simple
@@ -304,9 +304,9 @@ def load_index(request):
             return JsonResponse(result)
         user_list = User.objects.filter(isActive=True)
         try:
-            PublicData(-1)
+            IndexData(-1)
             for user in user_list:
-                PublicData(user.id)
+                IndexData(user.id)
         except Exception as e:
             result = {'result': 0, 'message': r"加载主界面数据失败!"}
             return JsonResponse(result)

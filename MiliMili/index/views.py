@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
 
 from MiliMili.settings import SECRET_KEY
-from data_utils import PublicData
+from data_utils import IndexData, SearchData
 from index.ThreadController import ThreadController
 from key import *
 from sending.views import not_read
@@ -19,9 +19,9 @@ from video.views import is_follow
 def video_search(request):
     if request.method == 'POST':
         search_str = request.POST.get('search_str', '')
-
         try:
-            video_list = ThreadController(search_str, 'video').run()
+            list_map = SearchData(search_str, 'video').get_data()
+            video_list = list_map.get('element_list')
             result = 1
             message = r'搜索视频成功'
         except Exception:
@@ -64,7 +64,8 @@ def user_search(request):
     if request.method == 'POST':
         search_str = request.POST.get('search_str', '')
         try:
-            user_list = ThreadController(search_str, 'user').run()
+            list_map = SearchData(search_str, 'user').get_data()
+            user_list = list_map.get('element_list')
             result = 1
             message = r'搜索用户成功'
         except Exception:
@@ -165,7 +166,7 @@ def index_message(request):
             user_id = token.get('user_id', '')
         except Exception:
             user_id = -1
-        list_map = PublicData(user_id).get_data()
+        list_map = IndexData(user_id).get_data()
         result = 1
         message = '主页刷新成功'
         recommend_list = list_map.get('recommend_list')

@@ -671,11 +671,14 @@ def collect_action(request):
         favorite_id_list = request.POST.get('collect_id_list', '')
         favorite_id_list = favorite_id_list.split()
         not_favorite_id_list = request.POST.get('not_collect_id_list', '').split()
+        is_collect = 0
         for favorite_id in favorite_id_list:
             collect_video_logic(user, user_id, video_id, favorite_id)
         for favorite_id in not_favorite_id_list:
             not_collect_video_logic(user, user_id, video_id, favorite_id)
-        result = {'result': 1, 'message': r"完成收藏操作!", "not_read": not_read(user_id)}
+        if UserToVideo_collect.objects.filter(video_id=video_id, user_id=user_id).exists():
+            is_collect = 1
+        result = {'result': 1, 'message': r"完成收藏操作!", "not_read": not_read(user_id), 'is_collect': is_collect}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

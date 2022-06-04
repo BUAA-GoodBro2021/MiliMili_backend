@@ -283,7 +283,7 @@ def active(request, url):
         # 激活用户 验证邮箱
         user.isActive = True
         user.email = email
-        avatar_url = default_avatar_url_match + str(random.choice(range(1, 51))) + '.png'
+        avatar_url = default_avatar_url_match + str(random.choice(range(1, 301))) + '.png'
         user.avatar_url = avatar_url
         user.save()
         # 删除其他伪用户

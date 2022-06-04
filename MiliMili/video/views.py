@@ -1087,10 +1087,11 @@ def video_page(request, video_id):
             # 游客情况
             # 当前视频所有所有评论
             comment_list = get_video_comment(video_id, 0)
-            result = {'result': 1, 'message': r"获取主页信息成功！", 'video_info': video_info.to_dic(),
+            result = {'result': 1, 'message': r"获取视频信息成功！", 'video_info': video_info.to_dic(),
                       'is_like': is_like, 'is_collect': is_collect,
                       'recommended_video': recommended_video,
-                      'comment_list': comment_list}
+                      'comment_list': comment_list,
+                      "comment_num": len(video_info.videocomment_set.filter(video_id=video_id))}
             return JsonResponse(result)
         # 用户情况  需要添加历史记录,但是需要先需要判断是否已存在该记录
         if UserToHistory.objects.filter(user_id=user_id, video_id=video_id).exists():
@@ -1110,6 +1111,31 @@ def video_page(request, video_id):
                   'recommended_video': recommended_video,
                   'comment_list': comment_list,
                   "comment_num": len(video_info.videocomment_set.filter(video_id=video_id))}
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+    return JsonResponse(result)
+
+
+# 添加弹幕
+def add_bullet(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        video_id = request.POST.get('video_id', 0)
+        content = request.POST.get('content', '')
+        approach_time = request.POST.get('approach_time', '')
+        Bullet.objects.create(user_id=user_id, video_id=video_id, content=content, approach_time=approach_time)
+        video = Video.objects.get(id=video_id)
+        result = {'result': 1, 'message': r"添加弹幕成功！", "not_read": not_read(user_id),
+                  'bullet_list': [x.to_dic() for x in video.bullet_set.all()]}
+        return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
     return JsonResponse(result)

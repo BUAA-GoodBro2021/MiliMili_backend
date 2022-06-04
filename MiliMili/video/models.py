@@ -55,6 +55,7 @@ class Video(models.Model):
             'created_time': self.created_time,
             'updated_time': self.updated_time,
             'isAudit': self.isAudit,
+            'bullet': [x.to_dic() for x in self.bullet_set.all()]
         }
 
     def to_simple_dic(self):
@@ -67,7 +68,6 @@ class Video(models.Model):
             'view_num': self.view_num,
             'user': self.user.to_simple_dic(),
             'created_time': self.created_time,
-            'updated_time': self.updated_time,
         }
 
     def __str__(self):
@@ -240,4 +240,19 @@ class UserToHistory(models.Model):
     def to_dic(self):
         return {
             'video': Video.objects.get(id=self.video_id).to_simple_dic()
+        }
+
+
+class Bullet(models.Model):
+    content = models.TextField('弹幕内容', default='')
+    user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, verbose_name='所属视频', on_delete=models.CASCADE)
+    approach_time = models.CharField(verbose_name='分区名称', max_length=64, default='')
+    created_time = models.DateTimeField('创建时间', auto_now_add=True)
+
+    def to_dic(self):
+        return {
+            'content': self.content,
+            'approach_time': self.approach_time,
+            'created_time': self.created_time,
         }

@@ -736,3 +736,45 @@ def up_all_list(request):
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
+
+
+# 获取个人弹幕列表
+def bullet_list(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"获取弹幕列表成功！", "not_read": not_read(user_id),
+                  "bullet_list": [x.to_dic() for x in user.bullet_set.all()]}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 获取个人弹幕列表
+def del_bullet(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        bullet_id = request.POST.get('bullet_id', 0)
+        Bullet.objects.get(id=bullet_id).delete()
+        result = {'result': 1, 'message': r"删除成功！", "not_read": not_read(user_id),
+                  "bullet_list": [x.to_dic() for x in user.bullet_set.all()]}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)

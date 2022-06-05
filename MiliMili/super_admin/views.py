@@ -197,6 +197,8 @@ def audit_video(request):
                 del_collect_num = len(video_list)
                 user.collect_num -= del_collect_num
                 video_list.delete()
+                # 清楚历史记录
+                UserToHistory.objects.filter(video_id=video_id).delete()
                 # 清除本身
                 video.delete()
                 user.del_video()

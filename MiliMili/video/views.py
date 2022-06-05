@@ -1075,7 +1075,7 @@ def video_page(request, video_id):
         for i in range(1, 6):
             if eval('video_info.tag' + str(i)) != '':
                 video_tag[eval('video_info.tag' + str(i))] = 20
-        recommended_video = ThreadController(None, 'recommend', tag_dict=video_tag, video_id=video_id).run()
+        recommended_video = ThreadController(None, 'recommend', tag_dict=video_tag, video_id=int(video_id)).run()
 
         # 检查表单信息，判断是否登录
         JWT = request.POST.get('JWT', '')

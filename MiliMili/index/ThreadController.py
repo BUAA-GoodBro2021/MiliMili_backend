@@ -21,6 +21,7 @@ class ThreadController:
         else:
             self.search_token_list = []
         self.search = search
+        self.video_id = video_id
         self.tag_dict = tag_dict
         if element == 'video':
             self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1)]
@@ -73,7 +74,7 @@ class ThreadController:
             if len(result) >= 40:
                 result = result[:35] + result[-5:]
             elif len(result) < 8 and self.search is None:
-                result = list(Video.objects.filter(isAudit=1).values())
+                result = list(Video.objects.filter(~Q(id=self.video_id), isAudit=1).values())
             count = min(len(result), 8)
             result = random.sample(result, count)
         else:

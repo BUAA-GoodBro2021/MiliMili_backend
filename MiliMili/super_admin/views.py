@@ -21,7 +21,7 @@ def all_list(request):
         if not isSuperAdmin:
             result = {'result': 0, 'message': r"你没有超级管理员权限，请联系超级管理员给予权限!"}
             return JsonResponse(result)
-        video_list = Video.objects.all()
+        video_list = Video.objects.filter(isAudit=1)
         result = {'result': 1, 'message': r'获取所有视频成功', 'video_list': [x.to_simple_dic() for x in video_list]}
         return JsonResponse(result)
     else:
@@ -111,16 +111,12 @@ def verify_complain_video(request):
         success = request.POST.get('success', '')
         success = int(success)
         # 投诉失败,即该视频可以正常播放
-        print(success)
-        print('00000000000000000000000')
         if success == 0:
-            print('22222222222222222222')
             complain.verify_result = 1
             complain.save()
             result = {'result': 1, 'message': r"处理投诉完毕，结果为投诉失败!"}
             return JsonResponse(result)
         if success == 1:
-            print('!!!!!!!!!!!!!!!!!!!!')
             complain.verify_result = 2
             complain.save()
             # 修改状态

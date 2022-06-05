@@ -79,8 +79,7 @@ def redo_audit_video(request):
         title = "视频重新审核！"
         content = "亲爱的" + user.username + ' 你好呀!\n视频内容好像带有一点违规元素,管理员打算重新再看看！\n下次还是要注意一下哟~'
         create_message(user_id, title, content)
-        video_list = Video.objects.filter(isAudit=1)
-        result = {'result': 1, 'message': r"重新审核成功，已修改视频状态！", 'video_list': [x.to_simple_dic() for x in video_list]}
+        result = {'result': 1, 'message': r"重新审核成功，已修改视频状态！"}
         return JsonResponse(result)
 
     else:

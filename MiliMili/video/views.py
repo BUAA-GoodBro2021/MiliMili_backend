@@ -1148,10 +1148,10 @@ def add_bullet(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         video_id = request.POST.get('video_id', 0)
-        bullet_id = request.POST.get('bullet_id', 0)
-        content = request.POST.get('content', '')
-        approach_time = request.POST.get('approach_time', '')
-        Bullet.objects.create(video_id=video_id, bullet_id=bullet_id, content=content, approach_time=approach_time)
+        bullet_id = request.POST.get('id', 0)
+        txt = request.POST.get('txt', '')
+        start = request.POST.get('start', '')
+        Bullet.objects.create(video_id=video_id, bullet_id=bullet_id, txt=txt, start=start)
         video = Video.objects.get(id=video_id)
         bullet_list = video.bullet_set.all()
         result = {'result': 1, 'message': r"添加弹幕成功！", "not_read": not_read(user_id),

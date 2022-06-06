@@ -111,8 +111,9 @@ class Video(models.Model):
 
     # 添加弹幕量
     def add_bullet(self):
-        self.view_num += 1
+        self.bullet_num += 1
         self.save(update_fields=['bullet_num'])
+
 
 # 视频评论
 class VideoComment(models.Model):

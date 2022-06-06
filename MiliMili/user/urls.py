@@ -19,8 +19,8 @@ urlpatterns = [
     path('video-complain-list', views.complain_list),
     path('all-list', views.all_list),
     path('simple-list', views.simple_list),
-    path('bullet-list', views.bullet_list),
-    path('del-bullet', views.del_bullet),
+    # path('bullet-list', views.bullet_list),
+    # path('del-bullet', views.del_bullet),
 
     path('up-follow-list', views.up_follow_list),
     path('up-fan-list', views.up_fan_list),

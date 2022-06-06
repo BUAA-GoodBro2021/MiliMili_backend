@@ -1118,6 +1118,23 @@ def video_page(request, video_id):
     return JsonResponse(result)
 
 
+# 加载视频弹幕信息
+def load_bullet(request):
+    if request.method == 'POST':
+        # 获取具体视频
+        video_id = request.POST.get('video_id', 0)
+        video = Video.objects.get(id=video_id)
+        bullet_list = video.bullet_set.all()
+        result = {'result': 1, 'message': r"加载弹幕成功！",
+                  'bullet_list': [x.to_dic() for x in bullet_list],
+                  'bullet_num': len(bullet_list)
+                  }
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 # 添加弹幕
 def add_bullet(request):
     if request.method == 'POST':
@@ -1131,16 +1148,20 @@ def add_bullet(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         video_id = request.POST.get('video_id', 0)
+        bullet_id = request.POST.get('bullet_id', 0)
         content = request.POST.get('content', '')
         approach_time = request.POST.get('approach_time', '')
-        Bullet.objects.create(user_id=user_id, video_id=video_id, content=content, approach_time=approach_time)
+        Bullet.objects.create(video_id=video_id, bullet_id=bullet_id, content=content, approach_time=approach_time)
         video = Video.objects.get(id=video_id)
+        bullet_list = video.bullet_set.all()
         result = {'result': 1, 'message': r"添加弹幕成功！", "not_read": not_read(user_id),
-                  'bullet_list': [x.to_dic() for x in video.bullet_set.all()]}
+                  'bullet_list': [x.to_dic() for x in bullet_list],
+                  'bullet_num': len(bullet_list)
+                  }
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
-    return JsonResponse(result)
+        return JsonResponse(result)
 
 
 # 判断是否属于已关注该视频的up主

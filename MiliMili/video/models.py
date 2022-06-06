@@ -244,15 +244,31 @@ class UserToHistory(models.Model):
 
 
 class Bullet(models.Model):
-    content = models.TextField('弹幕内容', default='')
-    user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
-    video = models.ForeignKey(Video, verbose_name='所属视频', on_delete=models.CASCADE)
-    approach_time = models.CharField(verbose_name='分区名称', max_length=64, default='')
+    bullet_id = models.IntegerField(verbose_name='弹幕id', default=1)
+    txt = models.TextField('弹幕内容', default='')
+    start = models.CharField(verbose_name='到达时间', max_length=64, default='')
     created_time = models.DateTimeField('创建时间', auto_now_add=True)
+    # user = models.ForeignKey(User, verbose_name='所属用户', on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, verbose_name='所属视频', on_delete=models.CASCADE)
 
     def to_dic(self):
         return {
-            'content': self.content,
-            'approach_time': self.approach_time,
-            'created_time': self.created_time,
+            'duration': 15000,  # 弹幕持续显示时间,毫秒(最低为5000毫秒)
+            'id': self.bullet_id,  # 弹幕id，需唯一
+            'start': self.start,  # 弹幕出现时间，毫秒
+            'prior': True,  # 该条弹幕优先显示，默认false
+            'color': True,  # 该条弹幕为彩色弹幕，默认false
+            'txt': self.txt,  # 弹幕文字内容
+            'style': {  # 弹幕自定义样式
+                'color': '#ff9500',
+                'fontSize': '20px',
+                'border': 'solid 1px #ff9500',
+                'borderRadius': '50px',
+                'padding': '5px 11px',
+                'backgroundColor': 'rgba(255, 255, 255, 0.1)'
+            },
+            'mode': 'top'  # 显示模式，top顶部居中，bottom底部居中，scroll滚动，默认为scroll
         }
+
+    class Meta:
+        ordering = ['bullet_id']

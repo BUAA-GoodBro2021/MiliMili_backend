@@ -1151,8 +1151,14 @@ def add_bullet(request):
         bullet_id = request.POST.get('id', 0)
         txt = request.POST.get('txt', '')
         start = request.POST.get('start', '')
-        Bullet.objects.create(video_id=video_id, bullet_id=bullet_id, txt=txt, start=start)
+        style_color = request.POST.get('style_color', '')
+        style_fontSize = request.POST.get('style_fontSize', '')
+        mode = request.POST.get('mode', '')
+
+        Bullet.objects.create(video_id=video_id, bullet_id=bullet_id, txt=txt, start=start, style_color=style_color,
+                              style_fontSize=style_fontSize, mode=mode)
         video = Video.objects.get(id=video_id)
+        video.add_bullet()
         bullet_list = video.bullet_set.all()
         result = {'result': 1, 'message': r"添加弹幕成功！", "not_read": not_read(user_id),
                   'bullet_list': [x.to_dic() for x in bullet_list],

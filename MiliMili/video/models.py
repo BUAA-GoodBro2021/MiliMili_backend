@@ -15,6 +15,8 @@ class Video(models.Model):
     like_num = models.IntegerField(verbose_name='点赞数', default=0)
     collect_num = models.IntegerField(verbose_name='收藏数', default=0)
     view_num = models.IntegerField('浏览量', default=0)
+    bullet_num = models.IntegerField('弹幕量', default=0)
+
     zone = models.CharField('专区', max_length=32, default='')
     tag1 = models.CharField('标签1', max_length=32, default='')
     tag2 = models.CharField('标签2', max_length=32, default='')
@@ -49,6 +51,7 @@ class Video(models.Model):
             'like_num': self.like_num,
             'collect_num': self.collect_num,
             'view_num': self.view_num,
+            'bullet_num': self.bullet_num,
             'zone': self.zone,
             'tag_list': tag_list,
             'user': self.user.to_simple_dic(),
@@ -106,6 +109,10 @@ class Video(models.Model):
             self.collect_num -= 1
             self.save(update_fields=['collect_num'])
 
+    # 添加弹幕量
+    def add_bullet(self):
+        self.view_num += 1
+        self.save(update_fields=['bullet_num'])
 
 # 视频评论
 class VideoComment(models.Model):

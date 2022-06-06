@@ -31,6 +31,9 @@ class User(models.Model):
             "id": self.id,
             "username": self.username,
             "avatar_url": self.avatar_url,
+            'fan_num': self.fan_num,
+            'video_num': self.video_num,
+            'created_time': self.created_time,
         }
 
     def to_dic(self):

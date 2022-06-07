@@ -76,7 +76,8 @@ class ThreadController:
             elif len(result) < 8 and self.search is None:
                 result = list(Video.objects.filter(~Q(id=self.video_id), isAudit=1).values())
             elif len(result) < 8:
-                result = list(Video.objects.filter(~Q(id=self.video_id), zone=self.search, isAudit=1).values())
+                result = []
+                # result = list(Video.objects.filter(~Q(id=self.video_id), zone=self.search, isAudit=1).values())
             count = min(len(result), 8)
             result = random.sample(result, count)
         else:
@@ -161,7 +162,7 @@ class ThreadController:
                 for user_info in self.element_list:
                     index_list, public_strlen = self.find_change(user_info.get('username'), self.search)
                     user_info['distance'] = len(self.search) + len(user_info.get('username')) - 2 * public_strlen
-                    if public_strlen >= 2:
+                    if public_strlen >= 3:
                         user_info['index_list'] = index_list
                         self.ranked_element_list.append(user_info)
             elif self.element == 'recommend':

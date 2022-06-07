@@ -1144,7 +1144,7 @@ def video_page(request, video_id):
                       'is_like': is_like, 'is_collect': is_collect,
                       'recommended_video': recommended_video,
                       'comment_list': comment_list,
-                      "comment_num": len(video.videocomment_set.filter(video_id=video_id))
+                      "comment_num": len(video.videocomment_set.filter(video_id=video_id)),
                       'bullet_list': [x.to_dic() for x in bullet_list],
                       'bullet_num': len(bullet_list)
                       }
@@ -1166,7 +1166,7 @@ def video_page(request, video_id):
                   'video_info': video.to_dic(),
                   'recommended_video': recommended_video,
                   'comment_list': comment_list,
-                  "comment_num": len(video.videocomment_set.filter(video_id=video_id))
+                  "comment_num": len(video.videocomment_set.filter(video_id=video_id)),
                   'bullet_list': [x.to_dic() for x in bullet_list],
                   'bullet_num': len(bullet_list)
                   }

@@ -785,6 +785,10 @@ def del_favorite(request):
         if not Favorite.objects.filter(id=favorite_id).exists():
             result = {'result': 0, 'message': r"收藏夹已删除!请不要重复删除"}
             return JsonResponse(result)
+        user_favorite_list = get_favorite_list_id(user_id)
+        if favorite_id not in user_favorite_list:
+            result = {'result': 0, 'message': r"用户错误，该收藏夹不是自己创建的！"}
+            return JsonResponse(result)
         # 个人收藏夹数量 -1
         user.del_favorite()
         # 获取该收藏夹的所有视频id

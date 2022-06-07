@@ -76,8 +76,7 @@ class ThreadController:
             elif len(result) < 8 and self.search is None:
                 result = list(Video.objects.filter(~Q(id=self.video_id), isAudit=1).values())
             elif len(result) < 8:
-                result = []
-                # result = list(Video.objects.filter(~Q(id=self.video_id), zone=self.search, isAudit=1).values())
+                result = list(Video.objects.filter(~Q(id=self.video_id), zone=self.search, isAudit=1).values())
             count = min(len(result), 8)
             result = random.sample(result, count)
         else:

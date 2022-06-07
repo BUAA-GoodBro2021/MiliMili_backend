@@ -1115,12 +1115,12 @@ def dislike_comment(request):
 def video_page(request, video_id):
     if request.method == 'POST':
         # 获取具体视频
-        video_info = Video.objects.get(id=video_id)
+        video = Video.objects.get(id=video_id)
         # 自己是否已经点赞或者收藏过该视频
         is_like = 0
         is_collect = 0
         # 视频浏览量 + 1
-        video_info.add_view()
+        video.add_view()
         # 进行相似视频推荐
         from index.ThreadController import ThreadController
         video_tag = {}
@@ -1128,6 +1128,7 @@ def video_page(request, video_id):
             if eval('video_info.tag' + str(i)) != '':
                 video_tag[eval('video_info.tag' + str(i))] = 20
         recommended_video = ThreadController(None, 'recommend', tag_dict=video_tag, video_id=int(video_id)).run()
+        bullet_list = video.bullet_set.all()
 
         # 检查表单信息，判断是否登录
         JWT = request.POST.get('JWT', '')
@@ -1139,11 +1140,14 @@ def video_page(request, video_id):
             # 游客情况
             # 当前视频所有所有评论
             comment_list = get_video_comment(video_id, 0)
-            result = {'result': 1, 'message': r"获取视频信息成功！", 'video_info': video_info.to_dic(),
+            result = {'result': 1, 'message': r"获取视频信息成功！", 'video_info': video.to_dic(),
                       'is_like': is_like, 'is_collect': is_collect,
                       'recommended_video': recommended_video,
                       'comment_list': comment_list,
-                      "comment_num": len(video_info.videocomment_set.filter(video_id=video_id))}
+                      "comment_num": len(video.videocomment_set.filter(video_id=video_id))
+                      'bullet_list': [x.to_dic() for x in bullet_list],
+                      'bullet_num': len(bullet_list)
+                      }
             return JsonResponse(result)
         # 用户情况  需要添加历史记录,但是需要先需要判断是否已存在该记录
         if UserToHistory.objects.filter(user_id=user_id, video_id=video_id).exists():
@@ -1159,10 +1163,13 @@ def video_page(request, video_id):
             is_collect = 1
         result = {'result': 1, 'message': r"获取视频信息成功！", "not_read": not_read(user_id),
                   'is_like': is_like, 'is_collect': is_collect,
-                  'video_info': video_info.to_dic(),
+                  'video_info': video.to_dic(),
                   'recommended_video': recommended_video,
                   'comment_list': comment_list,
-                  "comment_num": len(video_info.videocomment_set.filter(video_id=video_id))}
+                  "comment_num": len(video.videocomment_set.filter(video_id=video_id))
+                  'bullet_list': [x.to_dic() for x in bullet_list],
+                  'bullet_num': len(bullet_list)
+                  }
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
     return JsonResponse(result)

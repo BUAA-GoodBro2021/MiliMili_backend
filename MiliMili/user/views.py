@@ -724,7 +724,24 @@ def up_all_list(request):
         except Exception as e:
             result = {'result': 0, 'message': r"获取详情列表失败！"}
             return JsonResponse(result)
+
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 1, 'message': r"获取详情列表成功！", "user": up_user.to_dic(),
+                      'is_follow': -1,
+                      "follow_list": get_follow_list_detail(up_user_id),
+                      "fan_list": get_fan_list_detail(up_user_id),
+                      "video_list": [x.to_dic() for x in
+                                     Video.objects.filter(user_id=up_user_id, isAudit=1)],
+                      "video_num": len(Video.objects.filter(user_id=up_user_id, isAudit=1)),
+                      'favorite_list_detail': get_favorite_list_detail(up_user_id, 0)}
+            return JsonResponse(result)
         result = {'result': 1, 'message': r"获取详情列表成功！", "user": up_user.to_dic(),
+                  'is_follow': is_follow(user_id=user_id, target_id=up_user_id),
                   "follow_list": get_follow_list_detail(up_user_id),
                   "fan_list": get_fan_list_detail(up_user_id),
                   "video_list": [x.to_dic() for x in
@@ -736,7 +753,6 @@ def up_all_list(request):
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)
-
 
 # # 获取个人弹幕列表
 # def bullet_list(request):

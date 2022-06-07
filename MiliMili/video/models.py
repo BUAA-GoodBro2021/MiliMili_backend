@@ -266,7 +266,6 @@ class Bullet(models.Model):
             'duration': 15000,  # 弹幕持续显示时间,毫秒(最低为5000毫秒)
             'id': self.bullet_id,  # 弹幕id，需唯一
             'start': self.start,  # 弹幕出现时间，毫秒
-            'prior': False,  # 该条弹幕优先显示，默认false
             'color': True,  # 该条弹幕为彩色弹幕，默认false
             'txt': self.txt,  # 弹幕文字内容
             'style': {  # 弹幕自定义样式

@@ -718,7 +718,7 @@ def up_public_favorite(request):
 def up_all_list(request):
     if request.method == 'POST':
         # 检查表单信息
-        up_user_id = request.POST.get('up_user_id', '')
+        up_user_id = int(request.POST.get('up_user_id', 0))
         try:
             up_user = User.objects.get(id=up_user_id)
         except Exception as e:

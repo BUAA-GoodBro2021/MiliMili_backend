@@ -74,9 +74,10 @@ class ThreadController:
             if len(result) >= 40:
                 result = result[:35] + result[-5:]
             elif len(result) < 8 and self.search is None:
-                result = [x.to_dic() for x in Video.objects.filter(~Q(id=self.video_id), isAudit=1).values()]
+                result = [x.to_dic() for x in Video.objects.filter(~Q(id=self.video_id), isAudit=1)]
             elif len(result) < 8:
-                result = [x.to_dic() for x in Video.objects.filter(~Q(id=self.video_id), zone=self.search, isAudit=1).values()]
+                result = [x.to_dic() for x in
+                          Video.objects.filter(~Q(id=self.video_id), zone=self.search, isAudit=1)]
             count = min(len(result), 8)
             result = random.sample(result, count)
         else:

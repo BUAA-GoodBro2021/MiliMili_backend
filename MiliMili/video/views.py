@@ -800,6 +800,13 @@ def del_favorite(request):
             video = Video.objects.get(id=every_video_id)
             video.del_collect()
 
+            # 删除人与视频的联系，如果减为0，直接删去
+            if UserToVideo_collect.objects.filter(user_id=user_id, video_id=every_video_id).exists():
+                connect = UserToVideo_collect.objects.get(user_id=user_id, video_id=every_video_id)
+                connect.del_cnt()
+                if connect.cnt == 0:
+                    UserToVideo_collect.objects.get(user_id=user_id, video_id=every_video_id).delete()
+
             # 视频上传者状态减少
             upload_user = Video.objects.get(id=every_video_id).user
             upload_user.del_collect()

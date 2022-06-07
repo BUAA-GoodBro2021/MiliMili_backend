@@ -119,7 +119,7 @@ def send_message(request):
         except Exception as e:
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
-        title = request.POST.get('title', '')
+        title = request.POST.get('title', '你收到了一条私信，请注意查收~')
         content = request.POST.get('content', '')
         if len(title) == 0 or len(content) == 0:
             result = {'result': 0, 'message': r"标题或者内容不能为空!"}

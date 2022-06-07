@@ -566,7 +566,7 @@ def create_favorite_simple(request):
             return JsonResponse(result)
         title = request.POST.get('title', '默认收藏夹')
         description = request.POST.get('description', '')
-        isPrivate = request.POST.get('isPrivate', False)
+        isPrivate = request.POST.get('isPrivate', 0)
         # 创建收藏夹
         Favorite.objects.create(title=title, description=description, isPrivate=isPrivate, user_id=user_id)
         user.add_favorite()

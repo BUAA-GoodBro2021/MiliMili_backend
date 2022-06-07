@@ -274,7 +274,13 @@ def active(request, url):
     # 邮件的链接地址
     data = {'url': 'https://milimili.super2021.com'}
     # 获取到用户
-    user = User.objects.get(id=user_id)
+    try:
+        user = User.objects.get(id=user_id)
+    except Expression:
+        # 返回修改成功的界面
+        data["title"] = "激活失败"
+        data["message"] = "有其他好兄弟比你稍微快一点，使用相同的用户名激活邮箱啦，再去挑选一个你喜欢的用户名叭！"
+        return render(request, 'EmailContent-check.html', data)
     username = user.username
 
     # 激活邮箱

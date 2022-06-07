@@ -525,8 +525,8 @@ def favorite_simple_list(request):
         return JsonResponse(result)
 
 
-# 创建自己的收藏夹
-def create_favorite(request):
+# 创建自己的收藏夹(返还详细信息)
+def create_favorite_detail(request):
     if request.method == 'POST':
         # 检查表单信息
         JWT = request.POST.get('JWT', '')
@@ -538,7 +538,7 @@ def create_favorite(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         title = request.POST.get('title', '默认收藏夹')
-        description = request.POST.get('description', 0)
+        description = request.POST.get('description', '')
         isPrivate = request.POST.get('isPrivate', False)
         # 创建收藏夹
         Favorite.objects.create(title=title, description=description, isPrivate=isPrivate, user_id=user_id)
@@ -547,6 +547,45 @@ def create_favorite(request):
                   'favorite_list_detail': get_favorite_list_detail(user_id)}
         return JsonResponse(result)
 
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
+# 创建自己的收藏夹(返还简略信息)
+def create_favorite_simple(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        title = request.POST.get('title', '默认收藏夹')
+        description = request.POST.get('description', '')
+        isPrivate = request.POST.get('isPrivate', False)
+        # 创建收藏夹
+        Favorite.objects.create(title=title, description=description, isPrivate=isPrivate, user_id=user_id)
+        user.add_favorite()
+        video_id = int(request.POST.get('video_id', 0))
+        # 获取到自己的所有收藏夹的简要信息
+        favorite_list_simple = get_favorite_list_simple(user_id)
+        for x in favorite_list_simple:
+            # 获取到该收藏夹内部的视频id
+            favorite_list_video_id = get_favorite_list_video_id(x.get('id'))
+            if video_id in favorite_list_video_id:
+                x['is_collect'] = 1
+                x['updating_collection'] = 1
+            else:
+                x['is_collect'] = 0
+                x['updating_collection'] = 0
+            x['video_num'] = len(favorite_list_video_id)
+        result = {'result': 1, 'message': r"创建收藏夹成功!", "not_read": not_read(user_id), 'user': user.to_dic(),
+                  'favorite_list_simple': favorite_list_simple}
+        return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
         return JsonResponse(result)

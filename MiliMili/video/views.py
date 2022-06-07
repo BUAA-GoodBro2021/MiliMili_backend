@@ -566,7 +566,7 @@ def create_favorite_simple(request):
             return JsonResponse(result)
         title = request.POST.get('title', '默认收藏夹')
         description = request.POST.get('description', '')
-        isPrivate = request.POST.get('isPrivate', 0)
+        isPrivate = int(request.POST.get('isPrivate', 0))
         # 创建收藏夹
         Favorite.objects.create(title=title, description=description, isPrivate=isPrivate, user_id=user_id)
         user.add_favorite()
@@ -781,7 +781,7 @@ def del_favorite(request):
             result = {'result': 0, 'message': r"请先登录!"}
             return JsonResponse(result)
         # 获取需要删除的收藏夹
-        favorite_id = request.POST.get('favorite_id', '')
+        favorite_id = int(request.POST.get('favorite_id', 0))
         if not Favorite.objects.filter(id=favorite_id).exists():
             result = {'result': 0, 'message': r"收藏夹已删除!请不要重复删除"}
             return JsonResponse(result)

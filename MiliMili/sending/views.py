@@ -158,8 +158,7 @@ def read_message(request):
             return JsonResponse(result)
         message.isRead = True
         message.save()
-        result = {'result': 1, 'message': r"已读信息!", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"已读信息!", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -180,8 +179,7 @@ def read_all_message(request):
             return JsonResponse(result)
 
         Message.objects.filter(user_id=user_id).update(isRead=True)
-        result = {'result': 1, 'message': r"已读全部信息!", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"已读全部信息!", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -212,8 +210,7 @@ def del_message(request):
             result = {'result': 0, 'message': r"用户错误!"}
             return JsonResponse(result)
         message.delete()
-        result = {'result': 1, 'message': r"删除成功!", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"删除成功!", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}
@@ -234,8 +231,7 @@ def del_all_message(request):
             return JsonResponse(result)
 
         Message.objects.filter(user_id=user_id).delete()
-        result = {'result': 1, 'message': r"全部删除成功!", "not_read": not_read(user_id), "user": user.to_dic(),
-                  "station_message": list_message(user.id)}
+        result = {'result': 1, 'message': r"全部删除成功!", "not_read": not_read(user_id), "user": user.to_dic()}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

@@ -721,7 +721,9 @@ def collect_action(request):
             not_collect_video_logic(user, user_id, video_id, favorite_id)
         if UserToVideo_collect.objects.filter(video_id=video_id, user_id=user_id).exists():
             is_collect = 1
-        result = {'result': 1, 'message': r"完成收藏操作!", "not_read": not_read(user_id), 'is_collect': is_collect}
+        video = Video.objects.get(id=video_id)
+        result = {'result': 1, 'message': r"完成收藏操作!", "not_read": not_read(user_id), 'is_collect': is_collect,
+                  'collect_num': video.collect_num}
         return JsonResponse(result)
     else:
         result = {'result': 0, 'message': r"请求方式错误！"}

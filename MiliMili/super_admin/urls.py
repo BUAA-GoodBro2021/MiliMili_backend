@@ -12,5 +12,6 @@ urlpatterns = [
     path('verify-complain-video', views.verify_complain_video),
 
     # 加载主页系列
-    path('load-index', views.load_index)
+    path('load-index', views.load_index),
+    path('load-video', views.load_video)
 ]

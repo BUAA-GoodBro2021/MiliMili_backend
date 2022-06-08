@@ -2,6 +2,7 @@ import time
 
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
+from data_utils import VideoData
 from sending.views import *
 from user.models import *
 from video.models import *
@@ -1114,6 +1115,7 @@ def dislike_comment(request):
 
 def video_page(request, video_id):
     if request.method == 'POST':
+        video_id = int(video_id)
         # 获取具体视频
         video_info = Video.objects.get(id=video_id)
         # 自己是否已经点赞或者收藏过该视频
@@ -1121,13 +1123,11 @@ def video_page(request, video_id):
         is_collect = 0
         # 视频浏览量 + 1
         video_info.add_view()
-        # 进行相似视频推荐
-        from index.ThreadController import ThreadController
         video_tag = {}
         for i in range(1, 6):
             if eval('video_info.tag' + str(i)) != '':
                 video_tag[eval('video_info.tag' + str(i))] = 20
-        recommended_video = ThreadController(None, 'recommend', tag_dict=video_tag, video_id=int(video_id)).run()
+        list_map = VideoData(video_id, video_tag).get_data()
         bullet_list = video_info.bullet_set.all()
 
         # 检查表单信息，判断是否登录
@@ -1142,7 +1142,7 @@ def video_page(request, video_id):
             comment_list = get_video_comment(video_id, 0)
             result = {'result': 1, 'message': r"获取视频信息成功！", 'video_info': video_info.to_dic(),
                       'is_like': is_like, 'is_collect': is_collect,
-                      'recommended_video': recommended_video,
+                      'recommended_video': list_map.get('recommended_video'),
                       'comment_list': comment_list,
                       "comment_num": len(video_info.videocomment_set.filter(video_id=video_id)),
                       'bullet_list': [x.to_dic() for x in bullet_list],
@@ -1164,7 +1164,7 @@ def video_page(request, video_id):
         result = {'result': 1, 'message': r"获取视频信息成功！", "not_read": not_read(user_id),
                   'is_like': is_like, 'is_collect': is_collect,
                   'video_info': video_info.to_dic(),
-                  'recommended_video': recommended_video,
+                  'recommended_video': list_map.get('recommended_video'),
                   'comment_list': comment_list,
                   "comment_num": len(video_info.videocomment_set.filter(video_id=video_id)),
                   'bullet_list': [x.to_dic() for x in bullet_list],

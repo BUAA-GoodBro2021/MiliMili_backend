@@ -1,6 +1,6 @@
 from MiliMili.settings import BASE_DIR
 from bucket_manager.Bucket import Bucket
-from data_utils import IndexData
+from data_utils import IndexData, VideoData
 from sending.views import *
 from user.models import UserToVideo_like
 from user.views import get_fan_list_simple
@@ -309,6 +309,35 @@ def load_index(request):
             result = {'result': 0, 'message': r"加载主界面数据失败!"}
             return JsonResponse(result)
         result = {'result': 1, 'message': r"已开始加载全部用户主界面数据!"}
+        return JsonResponse(result)
+
+
+# 加载所有视频的推荐
+def load_video(request):
+    if request.method == 'POST':
+        # 检查表单信息
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        isSuperAdmin = token.get('isSuperAdmin', '')
+        if not isSuperAdmin:
+            result = {'result': 0, 'message': r"你没有超级管理员权限，请联系超级管理员给予权限!"}
+            return JsonResponse(result)
+        video_list = Video.objects.filter(isAudit=1)
+        try:
+            for video in video_list:
+                video_tag = {}
+                for i in range(1, 6):
+                    if eval('video.tag' + str(i)) != '':
+                        video_tag[eval('video.tag' + str(i))] = 20
+                VideoData(video.id, video_tag)
+        except Exception as e:
+            result = {'result': 0, 'message': r"加载视频数据失败!"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"已开始加载全部视频数据!"}
         return JsonResponse(result)
 
 # def audit_tag(request):

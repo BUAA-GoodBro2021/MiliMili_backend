@@ -6,6 +6,49 @@ from user.models import UserToSearchHistory
 from video.models import UserToHistory, Video, Zone
 
 
+# 视频推荐缓存
+class VideoData:
+    video_thread = {}
+
+    def __init__(self, video_id, video_tag):
+        self.video_id = video_id
+        self.video_tag = video_tag
+        if video_id not in self.video_thread.keys():
+            thread = VideoThreading(video_id, video_tag)
+            self.video_thread[video_id] = thread
+            thread.start()
+        elif not self.video_thread[video_id].is_alive():
+            thread = self.video_thread[video_id]
+            thread = VideoThreading(video_id, video_tag, thread.recommended_video, True)
+            self.video_thread[video_id] = thread
+            thread.start()
+
+    def get_data(self):
+        thread = self.video_thread[self.video_id]
+        while True:
+            if thread.flag:
+                return {'recommended_video': thread.recommended_video}
+            time.sleep(1)
+
+
+class VideoThreading(threading.Thread):
+    def __init__(self, video_id, video_tag, recommended_video=None, flag=False):
+        threading.Thread.__init__(self)
+        if not flag:
+            self.recommended_video = []
+            self.flag = False
+        else:
+            self.recommended_video = recommended_video
+            self.flag = True
+        self.video_id = video_id
+        self.video_tag = video_tag
+
+    def run(self):
+        self.recommended_video = ThreadController(None, 'recommend', tag_dict=self.video_tag,
+                                                  video_id=self.video_id).run()
+        self.flag = True
+
+
 # 搜索缓存
 class SearchData:
     search_thread = {'video': {},

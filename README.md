@@ -1,6 +1,6 @@
-# MiliMili短视频分享平台
+# MiliMili
 
-BUAA2021第六组软工大作业——后端部分
+BUAA2021软工大作业——MiliMili短视频分享平台——后端部分
 
 <a href="https://milimili.super2021.com" target = "_blank">
   <img src="https://photo-bucket-1309504341.cos.ap-beijing.myqcloud.com/MiliMili-log.svg" style="width:372px; height:280px;display:block;margin-right: 220px">

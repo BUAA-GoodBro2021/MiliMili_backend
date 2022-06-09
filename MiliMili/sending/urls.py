@@ -13,4 +13,5 @@ urlpatterns = [
     path('message/send-message', views.send_message),
     path('message/list-message-simple', views.list_message_simple),
     path('message/list-message-detail', views.list_message_detail),
+    path('message/not-read', views.not_read_request),
 ]

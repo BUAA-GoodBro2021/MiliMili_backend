@@ -30,6 +30,23 @@ def list_message(user_id):
     }
 
 
+def not_read_request(request):
+    if request.method == 'POST':
+        JWT = request.POST.get('JWT', '')
+        try:
+            token = jwt.decode(JWT, SECRET_KEY, algorithms=['HS256'])
+            user_id = token.get('user_id', '')
+            user = User.objects.get(id=user_id)
+        except Exception as e:
+            result = {'result': 0, 'message': r"请先登录!"}
+            return JsonResponse(result)
+        result = {'result': 1, 'message': r"获取未读信息成功!", "not_read": not_read(user_id)}
+        return JsonResponse(result)
+    else:
+        result = {'result': 0, 'message': r"请求方式错误！"}
+        return JsonResponse(result)
+
+
 def not_read(user_id):
     message_filter = Message.objects.filter(user_id=user_id, isRead=False)
     if not message_filter.exists():

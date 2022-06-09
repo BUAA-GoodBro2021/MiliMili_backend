@@ -9,6 +9,7 @@ from user.models import User
 
 
 class ThreadController:
+    element_id = [0]
     def __init__(self, search, element, tag_dict=None, thread_num=10, video_id=-1):
         """
         :param search: the searched string
@@ -23,6 +24,11 @@ class ThreadController:
         self.search = search
         self.video_id = video_id
         self.tag_dict = tag_dict
+        self.private_id = self.element_id[0]
+        # 字典键自增
+        self.element_id[0] += 1
+        if self.element_id[0] == 1000:
+            self.element_id[0] = 0
         if element == 'video':
             self.element_list = [x.to_dic() for x in Video.objects.filter(~Q(id=video_id), isAudit=1)]
         elif element == 'user':
@@ -48,7 +54,7 @@ class ThreadController:
         distribution_list[thread_num - 1][1] = len(self.element_list)
         self.element = element
         self.threads = [self.Threading(element, self.search, self.tag_dict, self.search_token_list,
-                                       self.element_list[distribution_list[i][0]:distribution_list[i][1]])
+                                       self.element_list[distribution_list[i][0]:distribution_list[i][1]], self.private_id)
                         for i in range(thread_num)]
 
     def run(self):
@@ -56,12 +62,12 @@ class ThreadController:
             t.start()
         for t in self.threads:
             t.join()
-
+        rank_element_list = self.Threading.ranked_element_dict[self.private_id]
         if self.element == 'video':
-            result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
+            result = sorted(rank_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
                                                                                -x.get('like_num')))
         elif self.element == 'user':
-            result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('fan_num'),
+            result = sorted(rank_element_list, key=lambda x: (x.get('distance'), -x.get('fan_num'),
                                                                                -x.get('like_num')))
         elif self.element == 'zone':
             result = list()
@@ -70,7 +76,7 @@ class ThreadController:
             result.append(sorted(self.element_list, key=lambda x: (-x.get('like_num'))))
             result.append(sorted(self.element_list, key=lambda x: (-x.get('collect_num'))))
         elif self.element == 'recommend':
-            result = sorted(self.Threading.ranked_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
+            result = sorted(rank_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
                                                                                -x.get('like_num')))
             if len(result) >= 40:
                 result = result[:35] + result[-5:]
@@ -83,19 +89,24 @@ class ThreadController:
             result = random.sample(result, count)
         else:
             result = []
-        self.Threading.ranked_element_list = []
+        # 完成之后移除键
+        self.Threading.ranked_element_dict.pop(self.private_id)
         return result
 
     class Threading(threading.Thread):
-        ranked_element_list = []
+        ranked_element_dict = {}
 
-        def __init__(self, element, search, tag_dict, search_token_list, element_list):
+        def __init__(self, element, search, tag_dict, search_token_list, element_list, element_id):
             threading.Thread.__init__(self)
             self.search = search
             self.element = element
             self.tag_dict = tag_dict
             self.search_token_list = search_token_list
             self.element_list = element_list
+            self.element_id = element_id
+            # 第一个进来的添加键
+            if self.element_id not in self.ranked_element_dict.keys():
+                self.ranked_element_dict[self.element_id] = []
 
         @staticmethod
         def find_index(s1, s2):
@@ -158,14 +169,14 @@ class ThreadController:
                         title) - 2 * public_strlen
                     if hit_count != 0:
                         video_info['index_list'] = index_list
-                        self.ranked_element_list.append(video_info)
+                        self.ranked_element_dict[self.element_id].append(video_info)
             elif self.element == 'user':
                 for user_info in self.element_list:
                     index_list, public_strlen = self.find_change(user_info.get('username'), self.search)
                     user_info['distance'] = len(self.search) + len(user_info.get('username')) - 2 * public_strlen
                     if public_strlen >= 3:
                         user_info['index_list'] = index_list
-                        self.ranked_element_list.append(user_info)
+                        self.ranked_element_dict[self.element_id].append(user_info)
             elif self.element == 'recommend':
                 if self.tag_dict is not None:
                     for video_info in self.element_list:
@@ -173,6 +184,6 @@ class ThreadController:
                         for i in range(1, 6):
                             score += self.tag_dict.get(video_info.get('tag' + str(i)), 0)
                         video_info['distance'] = 100 - score
-                self.ranked_element_list += self.element_list
+                self.ranked_element_dict[self.element_id] += self.element_list
             else:
                 pass

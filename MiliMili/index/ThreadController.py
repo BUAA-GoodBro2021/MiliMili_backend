@@ -35,9 +35,9 @@ class ThreadController:
             else:
                 key = tag_dict.keys()
                 self.element_list = [x.to_dic() for x in
-                                     Video.objects.filter(~Q(id=video_id), (Q(tag1__in=key) | Q(tag2__in=key) |
-                                                                            Q(tag3__in=key) | Q(tag4__in=key) |
-                                                                            Q(tag5__in=key)), isAudit=1)]
+                                     Video.objects.filter(~Q(id=video_id) & (Q(tag1__in=key) | Q(tag2__in=key) |
+                                                                             Q(tag3__in=key) | Q(tag4__in=key) |
+                                                                             Q(tag5__in=key)), isAudit=1)]
 
         else:
             self.element_list = []
@@ -65,6 +65,7 @@ class ThreadController:
                                                                                -x.get('like_num')))
         elif self.element == 'zone':
             result = list()
+            result.append(self.element_list)
             result.append(sorted(self.element_list, key=lambda x: (-x.get('view_num'))))
             result.append(sorted(self.element_list, key=lambda x: (-x.get('like_num'))))
             result.append(sorted(self.element_list, key=lambda x: (-x.get('collect_num'))))

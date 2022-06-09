@@ -126,9 +126,9 @@ def zone_search(request, zone):
             result = {'result': result, 'message': message, 'not_read': -1,
                       'random_list': random.sample(zone_list[0], min(5, len(zone_list[0]))),
                       'all_list': zone_list[0],
-                      'view_rank_list': zone_list[0],
-                      'like_rank_list': zone_list[1],
-                      'collect_rank_list': zone_list[2]}
+                      'view_rank_list': zone_list[1][:10],
+                      'like_rank_list': zone_list[2][:10],
+                      'collect_rank_list': zone_list[3][:10]}
             return JsonResponse(result)
         else:
             JWT = request.POST.get('JWT', '')
@@ -142,9 +142,9 @@ def zone_search(request, zone):
             result = {'result': result, 'message': message, 'not_read': not_read(user_id),
                       'random_list': random.sample(zone_list[0], min(5, len(zone_list[0]))),
                       'all_list': zone_list[0],
-                      'view_rank_list': zone_list[0],
-                      'like_rank_list': zone_list[1],
-                      'collect_rank_list': zone_list[2]}
+                      'view_rank_list': zone_list[1][:10],
+                      'like_rank_list': zone_list[2][:10],
+                      'collect_rank_list': zone_list[3][:10]}
             return JsonResponse(result)
 
     else:

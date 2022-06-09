@@ -446,7 +446,7 @@ def unfollow(request):
 
         # 删除双向记录
         UserToFollow.objects.get(user_id=user_id, follow_id=follow_id).delete()
-        UserToFan.objects.create(user_id=follow_id, fan_id=user_id).delete()
+        UserToFan.objects.get(user_id=follow_id, fan_id=user_id).delete()
 
         # 关注数-1 , 粉丝数-1
         user.del_follow()

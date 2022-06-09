@@ -171,7 +171,7 @@ class IndexThreading(threading.Thread):
                     zone_video_list.append({'id': i['id']})
                     zone_video_list[i['id'] - 1]['recommend_list'] = ThreadController(i['zone'], 'recommend',
                                                                                       tag_dict).run()[:8]
-                    zone_video_list[i['id'] - 1]['rank_list'] = ThreadController(i['zone'], 'zone').run()
+                    zone_video_list[i['id'] - 1]['rank_list'] = ThreadController(i['zone'], 'zone').run()[1][:10]
             except Exception as e:
                 zone_video_list = []
                 for i in zone_list:

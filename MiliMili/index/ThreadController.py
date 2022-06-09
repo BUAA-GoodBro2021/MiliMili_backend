@@ -65,6 +65,7 @@ class ThreadController:
                                                                                -x.get('like_num')))
         elif self.element == 'zone':
             result = list()
+            result.append(self.element_list)
             result.append(sorted(self.element_list, key=lambda x: (-x.get('view_num'))))
             result.append(sorted(self.element_list, key=lambda x: (-x.get('like_num'))))
             result.append(sorted(self.element_list, key=lambda x: (-x.get('collect_num'))))

@@ -30,7 +30,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    "simpleui",  # 添加内容，一定要加在admin前
+    # "simpleui",  # 添加内容，一定要加在admin前
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -165,6 +165,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# 管理UI信息
-SIMPLEUI_HOME_INFO = False  # simpleUI是否连接github/gitee首页
-SIMPLEUI_HOME_ACTION = False  # 不显示最近操作
+# # 管理UI信息
+# SIMPLEUI_HOME_INFO = False  # simpleUI是否连接github/gitee首页
+# SIMPLEUI_HOME_ACTION = False  # 不显示最近操作

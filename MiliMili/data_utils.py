@@ -1,7 +1,7 @@
 import threading
 import time
 
-from index.ThreadController import ThreadController
+from utils.ThreadController import ThreadController
 from user.models import UserToSearchHistory
 from video.models import UserToHistory, Video, Zone
 

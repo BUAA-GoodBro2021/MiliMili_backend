@@ -7,7 +7,7 @@ from django.http import JsonResponse
 
 from MiliMili.settings import SECRET_KEY
 from data_utils import IndexData, SearchData
-from index.ThreadController import ThreadController
+from utils.ThreadController import ThreadController
 from key import *
 from sending.views import not_read
 from user.models import *

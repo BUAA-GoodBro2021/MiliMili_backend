@@ -1,5 +1,5 @@
 from MiliMili.settings import BASE_DIR
-from bucket_manager.Bucket import Bucket
+from utils.Bucket import Bucket
 from data_utils import IndexData, VideoData
 from sending.views import *
 from user.models import UserToVideo_like

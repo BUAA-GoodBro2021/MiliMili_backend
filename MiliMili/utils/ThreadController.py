@@ -10,6 +10,7 @@ from user.models import User
 
 class ThreadController:
     element_id = [0]
+
     def __init__(self, search, element, tag_dict=None, thread_num=10, video_id=-1):
         """
         :param search: the searched string
@@ -54,7 +55,8 @@ class ThreadController:
         distribution_list[thread_num - 1][1] = len(self.element_list)
         self.element = element
         self.threads = [self.Threading(element, self.search, self.tag_dict, self.search_token_list,
-                                       self.element_list[distribution_list[i][0]:distribution_list[i][1]], self.private_id)
+                                       self.element_list[distribution_list[i][0]:distribution_list[i][1]],
+                                       self.private_id)
                         for i in range(thread_num)]
 
     def run(self):
@@ -65,10 +67,10 @@ class ThreadController:
         rank_element_list = self.Threading.ranked_element_dict[self.private_id]
         if self.element == 'video':
             result = sorted(rank_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
-                                                                               -x.get('like_num')))
+                                                              -x.get('like_num')))
         elif self.element == 'user':
             result = sorted(rank_element_list, key=lambda x: (x.get('distance'), -x.get('fan_num'),
-                                                                               -x.get('like_num')))
+                                                              -x.get('like_num')))
         elif self.element == 'zone':
             result = list()
             result.append(self.element_list)
@@ -77,7 +79,7 @@ class ThreadController:
             result.append(sorted(self.element_list, key=lambda x: (-x.get('collect_num'))))
         elif self.element == 'recommend':
             result = sorted(rank_element_list, key=lambda x: (x.get('distance'), -x.get('view_num'),
-                                                                               -x.get('like_num')))
+                                                              -x.get('like_num')))
             if len(result) >= 40:
                 result = result[:35] + result[-5:]
             elif len(result) < 8 and self.search is None:

@@ -289,7 +289,7 @@ def active(request, url):
     # 获取到用户
     try:
         user = User.objects.get(id=user_id)
-    except Expression:
+    except Exception:
         # 返回修改成功的界面
         data["title"] = "激活失败"
         data["message"] = "有其他好兄弟比你稍微快一点，使用相同的用户名激活邮箱啦，再去挑选一个你喜欢的用户名叭！"
@@ -302,7 +302,7 @@ def active(request, url):
         # 激活用户 验证邮箱
         user.isActive = True
         user.email = email
-        avatar_url = default_avatar_url_match + str(random.choice(range(1, 301))) + '.png'
+        avatar_url = default_avatar_url_match + str(random.choice(range(1, 31))) + '.png'
         user.avatar_url = avatar_url
         user.save()
         # 删除其他伪用户
